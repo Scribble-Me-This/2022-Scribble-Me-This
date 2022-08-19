@@ -1,5 +1,5 @@
 {
-  "name": "fs-app-template",
+  "name": "scribble-me-this",
   "version": "2.0.0",
   "description": "Some boilerplate code to get you started - get shakin'!",
   "main": "index.js",
@@ -15,7 +15,10 @@
     "test": "NODE_ENV=test JWT=a_secret mocha \"./server/**/*.spec.js\" \"./client/**/*.spec.js\" --require @babel/register --require esm ",
     "test:dev": "npm run test -- --watch",
     "test:dev:models": "npm run test:dev -- --grep=model",
-    "test:dev:routes": "npm run test:dev -- --grep=route"
+    "test:dev:routes": "npm run test:dev -- --grep=route",
+    "get:alldata": "node script/allDataGetter.js",
+    "get:somedata": "node script/selectDataGetter.js",
+    "get:setdata": "node script/QuickDrawGetter.js"
   },
   "author": "Fullstack Academy of Code",
   "license": "MIT",
@@ -27,7 +30,9 @@
     "history": "^4.9.0",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.9.1",
+    "node-polyfill-webpack-plugin": "^2.0.1",
     "pg": "^8.5.1",
+    "quickdraw.js": "^1.0.6",
     "sequelize": "^6.3.5"
   },
   "devDependencies": {

@@ -1,13 +1,12 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import {authenticate} from '../store'
-
+import QuickDrawGetter from '../../script/QuickDrawGetter'
 /**
  * COMPONENT
  */
 const AuthForm = props => {
   const {name, displayName, handleSubmit, error} = props
-
   return (
     <div>
       <form onSubmit={handleSubmit} name={name}>
