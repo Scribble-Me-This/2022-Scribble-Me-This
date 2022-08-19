@@ -120,7 +120,7 @@ function QuickDrawGetter() {
   return runValidate(trainingData, testingData);
 }
 QuickDrawGetter()
-// QuickDrawGetter();
+
 module.exports = {
   QuickDrawGetter,
 }

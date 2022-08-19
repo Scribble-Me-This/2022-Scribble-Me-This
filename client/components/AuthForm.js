@@ -1,7 +1,7 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import {authenticate} from '../store'
-import QuickDrawGetter from '../../script/QuickDrawGetter'
+
 /**
  * COMPONENT
  */

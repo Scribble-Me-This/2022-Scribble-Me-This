@@ -1,4 +1,5 @@
-const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+// const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+// const path = require("path");
 module.exports = {
   entry: ["./client/index.js"],
   output: {
@@ -9,8 +10,10 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
-        exclude: /node_modules/,
+        test: /\.(js|jsx)$/,
+        exclude: [
+          /node_modules/,
+        ],
         loader: "babel-loader",
         options: {
           presets: ["@babel/preset-react"],
@@ -21,6 +24,9 @@ module.exports = {
   // plugins: [new NodePolyfillPlugin()],
   // resolve: {
   //   fallback: {
+  // path.resolve(__dirname, 'script/allDataGetter.js'),
+  // path.resolve(__dirname, 'script/QuickDrawGetter.js'),
+  // path.resolve(__dirname, 'script/selectDataGetter.js'),
   //     fs: false,
   //   },
   // },
