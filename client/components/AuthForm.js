@@ -7,8 +7,6 @@ import QuickDrawGetter from '../../script/QuickDrawGetter'
  */
 const AuthForm = props => {
   const {name, displayName, handleSubmit, error} = props
-  const allData = QuickDrawGetter();
-  console.log(allData);
   return (
     <div>
       <form onSubmit={handleSubmit} name={name}>

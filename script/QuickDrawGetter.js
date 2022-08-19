@@ -1,3 +1,4 @@
+'use strict'
 // dataset includes 345 categories with ~100k drawings each
 // Our dataset will use x categories with 10k drawings each
 /*
@@ -23,28 +24,32 @@ we need this:
 "drawing": "penguin"
 }
 */
+// check line 89 in quickdraw.js in node_modules: https://stackoverflow.com/questions/20056306/match-linebreaks-n-or-r-n
+
 //Import data caller
 const quickDraw = require("quickdraw.js");
 
-function QuickDrawGetter() {
-  //edit pictures we want here
-  const selectedCategories = [
-    "airplane",
-    "banana",
-    "candle",
-    "cat",
-    "dog",
-    "fish",
-    "flower",
-    "guitar",
-    "house",
-    "penguin",
-  ];
+const selectedCategories = [
+  "airplane",
+  "banana",
+  "candle",
+  "cat",
+  "dog",
+  "fish",
+  "flower",
+  "guitar",
+  "house",
+  "penguin",
+];
+
   //edit amount of pictures we want to train with here
   const amountOfPicturesTrain = 10000;
   //edit amount of pictures we want to test with here
   const amountOfPicturesTest = 1000;
+  //dimensions of the pictures
+  const dimension = 28;
 
+function QuickDrawGetter() {
   //eventual outputs
   //trainingData should be an array of objects containing 10000 drawings 
   //testingData should be an array of 1000 drawings not present in trainingData
@@ -79,21 +84,21 @@ function QuickDrawGetter() {
   }
   
   //shuffle data for later input into ML algos
-  function shuffle(array) {
-    var m = array.length,
-      t,
-      i;
-    while (m) {
-      i = Math.floor(Math.random() * m--);
-      t = array[m];
-      array[m] = array[i];
-      array[i] = t;
-    }
-    console.log('a shuffling has occured');
-    return array;
-  }
-  shuffle(trainingData);
-  shuffle(testingData);
+  // function shuffle(array) {
+  //   var m = array.length,
+  //     t,
+  //     i;
+  //   while (m) {
+  //     i = Math.floor(Math.random() * m--);
+  //     t = array[m];
+  //     array[m] = array[i];
+  //     array[i] = t;
+  //   }
+  //   console.log('a shuffling has occured');
+  //   return array;
+  // }
+  // shuffle(trainingData);
+  // shuffle(testingData);
   
   //validate data
   function runValidate (trainingData, testingData) {
@@ -111,8 +116,11 @@ function QuickDrawGetter() {
     }
     return {trainingData, testingData};
   }
-
+  console.log('got successfully');
   return runValidate(trainingData, testingData);
 }
-
-export default QuickDrawGetter;
+QuickDrawGetter()
+// QuickDrawGetter();
+module.exports = {
+  QuickDrawGetter,
+}

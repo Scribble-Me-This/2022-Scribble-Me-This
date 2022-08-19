@@ -1,39 +1,28 @@
-const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 module.exports = {
-  entry: [
-    './client/index.js'
-  ],
+  entry: ["./client/index.js"],
   output: {
     path: __dirname,
-    filename: './public/bundle.js'
+    filename: "./public/bundle.js",
   },
-  devtool: 'source-map',
+  devtool: "source-map",
   module: {
     rules: [
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
+        loader: "babel-loader",
         options: {
-          presets: [
-            '@babel/preset-react'
-          ]
-        }
-      }
-    ]
+          presets: ["@babel/preset-react"],
+        },
+      },
+    ],
   },
-  resolve: {
-    fallback: {
-      "fs": false,
-      "tls": false,
-      "net": false,
-      "path": false,
-      "zlib": false,
-      "http": false,
-      "https": false,
-      "stream": false,
-      "crypto": false,
-      "crypto-browserify": require.resolve('crypto-browserify'), //if you want to use this module also don't forget npm i crypto-browserify 
-    } 
-  },
-}
+  // plugins: [new NodePolyfillPlugin()],
+  // resolve: {
+  //   fallback: {
+  //     fs: false,
+  //   },
+  // },
+
+};
