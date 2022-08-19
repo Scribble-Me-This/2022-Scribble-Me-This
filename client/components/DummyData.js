@@ -8,7 +8,7 @@ function dummyData() {
 
 function makeObj() {
     let options = ["penguin", "horse", "airplane", "apple", "monkey"]
-    let rand = Math.floor(Math.random()5)
+    let rand = Math.floor(Math.random()*5)
     let obj = {};
     for(let i = 0; i < 784; i++) {
     obj[i] = rand * .25;
