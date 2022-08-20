@@ -1,5 +1,5 @@
 import React from 'react'
-
+import nn from './components/NeuralNet'
 import Navbar from './components/Navbar'
 import Routes from './Routes'
 

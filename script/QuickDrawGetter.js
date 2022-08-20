@@ -31,15 +31,7 @@ const quickDraw = require("quickdraw.js");
 
 const selectedCategories = [
   "airplane",
-  "banana",
-  "candle",
-  "cat",
-  "dog",
-  "fish",
-  "flower",
-  "guitar",
-  "house",
-  "penguin",
+  "banana"
 ];
 
   //edit amount of pictures we want to train with here
