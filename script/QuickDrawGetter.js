@@ -31,7 +31,15 @@ const quickDraw = require("quickdraw.js");
 
 const selectedCategories = [
   "airplane",
-  "banana"
+  "banana",
+  "candle",
+  "cat",
+  "dog",
+  "fish",
+  "flower",
+  "guitar",
+  "house",
+  "penguin"
 ];
 
   //edit amount of pictures we want to train with here
@@ -59,6 +67,7 @@ function QuickDrawGetter() {
   rawData.set.forEach((singlePicData) => {
     //get the category of the picture
     const category = singlePicData.output.indexOf(1);
+    singlePicData.output = selectedCategories[singlePicData.output.indexOf(1)]
     if (counterArr[category] < 10000) {
       trainingData.push(singlePicData);
       counterArr[category]++;
