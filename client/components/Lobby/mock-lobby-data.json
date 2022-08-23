@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "lobbyName": "my first lobby!",
+    "hostName": "the first host!",
+    "locked": true,
+    "players": 4
+  },
+  {
+    "id": 2,
+    "lobbyName": "lil lobby two",
+    "hostName": "host numba 2",
+    "locked": false,
+    "players": 1
+  },
+  {
+    "id": 3,
+    "lobbyName": "Third lobby",
+    "hostName": "host three",
+    "locked": true,
+    "players": 3
+  }
+]
