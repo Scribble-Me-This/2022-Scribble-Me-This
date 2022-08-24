@@ -19,6 +19,22 @@ module.exports = {
           presets: ["@babel/preset-react"],
         },
       },
+      {
+        test: /\.bin$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'url-loader',
+             options: {
+               encoding: false,
+               mimetype: false,
+               generator: (content) => {
+                 return content;
+               }
+             },
+           },
+         ],
+      }
     ],
   },
   // plugins: [new NodePolyfillPlugin()],

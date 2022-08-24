@@ -5,6 +5,7 @@ import { Login, Signup } from './components/AuthForm';
 import Home from './components/Home';
 import Lobby from './components/Lobby/Lobby';
 import { me } from './store';
+import { Instance } from './components/instance';
 
 /**
  * COMPONENT
