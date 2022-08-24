@@ -1,13 +1,23 @@
-const io = require('socket.io')();
+const io = require('socket.io')(8081, {
+    cors: {
+      origin: ["http://localhost:8080"]
+    }
+});
 
 io.on('connection', (client) => {
+  console.log('Client connected', client);
   client.emit('init', 'test');
 });
 
-io.listen(8081);
 
-//Game lobby
+//*********Game lobby*********//
 
-//Game mode Pictionary
+//Create lobby
 
-//Game mode Scribblio
+//Update lobby
+
+//Join lobby
+
+//*********Game mode ScribbleMeThis*********//
+
+//*********Game mode Scribblio*********//
