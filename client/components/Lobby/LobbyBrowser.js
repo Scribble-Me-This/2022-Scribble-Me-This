@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-// import '../../../public/style.css';
+import { Link } from 'react-router-dom';
 import data from './mock-lobby-data.json';
 
 function LobbyBrowser() {
@@ -22,14 +22,16 @@ function LobbyBrowser() {
               <td>{lobby.lobbyName}</td>
               <td>{lobby.hostName}</td>
               <td>{lobby.locked ? 'private' : 'public'}</td>
-              <td>{lobby.players}</td>
+              <td>{lobby.numberOfPlayers}</td>
             </tr>
           ))}
         </tbody>
       </table>
       <div className='lobby-browser-footer'>
         <button className='lobby-id-input-btn'>Lobby ID Input Here</button>
-        <button className='lobby-join-game-btn'>Join Game</button>
+        <Link to='/lobby'>
+          <button className='lobby-join-game-btn'>Join Game</button>
+        </Link>
       </div>
     </div>
   );
