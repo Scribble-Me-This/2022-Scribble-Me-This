@@ -55,3 +55,28 @@ td {
   border-color: black;
   /* background-color: rgb(205, 235, 253); */
 }
+
+.lobby-buttons-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  height: 20em;
+  list-style-type: none;
+}
+
+.boxa {
+  border: solid 3px black;
+  flex: 0 0 100%;
+  width: 50%;
+  text-align: center;
+}
+.boxb {
+  background: lightgreen;
+  order: 2;
+}
+
+.boxb,
+.boxc {
+  flex: 0 0 50%;
+  width: 50%;
+}
