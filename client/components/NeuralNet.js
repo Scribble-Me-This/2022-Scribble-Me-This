@@ -6,8 +6,8 @@ import { forEach } from "quickdraw.js/src/categories";
 let trainingData = [];
 
 const trainingOptions = {
-  epochs: 100,
-  batchSize: 24,
+  epochs: 128,
+  batchSize: 12,
 };
 
 const options = {
@@ -25,7 +25,6 @@ axios.get("/api/data").then((res) => {
   dataSlice.forEach((item) => {
     let input = {};
     let output = {};
-  
     for (let i = 0; i < 784; i++) {
       input[i] = item.input[i];
     }  
@@ -34,29 +33,15 @@ axios.get("/api/data").then((res) => {
     nn.addData(input, output)
   });  
   console.log("training data added!")
-  console.log("normalizing data..")
-  nn.normalizeData();
-  console.log("data normalized!")
+  // console.log("normalizing data..")
+  // nn.normalizeData();
+  // console.log("data normalized!")
   console.log("training..")
   console.log("neural net", nn)
-  nn.train(trainingOptions, finishedTraining(nn));
-
+  nn.train(trainingOptions, finishedTraining);
 })
-function addTrainingData(trainingData) {
-trainingData.forEach((item) => {
-  let input = {};
-  let output = {};
 
-  for (let i = 0; i < 784; i++) {
-    input[i] = item.input[i];
-  }  
-  output.drawing = item.output;
-  // console.log("input: ", input, "output: ", output)
-  nn.addData(input, output)
-});
-}
-
-function finishedTraining(nn) {
+function finishedTraining() {
   console.log("finished training!");
   nn.save();
 }
