@@ -10,7 +10,14 @@ const options = {
 let testingData = [];
 
 const nn = ml5.neuralNetwork(options);
-let testingdata;
+
+const modelDetails = {
+    model: './model.json',
+    metadata: './model_meta.json',
+    weights: './model.weights.bin'
+}
+
+nn.load(modelDetails, finishLoad());
 
 axios.get("/api/data").then((res) => {
     testingData = res.data.trainingData;
@@ -36,19 +43,11 @@ function handleResults(error, result) {
     console.log(result);
 }
 
-const modelDetails = {
-    model: './model.json',
-    metadata: './model_meta.json',
-    weights: './model.weights.bin'
-}
-
 export const Instance = () => {
 
     return (
         <div>
-            <button onClick={() => {
-                nn.load(modelDetails, finishLoad());
-            }}>Load nn</button>
+            <h1>Instance</h1>
         </div>
     )
 }
