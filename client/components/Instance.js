@@ -1,6 +1,8 @@
 import React from 'react';
 import ml5 from "ml5";
 import axios from 'axios';
+import Canvas from './Canvas';
+import { supportsGoWithoutReloadUsingHash } from 'history/DOMUtils';
 
 const options = {
     task: "classification",
@@ -47,9 +49,13 @@ export const Instance = () => {
 
     return (
         <div>
-            <h1>Instance</h1>
+            < Canvas guess={guess} />
         </div>
     )
+}
+
+function guess(input) {
+    nn.classify(input, handleResults)
 }
 
 function finishLoad() {
