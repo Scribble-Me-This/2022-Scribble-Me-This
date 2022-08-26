@@ -1,9 +1,11 @@
 import React from 'react';
+let guess;
 
-const Canvas = () => {
+const Canvas = (props) => {
     const height = 280;
     const width = 280;
     let context;
+    guess = props.guess;
 
     window.addEventListener("load", () => {
 
@@ -86,7 +88,7 @@ function mapPixels(canvas) {
       }
     }
     console.log(drawingData);
+    guess(drawingData);
     return drawingData;
   }
-
 export default Canvas
