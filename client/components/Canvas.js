@@ -13,6 +13,7 @@ const Canvas = () => {
         canvas.width = width;
         let drawing = false;
         const rect = canvas.getBoundingClientRect();
+        clearCanvas(context);
 
         function startDraw(e) {
             drawing = true;
@@ -47,6 +48,9 @@ const Canvas = () => {
             <button onClick={() => {
                 clearCanvas(context)
             }}>clear</button>
+            <button onClick={() => {
+                mapPixels(context);
+            }}>Get data</button>
         </div>
     )
 }
@@ -63,5 +67,26 @@ function drawPixel(color, context, x, y, size) {
     context.fillStyle = color;
     context.fillRect(x, y, size, size);
 }
+
+function mapPixels(canvas) {
+    let pixelSums = [];
+    let drawingData = [];
+    for (let i = 0; i < 28; i++) {
+      for (let j = 0; j < 28; j++) {
+        let pixelSum = 0;
+        let pixelData = canvas.getImageData(j * 10, i * 10, 10, 10);
+        console.log(pixelData)
+        for (let m = 0; m < pixelData.data.length; m++) {
+          pixelSum += pixelData.data[m];
+        }
+        pixelSum -= 25500;
+        pixelSums.push(pixelSum);
+        let val = 255 - pixelSum / 300;
+        drawingData.push(val / 255);
+      }
+    }
+    console.log(drawingData);
+    return drawingData;
+  }
 
 export default Canvas
