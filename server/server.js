@@ -1,24 +1,13 @@
-const { db } = require('./db')
-const PORT = process.env.PORT || 8080
-const httpServer = require('./app')
-const seed = require('../script/seed');
-
-const init = async () => {
-  try {
-    if(process.env.SEED === 'true'){
-      await seed();
+const io = require('socket.io')(8081, {
+    cors: {
+      origin: ["http://localhost:8080"]
     }
-    else {
-      await db.sync()
-    }
-    // start listening (and create a 'server' object representing our server)
-    httpServer.listen(PORT, () => console.log(`Mixing it up on port ${PORT}`))
-  } catch (ex) {
-    console.log(ex)
-  }
-}
+});
 
-init()
+io.on('connection', (client) => {
+  console.log('Client connected: server', client);
+  client.emit('init', 'test');
+});
 
 
 //*********Game lobby*********//
@@ -36,6 +25,10 @@ this goes out to all connected clients*/
 //Broadcast Ready Check
 
 //*********Game mode ScribbleMeThis*********//
+
+//send package to clients (game state/ timings)
+
+//recevies AI pred from players and updates game state
 
 //*********Game mode Scribblio*********//
 
