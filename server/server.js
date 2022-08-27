@@ -26,6 +26,10 @@ this goes out to all connected clients*/
 
 //*********Game mode ScribbleMeThis*********//
 
+//send package to clients (game state/ timings)
+
+//recevies AI pred from players and updates game state
+
 //*********Game mode Scribblio*********//
 
 //**Server emits drawing data from drawer to other clients and AI player

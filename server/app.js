@@ -10,7 +10,7 @@ const io = new Server(httpServer, {
     origin: ['http://localhost:8080/']
   }
 });
-
+//https://socket.io/docs/v4/server-initialization/
 io.on('connection', (client) => {
   console.log('Client connected', client.id);
   client.emit('init', 'test');

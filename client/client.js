@@ -17,6 +17,11 @@ whoever creates the lobby is the leader, and the leader also joins the lobby
 
 //*********Game mode ScribbleMeThis*********//
 
+//in Canvas.js
+//prior runs canvas into guesser (nn.classify / guess)
+//send AI pred (result) to server
+
 //*********Game mode Scribblio*********//
 
 //**Drawer emits drawing data to server for other clients and AI player
+//use fullimage function to get image data from canvas
