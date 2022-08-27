@@ -29,6 +29,7 @@
     "express": "^4.16.4",
     "history": "^4.9.0",
     "jsonwebtoken": "^8.5.1",
+    "ml5": "^0.12.2",
     "morgan": "^1.9.1",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "pg": "^8.5.1",
@@ -36,14 +37,15 @@
     "sequelize": "^6.3.5",
     "socket.io": "^4.5.1",
     "socket.io-client": "^4.5.1"
+    "url-loader": "^4.1.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.10",
+    "@babel/core": "^7.18.13",
     "@babel/preset-react": "^7.12.10",
     "@babel/register": "^7.12.10",
     "axios": "^0.21.1",
     "axios-mock-adapter": "^1.16.0",
-    "babel-loader": "^8.2.2",
+    "babel-loader": "^8.2.5",
     "chai": "^4.2.0",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.12.1",

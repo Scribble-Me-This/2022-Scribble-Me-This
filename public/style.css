@@ -10,6 +10,10 @@ label {
   display: block;
 }
 
+canvas {
+  border: black solid 2px;
+}
+
 nav a {
   display: inline-block;
   margin: 1em;
@@ -46,12 +50,56 @@ td {
 }
 
 th {
-  /* background-color: rgb(117, 201, 250); */
+  background-color: rgb(117, 201, 250);
   border-color: black;
   text-align: center;
 }
 
 td {
   border-color: black;
-  /* background-color: rgb(205, 235, 253); */
+  background-color: rgb(205, 235, 253);
+}
+.navbar {
+  background-color: gainsboro;
+}
+
+.navbar_wrapper {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.logo {
+  display: flex;
+  margin: auto;
+}
+
+.logout {
+  float: right;
+}
+
+.lobby-buttons-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  height: 20em;
+  list-style-type: none;
+}
+
+.boxa {
+  border: solid 3px black;
+  flex: 0 0 100%;
+  width: 50%;
+  text-align: center;
+}
+.boxb {
+  background: lightgreen;
+  order: 2;
+}
+
+.boxb,
+.boxc {
+  flex: 0 0 50%;
+  width: 50%;
 }
