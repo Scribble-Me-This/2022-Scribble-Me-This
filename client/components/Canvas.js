@@ -17,7 +17,6 @@ const Canvas = (props) => {
     let drawing = false;
     const rect = canvas.getBoundingClientRect();
     clearCanvas(context);
-    stack.push(context.getImageData(0, 0, height, width));
 
     function startDraw(e) {
       drawing = true;
@@ -70,6 +69,7 @@ const Canvas = (props) => {
               stack.pop();
             }
             context.putImageData(stack.pop(), 0, 0);
+            mapPixels(context);
           }}
         >
           Undo
@@ -86,6 +86,7 @@ function clearCanvas(context) {
       drawPixel("white", context, i, j, 1);
     }
   }
+  stack.push(context.getImageData(0, 0, 280, 280));
 }
 
 function drawPixel(color, context, x, y, size) {
