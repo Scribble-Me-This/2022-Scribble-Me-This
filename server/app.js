@@ -1,8 +1,22 @@
 const path = require('path')
 const express = require('express')
 const morgan = require('morgan')
+const { createServer } = require("http");
+const { Server } = require("socket.io");
 const app = express()
-module.exports = app
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: ['http://localhost:8080/']
+  }
+});
+//https://socket.io/docs/v4/server-initialization/
+io.on('connection', (client) => {
+  console.log('Client connected', client.id);
+  client.emit('init', 'test');
+});
+
+module.exports = httpServer
 
 // logging middleware
 app.use(morgan('dev'))
