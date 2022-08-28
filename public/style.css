@@ -103,3 +103,86 @@ td {
   flex: 0 0 50%;
   width: 50%;
 }
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+.canvas {
+  height: 280px;
+  width: 280px;
+}
+
+.miniDrawing {
+  height: 42px;
+  width: 42px;
+  border: black solid 2px;
+  margin: 2px;
+}
+
+.playerInfoBox {
+  display: flex;
+  flex-direction: row;
+  border: solid black 2px;
+  margin-left: 2px;
+  margin-bottom: 2px;
+  font-size: small;
+  width: 200px;
+  justify-content: space-between;
+  background-color: rgb(182, 228, 228);
+}
+
+.playerInfoBoxCorrect {
+  display: flex;
+  flex-direction: row;
+  border: solid black 2px;
+  margin-left: 2px;
+  margin-bottom: 2px;
+  font-size: small;
+  width: 200px;
+  justify-content: space-between;
+  background-color: rgb(87, 236, 124);
+}
+
+.playerNameText {
+  size: 20;
+  margin: 1px;
+}
+
+.playerInfoText {
+  size: 16;
+  margin: .5px;
+}
+
+.instanceStats {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.canvasEtc {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.confidence {
+  display: flex;
+  flex-direction: column;
+  margin-right: 2px;
+  width: 200px;
+  height: 280px;
+  border: black 2px solid;
+}
+
+.oneGuess {
+  font-size: 12px;
+  margin: .5px;
+}
