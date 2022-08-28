@@ -36,7 +36,7 @@
     "quickdraw.js": "^1.0.6",
     "sequelize": "^6.3.5",
     "socket.io": "^4.5.1",
-    "socket.io-client": "^4.5.1"
+    "socket.io-client": "^4.5.1",
     "url-loader": "^4.1.1"
   },
   "devDependencies": {
