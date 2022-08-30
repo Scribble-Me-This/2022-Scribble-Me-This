@@ -4,6 +4,7 @@ import axios from "axios";
 import Canvas from "./Canvas";
 import { supportsGoWithoutReloadUsingHash } from "history/DOMUtils";
 import PlayersDisplay from "./PlayersDisplay";
+import { words } from "lodash";
 
 const options = {
   task: "classification",
@@ -48,12 +49,13 @@ class Instance extends React.Component {
   }
 
   render() {
+    const {wordToDraw, timer} = this.props;
     const confidence = this.state.confidence;
     return (
       <div className="column">
         <div className="instanceStats">
-          <h3> Time: 30 seconds </h3>
-          <h3> Drawing: Penguin </h3>
+          <h3> Time: {timer} </h3>
+          <h3> Drawing: {wordToDraw} </h3>
         </div>
         <div className="canvasEtc">
           <div className="confidence">
