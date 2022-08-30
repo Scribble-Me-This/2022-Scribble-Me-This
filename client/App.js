@@ -33,6 +33,36 @@ let undoing = false;
 const height = 280;
 const width = 280;
 
+const Canvas = () => {
+  return (
+    <div className="column">
+      <canvas id="canvas" className="canvas" height="280" width="280" />
+      <div className="row">
+        <button
+          onClick={() => {
+            clearCanvas(context);
+          }}
+        >
+          clear
+        </button>
+        <button
+          onClick={() => {
+            if (!stack.length) return;
+            if (!undoing) {
+              undoing = true;
+              stack.pop();
+            }
+            context.putImageData(stack.pop(), 0, 0);
+            mapPixels(context);
+          }}
+        >
+          Undo
+        </button>
+      </div>
+    </div>
+  );
+};
+
 nn.load(modelDetails, finishLoad());
 
 class App extends React.Component {
@@ -44,6 +74,7 @@ class App extends React.Component {
       players: [],
       activeRound: false,
       confidence: null,
+      canvasLoaded: false,
     };
   }
 
@@ -121,36 +152,8 @@ class App extends React.Component {
 
                   {/* CANVAS */}
 
-                  <div className="column">
-                    <canvas
-                      id="canvas"
-                      className="canvas"
-                      height="280"
-                      width="280"
-                    />
-                    <div className="row">
-                      <button
-                        onClick={() => {
-                          clearCanvas(context);
-                        }}
-                      >
-                        clear
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (!stack.length) return;
-                          if (!undoing) {
-                            undoing = true;
-                            stack.pop();
-                          }
-                          context.putImageData(stack.pop(), 0, 0);
-                          mapPixels(context);
-                        }}
-                      >
-                        Undo
-                      </button>
-                    </div>
-                  </div>
+                  <Canvas id="canvas" />
+                  {this.loadCanvasLogic()}
 
                   {/* PLAYERS DISPLAY */}
 
@@ -220,7 +223,6 @@ class App extends React.Component {
             <button
               onClick={() => {
                 this.beginRound();
-                this.loadCanvasLogic();
               }}
             >
               Start
@@ -237,6 +239,7 @@ class App extends React.Component {
     this.setState({
       timer: 60,
       wordToDraw: possibilities[rand],
+      canvasLoaded: false,
       activeRound: true,
     });
     console.log("start round:", this.state);
@@ -279,8 +282,31 @@ class App extends React.Component {
     nn.classify(input, this.handleResults);
   };
 
+  mapPixels = (canvas) => {
+    let pixelSums = [];
+    let drawingData = [];
+    for (let i = 0; i < 28; i++) {
+      for (let j = 0; j < 28; j++) {
+        let pixelSum = 0;
+        let pixelData = canvas.getImageData(j * 10, i * 10, 10, 10);
+        for (let m = 0; m < pixelData.data.length; m++) {
+          pixelSum += pixelData.data[m];
+        }
+        pixelSum -= 25500;
+        pixelSums.push(pixelSum);
+        let val = 255 - pixelSum / 300;
+        drawingData.push(val / 255);
+      }
+    }
+    this.guess(drawingData);
+    return drawingData;
+  };
+
   loadCanvasLogic = () => {
-    const canvas = document.getElementById("canvas");
+    const canvas = document.querySelector("#canvas");
+    if (!canvas) return;
+    if (this.state.canvasLoaded) return;
+    console.log("canvas", canvas);
     context = canvas.getContext("2d");
     canvas.height = height;
     canvas.width = width;
@@ -318,9 +344,11 @@ class App extends React.Component {
     canvas.addEventListener("mousedown", startDraw);
     canvas.addEventListener("mouseup", stopDraw);
     canvas.addEventListener("mousemove", draw);
+    this.setState({
+      canvasLoaded: true,
+    });
   };
 }
-
 function clearCanvas(context) {
   console.log("cleared");
   for (let i = 0; i < 280; i++) {
@@ -334,27 +362,6 @@ function clearCanvas(context) {
 function drawPixel(color, context, x, y, size) {
   context.fillStyle = color;
   context.fillRect(x, y, size, size);
-}
-
-function mapPixels(canvas) {
-  let pixelSums = [];
-  let drawingData = [];
-  for (let i = 0; i < 28; i++) {
-    for (let j = 0; j < 28; j++) {
-      let pixelSum = 0;
-      let pixelData = canvas.getImageData(j * 10, i * 10, 10, 10);
-      for (let m = 0; m < pixelData.data.length; m++) {
-        pixelSum += pixelData.data[m];
-      }
-      pixelSum -= 25500;
-      pixelSums.push(pixelSum);
-      let val = 255 - pixelSum / 300;
-      drawingData.push(val / 255);
-    }
-  }
-  guess(drawingData);
-  return drawingData;
-
 }
 
 function finishLoad() {
