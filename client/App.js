@@ -153,7 +153,7 @@ class App extends React.Component {
                   {/* CANVAS */}
 
                   <Canvas id="canvas" />
-                  {this.loadCanvasLogic()}
+                  {this.loadCanvasLogic(this.mapPixels)}
 
                   {/* PLAYERS DISPLAY */}
 
@@ -302,11 +302,10 @@ class App extends React.Component {
     return drawingData;
   };
 
-  loadCanvasLogic = () => {
+  loadCanvasLogic = (mapPixels) => {
     const canvas = document.querySelector("#canvas");
     if (!canvas) return;
     if (this.state.canvasLoaded) return;
-    console.log("canvas", canvas);
     context = canvas.getContext("2d");
     canvas.height = height;
     canvas.width = width;
@@ -350,7 +349,6 @@ class App extends React.Component {
   };
 }
 function clearCanvas(context) {
-  console.log("cleared");
   for (let i = 0; i < 280; i++) {
     for (let j = 0; j < 280; j++) {
       drawPixel("white", context, i, j, 1);
