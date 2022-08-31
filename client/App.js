@@ -2,6 +2,7 @@ import Navbar from "./components/Navbar";
 import Routes from "./Routes";
 import React from "react";
 import ml5 from "ml5";
+import { forEach } from "lodash";
 
 let possibilities = [
   "airplane",
@@ -26,12 +27,21 @@ const modelDetails = {
   metadata: "./model_meta.json",
   weights: "./model.weights.bin",
 };
-let guess;
 let context;
 let stack = [];
 let undoing = false;
 const height = 280;
 const width = 280;
+
+class Player {
+  constructor(name, points, drawingData, topGuess, correctStatus) {
+    this.name = name;
+    this.points = points;
+    this.drawingData = drawingData;
+    this.topGuess = topGuess;
+    this.correctStatus = correctStatus;
+  }
+}
 
 const Canvas = () => {
   return (
@@ -65,21 +75,34 @@ const Canvas = () => {
 
 nn.load(modelDetails, finishLoad());
 
+let player1 = new Player("Host", 0, null, null, false);
+
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      timer: 60,
+      timeSetting: 15,
+      timer: null,
       wordToDraw: "",
-      players: [],
+      players: [player1],
       activeRound: false,
-      confidence: null,
+      confidence: [],
       canvasLoaded: false,
+      totalRounds: 5,
+      currentRound: 1,
     };
   }
 
   render() {
-    const { wordToDraw, activeRound, timer, confidence } = this.state;
+    const {
+      wordToDraw,
+      activeRound,
+      timer,
+      confidence,
+      currentRound,
+      totalRounds,
+      players,
+    } = this.state;
     return (
       <div>
         <Navbar />
@@ -96,13 +119,17 @@ class App extends React.Component {
               <div className="column">
                 <div className="instanceStats">
                   <h3> Time: {timer} </h3>
+                  <h3>
+                    {" "}
+                    Round: {currentRound} / {totalRounds}{" "}
+                  </h3>
                   <h3> Drawing: {wordToDraw} </h3>
                 </div>
                 <div className="canvasEtc">
                   {/* CONFIDENCE COLUMN */}
 
                   <div className="confidence">
-                    {confidence ? (
+                    {confidence[0] ? (
                       <div>
                         <h2 className="oneGuess">
                           1. {confidence[0].label}{" "}
@@ -157,8 +184,27 @@ class App extends React.Component {
 
                   {/* PLAYERS DISPLAY */}
 
+                  <div id="playersDisplay">
                   <div>
-                    <div id="playersDisplay">
+                    {this.state.players.map(player => {
+                      return(
+                      <div className="playerInfoBox" key={player.name}>
+                        <div className="column">
+                          <h4 className="playerNameText">{player.name}</h4>
+                          <h4 className="playerInfoText">Drawing: {confidence[0]? `${confidence[0].label} ?`: ""}</h4>
+                          <h4 className="playerInfoText">Score: {player.points}</h4>
+                        </div>
+                        <img
+                          className="miniDrawing"
+                          src="https://i.imgur.com/LkWiJ0P.png"
+                        />
+                      </div>
+                      )
+                    
+                    })
+                    
+                    }
+
                       <div className="playerInfoBox">
                         <div className="column">
                           <h4 className="playerNameText">Warren</h4>
@@ -170,6 +216,7 @@ class App extends React.Component {
                           src="https://i.imgur.com/LkWiJ0P.png"
                         />
                       </div>
+                      {/*}
                       <div className="playerInfoBox">
                         <div className="column">
                           <h4 className="playerNameText">David</h4>
@@ -213,7 +260,7 @@ class App extends React.Component {
                           className="miniDrawing"
                           src="https://i.imgur.com/LkWiJ0P.png"
                         />
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </div>
@@ -237,7 +284,7 @@ class App extends React.Component {
   beginRound = () => {
     let rand = Math.floor(Math.random() * possibilities.length);
     this.setState({
-      timer: 60,
+      timer: this.state.timeSetting,
       wordToDraw: possibilities[rand],
       canvasLoaded: false,
       activeRound: true,
@@ -247,16 +294,61 @@ class App extends React.Component {
   };
 
   endRound = () => {
+    let { players } = this.state;
+    this.state.players.forEach((player, i) => {
+      players[i].correctStatus = false;
+    });
     this.setState({
       activeRound: false,
+      players: players,
     });
     console.log("end round:", this.state);
     this.stopClock();
   };
 
   gameTick = () => {
+    const {
+      players,
+      timer,
+      timeSetting,
+      currentRound,
+      totalRounds,
+      confidence,
+      wordToDraw,
+    } = this.state;
     this.setState({
-      timer: (this.state.timer -= 0.05).toFixed(2),
+      timer: (timer - 0.05).toFixed(2),
+    });
+    if (timer < 0 && currentRound === totalRounds) {
+      this.endRound();
+      console.log("Round over");
+      this.setState({
+        currentRound: 1,
+      });
+      return;
+    }
+    if (timer <= 0.0 && currentRound < totalRounds) {
+      this.setState({
+        currentRound: currentRound + 1,
+      });
+      this.endRound();
+      this.beginRound();
+      return;
+    }
+    players.forEach((player, i) => {
+      if (!confidence[0]) return;
+      if (
+        player.correctStatus === false &&
+        confidence[0].label === wordToDraw
+      ) {
+        let turnPoints = Math.floor((1000 * timer) / timeSetting);
+        players[i].points += turnPoints;
+        players[i].correctStatus === true;
+        console.log(`${players[i].name} correct for ${turnPoints} points`);
+      }
+    });
+    this.setState({
+      players: players,
     });
   };
 
