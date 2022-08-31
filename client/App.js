@@ -4,20 +4,7 @@ import React from "react";
 import ml5 from "ml5";
 import { forEach } from "lodash";
 import socket from "./client.js";
-import { Confidence, Player, PlayersDisplay } from "./components";
-
-const possibilities = [
-  "airplane",
-  "banana",
-  "candle",
-  "cat",
-  "dog",
-  "fish",
-  "flower",
-  "guitar",
-  "house",
-  "penguin",
-];
+import { Confidence, Player, PlayersDisplay, possibilities } from "./components";
 
 socket.on("connect", () => {
   console.log("Client connected: client same level", socket);

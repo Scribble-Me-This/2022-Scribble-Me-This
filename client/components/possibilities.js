@@ -1,4 +1,4 @@
-export const possibilities = [
+const possibilities = [
     "airplane",
     "banana",
     "candle",
@@ -10,3 +10,5 @@ export const possibilities = [
     "house",
     "penguin",
   ];
+
+export default possibilities;
