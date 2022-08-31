@@ -1,10 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Route, Switch, Redirect } from 'react-router-dom';
-import { Login, Signup } from './components/AuthForm';
 import Home from './components/Home';
 import Lobby from './components/Lobby/Lobby';
-import { me } from './store';
 import Instance from './components/Instance';
 
 /**
@@ -12,28 +10,17 @@ import Instance from './components/Instance';
  */
 class Routes extends Component {
   componentDidMount() {
-    this.props.loadInitialData();
   }
 
   render() {
-    const { isLoggedIn } = this.props;
-
     return (
       <div>
-        {isLoggedIn ? (
           <Switch>
             <Route path='/instance' component={Instance} />
             <Route path='/home' component={Home} />
             <Route path='/lobby' component={Lobby} />
             <Redirect to='/home' />
           </Switch>
-        ) : (
-          <Switch>
-            <Route path='/' exact component={Login} />
-            <Route path='/login' component={Login} />
-            <Route path='/signup' component={Signup} />
-          </Switch>
-        )}
       </div>
     );
   }
@@ -44,17 +31,11 @@ class Routes extends Component {
  */
 const mapState = (state) => {
   return {
-    // Being 'logged in' for our purposes will be defined has having a state.auth that has a truthy id.
-    // Otherwise, state.auth will be an empty object, and state.auth.id will be falsey
-    isLoggedIn: !!state.auth.id,
   };
 };
 
 const mapDispatch = (dispatch) => {
   return {
-    loadInitialData() {
-      dispatch(me());
-    },
   };
 };
 

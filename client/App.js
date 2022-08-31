@@ -3,6 +3,10 @@ import Routes from "./Routes";
 import React from "react";
 import ml5 from "ml5";
 import { forEach } from "lodash";
+import socket from './client.js';
+socket.on('connect', () => {
+  console.log('Client connected: client same level', socket);
+});
 
 let possibilities = [
   "airplane",
@@ -276,7 +280,7 @@ class App extends React.Component {
             </button>
           )}
         </div>
-        <Routes />
+        {/* <Routes /> */}
       </div>
     );
   }
@@ -459,3 +463,4 @@ function finishLoad() {
 }
 
 export default App;
+

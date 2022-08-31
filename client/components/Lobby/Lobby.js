@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import data from './mock-lobby-data.json';
+import socket from '../../client.js';
+socket.on('connect', () => {
+  console.log('Client connected: client NESTED', socket);
+});
 
 function Lobby() {
   const [lobbies, setLobbies] = useState(data);
