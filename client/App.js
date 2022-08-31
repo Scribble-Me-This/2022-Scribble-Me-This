@@ -3,9 +3,9 @@ import Routes from "./Routes";
 import React from "react";
 import ml5 from "ml5";
 import { forEach } from "lodash";
-import socket from './client.js';
-socket.on('connect', () => {
-  console.log('Client connected: client same level', socket);
+import socket from "./client.js";
+socket.on("connect", () => {
+  console.log("Client connected: client same level", socket);
 });
 
 let possibilities = [
@@ -67,7 +67,6 @@ const Canvas = () => {
               stack.pop();
             }
             context.putImageData(stack.pop(), 0, 0);
-            mapPixels(context);
           }}
         >
           Undo
@@ -189,82 +188,31 @@ class App extends React.Component {
                   {/* PLAYERS DISPLAY */}
 
                   <div id="playersDisplay">
-                  <div>
-                    {this.state.players.map(player => {
-                      return(
-                      <div className="playerInfoBox" key={player.name}>
-                        <div className="column">
-                          <h4 className="playerNameText">{player.name}</h4>
-                          <h4 className="playerInfoText">Drawing: {confidence[0]? `${confidence[0].label} ?`: ""}</h4>
-                          <h4 className="playerInfoText">Score: {player.points}</h4>
-                        </div>
-                        <img
-                          className="miniDrawing"
-                          src="https://i.imgur.com/LkWiJ0P.png"
-                        />
-                      </div>
-                      )
-                    
-                    })
-                    
-                    }
-
-                      <div className="playerInfoBox">
-                        <div className="column">
-                          <h4 className="playerNameText">Warren</h4>
-                          <h4 className="playerInfoText">Drawing: Banana?</h4>
-                          <h4 className="playerInfoText">Score: 1230</h4>
-                        </div>
-                        <img
-                          className="miniDrawing"
-                          src="https://i.imgur.com/LkWiJ0P.png"
-                        />
-                      </div>
-                      {/*}
-                      <div className="playerInfoBox">
-                        <div className="column">
-                          <h4 className="playerNameText">David</h4>
-                          <h4 className="playerInfoText">Drawing: Cat?</h4>
-                          <h4 className="playerInfoText">Score: 1150</h4>
-                        </div>
-                        <img
-                          className="miniDrawing"
-                          src="https://i.imgur.com/36KCLV0.png"
-                        />
-                      </div>
-                      <div className="playerInfoBoxCorrect">
-                        <div className="column">
-                          <h4 className="playerNameText">Alex</h4>
-                          <h4 className="playerInfoText">Drawing: Penguin!</h4>
-                          <h4 className="playerInfoText">Score: 1420</h4>
-                        </div>
-                        <img
-                          className="miniDrawing"
-                          src="https://i.imgur.com/mjUzLBr.png"
-                        />
-                      </div>
-                      <div className="playerInfoBoxCorrect">
-                        <div className="column">
-                          <h4 className="playerNameText">Harrison</h4>
-                          <h4 className="playerInfoText">Drawing: Penguin!</h4>
-                          <h4 className="playerInfoText">Score: 1100</h4>
-                        </div>
-                        <img
-                          className="miniDrawing"
-                          src="https://i.imgur.com/mjUzLBr.png"
-                        />
-                      </div>
-                      <div className="playerInfoBox">
-                        <div className="column">
-                          <h4 className="playerNameText">Jimothy</h4>
-                          <h4 className="playerInfoText">Drawing: Banana?</h4>
-                          <h4 className="playerInfoText">Score: 50</h4>
-                        </div>
-                        <img
-                          className="miniDrawing"
-                          src="https://i.imgur.com/LkWiJ0P.png"
-                        />
-                      </div> */}
+                    <div>
+                      {this.state.players.map((player) => {
+                        return (
+                          <div className={player.correctStatus ? "playerInfoBoxCorrect" : "playerInfoBoxGuessing"} key={player.name}>
+                            <div className="column">
+                              <h4 className="playerNameText">{player.name}</h4>
+                              <h4 className="playerInfoText">
+                                Drawing:{" "}
+                                {player.correctStatus? `${wordToDraw}!` : <></> }
+                                
+                                {(confidence[0] && player.correctStatus === false)
+                                  ? `${confidence[0].label}?`
+                                  : ""}
+                              </h4>
+                              <h4 className="playerInfoText">
+                                Score: {player.points}
+                              </h4>
+                            </div>
+                            <img
+                              className="miniDrawing"
+                              src="https://i.imgur.com/LkWiJ0P.png"
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -347,7 +295,7 @@ class App extends React.Component {
       ) {
         let turnPoints = Math.floor((1000 * timer) / timeSetting);
         players[i].points += turnPoints;
-        players[i].correctStatus === true;
+        players[i].correctStatus = true;
         console.log(`${players[i].name} correct for ${turnPoints} points`);
       }
     });
@@ -463,4 +411,3 @@ function finishLoad() {
 }
 
 export default App;
-
