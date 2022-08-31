@@ -1,8 +1,6 @@
 import Navbar from "./components/Navbar";
-import Routes from "./Routes";
 import React from "react";
 import ml5 from "ml5";
-import { forEach } from "lodash";
 import socket from "./client.js";
 import { Canvas, Confidence, Player, PlayersDisplay, possibilities } from "./components";
 
@@ -27,11 +25,9 @@ let undoing = false;
 const height = 280;
 const width = 280;
 
-nn.load(modelDetails, finishLoad());
+nn.load(modelDetails, (() => console.log("Neural Net Loaded")));
 
 let player1 = new Player("Host", 0, null, null, false);
-
-
 
 class App extends React.Component {
   constructor() {
@@ -82,16 +78,9 @@ class App extends React.Component {
                   <h3> Drawing: {wordToDraw} </h3>
                 </div>
                 <div className="canvasEtc">
-                  {/* CONFIDENCE COLUMN */}
                   <Confidence confidence={confidence} />
-
-                  {/* CANVAS */}
-
                   <Canvas id="canvas" clearCanvas={clearCanvas} drawPixel={drawPixel} context={context}/>
                   {this.loadCanvasLogic(this.mapPixels)}
-
-                  {/* PLAYERS DISPLAY */}
-
                   <PlayersDisplay
                     players={players}
                     confidence={confidence}
@@ -175,7 +164,7 @@ class App extends React.Component {
         player.correctStatus === false &&
         confidence[0].label === wordToDraw
       ) {
-        let turnPoints = Math.floor((1000 * timer) / timeSetting);
+        let turnPoints = 500 + Math.floor((500 * timer) / timeSetting);
         players[i].points += turnPoints;
         players[i].correctStatus = true;
         console.log(`${players[i].name} correct for ${turnPoints} points`);
@@ -227,6 +216,10 @@ class App extends React.Component {
     this.guess(drawingData);
     return drawingData;
   };
+
+// ~~~~~~~~~~~~~~~~~~~~~~
+// ~~~~ CANVAS LOGIC ~~~~
+// ~~~~~~~~~~~~~~~~~~~~~~
 
   loadCanvasLogic = (mapPixels) => {
     const canvas = document.querySelector("#canvas");
@@ -288,8 +281,5 @@ function drawPixel(color, context, x, y, size) {
   context.fillRect(x, y, size, size);
 }
 
-function finishLoad() {
-  console.log("finished loading");
-}
 
 export default App;
