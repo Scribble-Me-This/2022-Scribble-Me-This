@@ -127,7 +127,7 @@ td {
   margin: 2px;
 }
 
-.playerInfoBox {
+.playerInfoBoxGuessing {
   display: flex;
   flex-direction: row;
   border: solid black 2px;
