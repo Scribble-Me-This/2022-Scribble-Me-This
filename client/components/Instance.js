@@ -1,17 +1,11 @@
 import React from "react";
-import ml5 from "ml5";
-import axios from "axios";
-import Canvas from "./Canvas";
-import { supportsGoWithoutReloadUsingHash } from "history/DOMUtils";
-import PlayersDisplay from "./PlayersDisplay";
-import { words } from "lodash";
+import ml5 from 'ml5'
 
 const options = {
   task: "classification",
   debug: false,
 };
 
-// let testingData = [];
 
 const nn = ml5.neuralNetwork(options);
 
@@ -23,22 +17,6 @@ const modelDetails = {
 
 nn.load(modelDetails, finishLoad());
 
-// loads test data, will feed into percent accuracy checker
-// axios.get("/api/data").then((res) => {
-//     testingData = res.data.trainingData;
-//     let dataSlice = testingData.slice(10000, 10010)
-//     console.log(`adding ${dataSlice.length} drawings to testing data..`)
-//     dataSlice.forEach((item) => {
-//         let input = {};
-//         let output = {};
-//         for (let i = 0; i < 784; i++) {
-//             input[i] = item.input[i];
-//         }
-//         output.drawing = item.output;
-//         console.log(output.drawing);
-//         nn.classify(input, handleResults)
-//     });
-// })
 
 class Instance extends React.Component {
   constructor(props) {
@@ -116,6 +94,7 @@ class Instance extends React.Component {
   guess = (input) => {
     nn.classify(input, this.handleResults);
   }
+
 }
 
 function finishLoad() {

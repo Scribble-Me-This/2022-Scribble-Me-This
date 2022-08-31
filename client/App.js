@@ -4,7 +4,7 @@ import React from "react";
 import ml5 from "ml5";
 import { forEach } from "lodash";
 import socket from "./client.js";
-import { Confidence, Player, PlayersDisplay, possibilities } from "./components";
+import { Canvas, Confidence, Player, PlayersDisplay, possibilities } from "./components";
 
 socket.on("connect", () => {
   console.log("Client connected: client same level", socket);
@@ -31,34 +31,7 @@ nn.load(modelDetails, finishLoad());
 
 let player1 = new Player("Host", 0, null, null, false);
 
-const Canvas = () => {
-  return (
-    <div className="column">
-      <canvas id="canvas" className="canvas" height="280" width="280" />
-      <div className="row">
-        <button
-          onClick={() => {
-            clearCanvas(context);
-          }}
-        >
-          clear
-        </button>
-        <button
-          onClick={() => {
-            if (!stack.length) return;
-            if (!undoing) {
-              undoing = true;
-              stack.pop();
-            }
-            context.putImageData(stack.pop(), 0, 0);
-          }}
-        >
-          Undo
-        </button>
-      </div>
-    </div>
-  );
-};
+
 
 class App extends React.Component {
   constructor() {
@@ -114,7 +87,7 @@ class App extends React.Component {
 
                   {/* CANVAS */}
 
-                  <Canvas id="canvas"/>
+                  <Canvas id="canvas" clearCanvas={clearCanvas} drawPixel={drawPixel} context={context}/>
                   {this.loadCanvasLogic(this.mapPixels)}
 
                   {/* PLAYERS DISPLAY */}
