@@ -8,12 +8,12 @@ class Lobby extends React.Component {
   constructor() {
     super();
     this.state = {
-      lobbies: data,
+      lobbies: {}
     };
   }
   render() {
-    console.log('in lobby',socket);
-    let players = lobbies[0].players;
+
+    let players = ["playa 1", "playa 2", "playa 3", "playa 4"]
   return (
     <div className='lobby-container'>
       <table>

@@ -1,5 +1,4 @@
 import React from "react";
-import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import socket from "../client.js";
 
@@ -10,16 +9,22 @@ class Home extends React.Component {
   constructor() {
     super();
     this.state = {
-      lobbies: data,
+      lobbies: {},
+      name: "",
     };
+    this.socket = socket;
+
   }
-  // const dispatch = useDispatch();
-  // const clientGameState = useSelector((state) => state.clientGameState);
 
-  // socket.on("newLobby", (instanceState) => {
-  //   console.log("newLobby", instanceState);
-
-  // });
+  componentDidMount() {
+    this.socket.on("connect", () => {
+      console.log("Client connected: Home.js", this.socket);
+    }),
+    this.socket.on("newLobby", (instanceState) => {
+      console.log("newLobby", instanceState);
+      this.setState({ lobbies: instanceState });
+    });
+  }
 
   render() {
     return (
@@ -79,14 +84,5 @@ class Home extends React.Component {
   }
 }
 
-/**
- * CONTAINER
- */
-const mapState = (state) => {
-  console.log("state", state);
-  return {
-    clientGameState: state.clientGameState,
-  };
-};
 
 export default Home;

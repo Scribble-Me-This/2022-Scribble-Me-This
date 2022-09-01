@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import data from "./mock-lobby-data.json";
 
-class LobbyBrowser extends React.Component() {
+class LobbyBrowser extends React.Component {
   constructor() {
     super();
     this.state = {
