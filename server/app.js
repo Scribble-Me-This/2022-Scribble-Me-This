@@ -17,7 +17,7 @@ const LobbyList = {};
 const state = {};
 
 io.on("connection", (socket) => {
-  console.log(`Socket: ${util.inspect(socket)} has connected`);
+  // console.log(`Socket: ${util.inspect(socket)} has connected`);
   //utils
   const findLobby = (lobbyId) => {
     const uppLobbyId = lobbyId.toUpperCase();
@@ -70,8 +70,10 @@ io.on("connection", (socket) => {
     state[lobbyId] = createState(lobbyId, socket.id);
     //state[lobbyId].clients.push(client);
     //handleJoinLobby(lobbyId);
+    console.log('here', state[lobbyId]);
     socket.join(lobbyId);
-    io.to(socket.id).emit("newLobby", lobbyId);
+    console.log(state)
+    io.to(socket.id).emit("newLobby", state[lobbyId]);
   }
   //update lobby
   // socket.on("updateLobby", newState, handleUpdateLobby);
