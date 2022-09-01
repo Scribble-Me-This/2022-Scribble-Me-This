@@ -6,25 +6,26 @@ import socket from "../client.js";
  * COMPONENT
  */
 class Home extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      lobbies: {},
-      name: "",
-    };
+  constructor(props) {
+    super(props);
+
     this.socket = socket;
 
   }
 
   componentDidMount() {
+    console.log("props", this.props)
     this.socket.on("connect", () => {
       console.log("Client connected: Home.js", this.socket);
-    }),
-    this.socket.on("newLobby", (instanceState) => {
-      console.log("newLobby", instanceState);
-      this.setState({ lobbies: instanceState });
-    });
+    })
+    this.socket.on("newLobby", (lobbyState) => {
+      console.log("newLobby GOT", lobbyState);
+      this.props.lobbyInstanceUpdater(lobbyState)
+    })
   }
+
+
+
 
   render() {
     return (

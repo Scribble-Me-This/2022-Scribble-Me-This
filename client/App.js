@@ -43,7 +43,12 @@ class App extends React.Component {
       canvasLoaded: false,
       totalRounds: 5,
       currentRound: 1,
+      lobbyInstance: {},
     };
+  }
+
+  lobbyInstanceUpdater = (newlobbyInstance) => {
+    this.setState({ lobbyInstance: newlobbyInstance });
   }
 
   render() {
@@ -100,7 +105,7 @@ class App extends React.Component {
             </button>
           )}
         </div>
-        <Routes />
+        <Routes lobbyInstanceUpdater={this.lobbyInstanceUpdater}/>
       </div>
     );
   }

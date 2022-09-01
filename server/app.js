@@ -70,9 +70,9 @@ io.on("connection", (socket) => {
     state[lobbyId] = createState(lobbyId, socket.id);
     //state[lobbyId].clients.push(client);
     //handleJoinLobby(lobbyId);
-    console.log('here', state[lobbyId]);
+    console.log('server side app.js', state[lobbyId]);
     socket.join(lobbyId);
-    console.log(state)
+    console.log('all states here: ', state)
     io.to(socket.id).emit("newLobby", state[lobbyId]);
   }
   //update lobby

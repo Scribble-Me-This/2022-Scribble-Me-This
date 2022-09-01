@@ -9,14 +9,20 @@ import Instance from './components/Instance';
  * COMPONENT
  */
 class Routes extends Component {
+  constructor(props) {
+    super(props);
+  }
+
   componentDidMount() {
   }
 
   render() {
+    console.log('props in routes', this.props)
     return (
       <div>
           <Switch>
-            <Route exact path='/home' component={Home} />
+            <Route exact path='/home' 
+            render={(props) => <Home lobbyInstanceUpdater={this.props.lobbyInstanceUpdater} />} />
             <Route exact path='/lobby' component={Lobby} />
             <Route path='/lobbybrowser' component={LobbyBrowser} />
             <Route path='/instance' component={Instance} />
