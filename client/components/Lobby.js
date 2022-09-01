@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import data from './mock-lobby-data.json';
 import socket from '../client.js';
+import { render } from 'enzyme';
 
 
-function Lobby() {
-  const [lobbies, setLobbies] = useState(data);
-  console.log('in lobby',socket);
-  let players = lobbies[0].players;
-
+class Lobby extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      lobbies: data,
+    };
+  }
+  render() {
+    console.log('in lobby',socket);
+    let players = lobbies[0].players;
   return (
     <div className='lobby-container'>
       <table>
@@ -28,6 +34,7 @@ function Lobby() {
       </ul>
     </div>
   );
+        }
 }
 
 export default Lobby;
