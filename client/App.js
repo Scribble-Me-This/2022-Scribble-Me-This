@@ -280,7 +280,7 @@ class App extends React.Component {
             </button>
           )}
         </div>
-        {/* <Routes /> */}
+        <Routes />
       </div>
     );
   }

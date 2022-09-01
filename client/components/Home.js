@@ -1,24 +1,42 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import LobbyBrowser from './Lobby/LobbyBrowser';
+import React from "react";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+import socket from '../client.js';
 
 /**
  * COMPONENT
  */
 export const Home = (props) => {
-  const { username } = props;
+  const dispatch = useDispatch();
+  const clientGameState = useSelector((state) => state.clientGameState);
+
+  socket.on("newLobby", (instanceState) => {
+    console.log("newLobby", instanceState);
+
+  });
+
+
   return (
     <div>
-      <div class="centerWrapper">
+      <div className="centerWrapper">
         <input
-          class="smallMargin homeButtons"
+          className="smallMargin homeButtons"
           type="text"
           placeholder="Name Here!"
         ></input>
-        <button class="join homeButtons hov">View Lobbies</button>
-        <div class="flex">
-          <button class="homeButtons hov">Create Room</button>
-          <div class="smallWrapper">
+        <Link to="/lobbybrowser">
+          <button className="join homeButtons hov" onClick={() => {
+            console.log('lobbybrowser');
+          }}>View Lobbies</button>
+        </Link>
+        <div className="flex">
+          <Link to="/lobby">
+            <button className="homeButtons hov" onClick={() => {
+            console.log('create room');
+            socket.emit("newLobby")
+          }}>Create Room</button>
+          </Link>
+          <div className="smallWrapper">
             <img
               className="flex"
               src="/assets/leftArrow.svg"
@@ -33,15 +51,13 @@ export const Home = (props) => {
             />
           </div>
           <input
-            class="homeButtons input40"
+            className="homeButtons input40"
             type="text"
             placeholder="Code"
           ></input>
-          <button class="homeButtons hov">Submit</button>
+          <button className="homeButtons hov">Submit</button>
         </div>
       </div>
-      <h3>Welcome, {username}</h3>
-      <LobbyBrowser />
     </div>
   );
 };
@@ -50,9 +66,10 @@ export const Home = (props) => {
  * CONTAINER
  */
 const mapState = (state) => {
+  console.log("state", state);
   return {
-    username: state.auth.username,
+    clientGameState: state.clientGameState,
   };
 };
 
-export default connect(mapState)(Home);
+export default Home;
