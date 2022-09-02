@@ -77,6 +77,7 @@ class App extends React.Component {
         gameSettings: masterSettings,
       });
     });
+    //this.socket.on('endRound', EXAMPLE);
   }
 
   pencilClick() {
@@ -165,6 +166,7 @@ class App extends React.Component {
       activeRound: true,
     });
     console.log('start round:', this.state);
+    //socket.emit('startRound', EXAMPLE);
     this.startClock();
   };
 

@@ -5,7 +5,7 @@ const { createServer } = require("http");
 const { Server } = require("socket.io");
 const app = express();
 const httpServer = createServer(app);
-const util = require('util')
+const util = require("util");
 const io = new Server(httpServer, {
   cors: {
     origin: ["http://localhost:8080/"],
@@ -15,6 +15,18 @@ const io = new Server(httpServer, {
 
 const LobbyList = [];
 const state = {};
+const possibilities = [
+  "airplane",
+  "banana",
+  "candle",
+  "cat",
+  "dog",
+  "fish",
+  "flower",
+  "guitar",
+  "house",
+  "penguin",
+];
 
 io.on("connection", (socket) => {
   // console.log(`Socket: ${util.inspect(socket)} has connected`);
@@ -59,7 +71,7 @@ io.on("connection", (socket) => {
           drawing: false,
           results: false,
         },
-      }, 
+      },
     };
   }
   //logic
@@ -70,7 +82,7 @@ io.on("connection", (socket) => {
     LobbyList[socket.id] = lobbyId;
     state[lobbyId] = createState(lobbyId, socket.id);
     socket.join(lobbyId);
-    console.log('all states here: ', state)
+    console.log("all states here: ", state);
     io.to(socket.id).emit("newLobby", state[lobbyId]);
   }
   //update lobby
@@ -87,29 +99,31 @@ io.on("connection", (socket) => {
   //join lobby
   socket.on("joinLobby", (lobbyId, client) => {
     const uppLobbyId = lobbyId.toUpperCase();
-    if (LobbyList[socket.id] = [uppLobbyId]) {
+    if ((LobbyList[socket.id] = [uppLobbyId])) {
       state[uppLobbyId].clients.push(client);
-      console.log('joined lobby');
+      console.log("joined lobby");
       //fix to send to clients in joined lobby
       io.emit("joinedLobby", state[uppLobbyId]);
     } else {
-      console.log('join lobby failed', state[uppLobbyId]);
+      console.log("join lobby failed", state[uppLobbyId]);
       io.to(socket.id).emit("joinedLobby", false);
     }
   });
   //toggle ready
   socket.on("toggleReady", (lobbyId) => {
-    if (LobbyList[socket.id] = [lobbyId]) {
-      const client = state[lobbyId].clients.find((client) => client.clientId === socket.id);
+    if ((LobbyList[socket.id] = [lobbyId])) {
+      const client = state[lobbyId].clients.find(
+        (client) => client.clientId === socket.id
+      );
       client.readyCheck = !client.readyCheck;
       io.emit("lobbyUpdate", state[lobbyId]);
     } else {
-      console.log('toggle ready failed');
+      console.log("toggle ready failed");
     }
-  })
+  });
   //Broadcast Ready Check
   socket.on("readyCheck", (lobbyId) => {
-    if (LobbyList[socket.id] = [lobbyId]) {
+    if ((LobbyList[socket.id] = [lobbyId])) {
       let readyPlayers = [];
       let notReadyPlayers = [];
       for (let i = 0; i < state[lobbyId].clients.length; i++) {
@@ -123,17 +137,100 @@ io.on("connection", (socket) => {
         }
       }
       if (readyPlayers.length === state[lobbyId].clients.length) {
-        const masterSettings = state[lobbyId].settings.gameSettings
+        const masterSettings = state[lobbyId].settings.gameSettings;
         //game starts
         //fix to send to clients in joined lobby
         io.emit("gameStart", true);
-        io.emit("initGame", masterSettings)
+        io.emit("initGame", masterSettings);
       } else {
         io.to(socket.id).emit("gameStart", false);
       }
     }
   });
+  //start game
+  socket.on("startGame", (lobbyId, initSettings) => {
+    let {
+      timeSetting,
+      players,
+      timer,
+      currentRound,
+      totalRounds,
+      //HEY DUMMY, DONT FORGET TO MOVE TO PLAYERS
+      confidence,
+    } = initSettings;
+    if ((LobbyList[socket.id] = [lobbyId])) {
+      //start ticking based on time setting
+      //begin round call
+      let rand = Math.floor(Math.random() * possibilities.length);
+      (wordToDraw = possibilities[rand]), console.log("start round:");
+      //socket.emit('startRound', EXAMPLE);
+      startClock();
+    }
+    startClock = () => {
+      clock = setInterval((initSettings) => oneTick(initSettings), 50);
+    };
+    stopClock = () => {
+      clearInterval(clock);
+    };
+    //one tick logic
+    function oneTick(initSettings) {
+      let {
+        timeSetting,
+        players,
+        timer,
+        currentRound,
+        totalRounds,
+        //HEY DUMMY, DONT FORGET TO MOVE TO PLAYERS
+        confidence,
+        wordToDraw,
+      } = initSettings;
+      //decrement timer
+      timer = (timer - 0.05).toFixed(2);
+      //check if timer vals
+      if (timer <= 0 && currentRound === totalRounds) {
+        //make socket command
+        this.endRound();
+        //ENDGAME();
+        //endgame conditions {activeRound = false}
+        console.log("Round over");
+        return;
+      }
+      if (timer <= 0.0 && currentRound < totalRounds) {
+        currentRound++;
+        //make socket command
+        this.endRound();
+        this.beginRound();
+        return;
+      }
+      players.forEach((player, i) => {
+        if (!confidence[0]) return;
+        if (
+          player.correctStatus === false &&
+          confidence[0].label === wordToDraw
+        ) {
+          let turnPoints = 500 + Math.floor((500 * timer) / timeSetting);
+          players[i].points += turnPoints;
+          players[i].correctStatus = true;
+          console.log(`${players[i].name} correct for ${turnPoints} points`);
+        }
+      });
+      //at end of tick
+      //socket.emit('tick', EXAMPLE);
+    }
 
+    endRound = () => {
+      let { players } = this.state;
+      this.state.players.forEach((player, i) => {
+        players[i].correctStatus = false;
+      });
+      this.setState({
+        activeRound: false,
+        players: players,
+      });
+      console.log("end round:", this.state);
+      this.stopClock();
+    };
+  });
 });
 module.exports = httpServer;
 
@@ -177,16 +274,17 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).send(err.message || "Internal server error.");
 });
 
-  beginRound = () => {
-    const timeSetting = this.state.gameState.game.settings.gameSettings.timeSetting || 15;
+beginRound = () => {
+  const timeSetting =
+    this.state.gameState.game.settings.gameSettings.timeSetting || 15;
 
-    let rand = Math.floor(Math.random() * possibilities.length);
-    this.setState({
-      timer: timeSetting,
-      wordToDraw: possibilities[rand],
-      canvasLoaded: false,
-      activeRound: true,
-    });
-    console.log("start round:", this.state);
-    this.startClock();
-  };
+  let rand = Math.floor(Math.random() * possibilities.length);
+  this.setState({
+    timer: timeSetting,
+    wordToDraw: possibilities[rand],
+    canvasLoaded: false,
+    activeRound: true,
+  });
+  console.log("start round:", this.state);
+  this.startClock();
+};
