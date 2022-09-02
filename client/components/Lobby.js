@@ -37,12 +37,15 @@ class Lobby extends React.Component {
       );
       this.props.lobbyInstanceUpdater(lobbyState);
       this.props.updateGameState(lobbyState);
+      console.log('this.props in new lobby', this.props)
       this.setState(this.props);
     });
     this.socket.on("joinedLobby", (newState) => {
       console.log("joinedLobby GOT", newState);
       this.props.lobbyInstanceUpdater(newState);
       this.props.updateGameState(newState);
+      console.log('this.props in join lobby', this.props.gameState)
+      this.setState({gameState: this.props.gameState});
       console.log("props after joined", this.props);
       console.log("this.state after joined", this.state);
     });
@@ -51,6 +54,7 @@ class Lobby extends React.Component {
   render() {
     console.log("rendered");
     let players = this.state.gameState.game.clients || [];
+    // let players = [];
     return (
       <div className="lobby-container">
         <table>
@@ -58,7 +62,8 @@ class Lobby extends React.Component {
             {players.map((player, index) => {
               return (
                 <tr key={index}>
-                  <td>{player}</td>
+                  <td>{player.username}</td>
+                  <td>{player.clientId}</td>
                 </tr>
               );
             })}

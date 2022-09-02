@@ -13,7 +13,7 @@ const io = new Server(httpServer, {
 });
 //https://socket.io/docs/v4/server-initialization/
 
-const LobbyList = {};
+const LobbyList = [];
 const state = {};
 
 io.on("connection", (socket) => {
@@ -53,7 +53,7 @@ io.on("connection", (socket) => {
           maxPlayers: 4,
           password: "",
         },
-        gameState: {
+        gameViewLogic: {
           inGame: false,
           drawing: false,
           results: false,
@@ -83,6 +83,7 @@ io.on("connection", (socket) => {
   //view lobbies
   socket.on("viewLobbies", handleViewLobbies);
   function handleViewLobbies() {
+    console.log("viewLobbies", LobbyList);
     io.to(socket.id).emit("lobbies", LobbyList);
   }
   //join lobby

@@ -1,16 +1,30 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import data from "./mock-lobby-data.json";
+import { connect } from "react-redux";
+import { getGameState } from "../store/gameState";
+import { getClientState } from "../store/clientState";
+import socket from "../client.js";
 
 class LobbyBrowser extends React.Component {
   constructor() {
     super();
     this.state = {
-      lobbies: data,
+      lobbies: [],
     };
+    this.socket = socket;
+  }
+
+  componentDidMount() {
+    this.socket.on("lobbies", (lobbyList) => {
+      console.log("lobbies", lobbyList);
+      this.setState({ lobbies: lobbyList });
+      console.log("state", this.state);
+    });
+    this.socket.emit("viewLobbies");
   }
 
   render() {
+    let lobbies = this.state.lobbies || [];
     return (
       <div className="lobby-browser-container">
         <table>
@@ -44,4 +58,19 @@ class LobbyBrowser extends React.Component {
   }
 }
 
-export default LobbyBrowser;
+const mapState = (state) => {
+  return {
+    gameState: state.gameState,
+    clientState: state.clientState,
+  };
+};
+
+const mapDispatch = (dispatch) => {
+  return {
+    // explicitly forwarding arguments
+    updateGameState: (lobbyState) => dispatch(getGameState(lobbyState)),
+    updateClientState: (clientState) => dispatch(getClientState(clientState)),
+  };
+};
+
+export default connect(mapState, mapDispatch)(LobbyBrowser);

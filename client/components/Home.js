@@ -23,11 +23,9 @@ class Home extends React.Component {
   }
 
   componentDidMount() {
-    console.log("props", this.props)
   }
 
   render() {
-    console.log('state in Home.js', this.state)
     return (
       <div>
         <div className="centerWrapper">
