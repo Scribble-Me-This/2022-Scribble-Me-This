@@ -4,6 +4,8 @@ import ml5 from "ml5";
 import socket from "./client.js";
 import { Canvas, Confidence, Player, PlayersDisplay, possibilities } from "./components";
 import Routes from "./Routes";
+import { connect } from "react-redux";
+
 
 socket.on("connect", () => {
   console.log("Client connected: App.js", socket);
@@ -34,16 +36,27 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      timeSetting: 15,
-      timer: null,
-      wordToDraw: "",
-      players: [player1],
-      activeRound: false,
+      // timeSetting: 15,  // MOVE
+      timer: null,    // MOVE
+      wordToDraw: "",     // MOVE
+      players: [player1],   // MOVE
+      activeRound: false,    // MOVE
+      totalRounds: 5,     // MOVE
+      currentRound: 1,     // MOVE
       confidence: [],
       canvasLoaded: false,
-      totalRounds: 5,
-      currentRound: 1,
       lobbyInstance: {},
+      gameState: {
+        game: {
+          clients: [],
+          settings: {
+            gameId: "",
+            gameSettings: {
+              timeSetting: 0
+            }
+          },
+        },
+      },
     };
     this.socket = socket;
   }
@@ -65,6 +78,7 @@ class App extends React.Component {
   }
 
   render() {
+    const timeSetting = this.state.gameState.game.settings.gameSettings.timeSetting || 15;
     const {
       wordToDraw,
       activeRound,
@@ -119,9 +133,11 @@ class App extends React.Component {
   }
 
   beginRound = () => {
+    const timeSetting = this.state.gameState.game.settings.gameSettings.timeSetting || 15;
+
     let rand = Math.floor(Math.random() * possibilities.length);
     this.setState({
-      timer: this.state.timeSetting,
+      timer: timeSetting,
       wordToDraw: possibilities[rand],
       canvasLoaded: false,
       activeRound: true,
@@ -144,10 +160,10 @@ class App extends React.Component {
   };
 
   gameTick = () => {
+    const timeSetting = this.state.gameState.game.settings.gameSettings.timeSetting || 15;
     const {
       players,
       timer,
-      timeSetting,
       currentRound,
       totalRounds,
       confidence,
@@ -280,6 +296,7 @@ class App extends React.Component {
       canvasLoaded: true,
     });
   };
+
 }
 function clearCanvas(context) {
   for (let i = 0; i < 280; i++) {
@@ -295,5 +312,18 @@ function drawPixel(color, context, x, y, size) {
   context.fillRect(x, y, size, size);
 }
 
+const mapState = (state) => {
+  return {
+    gameState: state.gameState,
+    clientState: state.clientState,
+  };
+};
 
-export default App;
+const mapDispatch = (dispatch) => {
+  return {
+    // explicitly forwarding arguments
+  };
+};
+
+
+export default connect(mapState, mapDispatch)(App);
