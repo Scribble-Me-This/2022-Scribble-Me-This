@@ -76,31 +76,30 @@ io.on("connection", (socket) => {
     io.to(socket.id).emit("newLobby", state[lobbyId]);
   }
   //update lobby
-  // socket.on("updateLobby", newState, handleUpdateLobby);
-  // function handleUpdateLobby(newState) {
-  //   state[gameId] = newState;
-  //   io.to(gameId).emit("lobbyUpdate", newState);
-  // }
+  socket.on("updateLobby", (newState) => {
+    state[gameId] = newState;
+    io.to(gameId).emit("lobbyUpdate", newState);
+  });
   //view lobbies
   socket.on("viewLobbies", handleViewLobbies);
   function handleViewLobbies() {
     io.to(socket.id).emit("lobbies", LobbyList);
   }
   //join lobby
-  // socket.on("joinLobby", ((lobbyId, client), handleJoinLobby));
-  // function handleJoinLobby(lobbyId) {
-  //   const lobby = findLobby(lobbyId);
-  //   if (LobbyList[socket.id][lobbyId]) {
-  //     state[lobbyId].clients.push(client);
-  //     io.to(socket.id).emit("joinedLobby", true);
-  //   } else {
-  //     io.to(socket.id).emit("joinedLobby", false);
-  //   }
-  // }
+  socket.on("joinLobby", (lobbyId, client) => {
+    if (LobbyList[socket.id] = [lobbyId]) {
+      state[lobbyId].clients.push(client);
+      console.log('joined lobby');
+      io.to(socket.id).emit("joinedLobby", state[lobbyId]);
+    } else {
+      console.log('join lobby failed', state[lobbyId]);
+      io.to(socket.id).emit("joinedLobby", false);
+    }
+  });
   //Broadcast Ready Check
   socket.on("readyCheck", handleReadyCheck);
   function handleReadyCheck(lobbyId) {
-    if (LobbyList[socket.id][lobbyId]) {
+    if (LobbyList[socket.id] = [lobbyId]) {
       let readyPlayers = [];
       let notReadyPlayers = [];
       for (let i = 0; i < state[lobbyId].clients.length; i++) {

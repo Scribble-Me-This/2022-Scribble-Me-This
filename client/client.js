@@ -25,19 +25,6 @@ const updateRate = 1000;
 //   //change to lobby view
 // });
 
-// //Create lobby
-// /* 'request', {Method: 'CreateLobby', clientId: 'leader' } 
-// whoever creates the lobby is the leader, and the leader also joins the lobby
-// */
-// const createLobbyButton = document.getElementById("createLobbyButton");
-// createLobbyButton.addEventListener("click", () => {
-//   socket.emit("newLobby", { "client.id": client.id });
-// });
-// //return request
-// socket.on("newLobby", (lobbyId) => {
-//   console.log("newLobby", lobbyId);
-// });
-
 // //Update lobby Request
 // /* 'request', {Method: 'UpdateLobby', {clientId: 'test' , game: lobbyid and setting} } */
 // const updateLobbyButton = document.getElementById("updateLobbyButton");

@@ -1,4 +1,3 @@
-import socket from '../client';
 const initialState = {};
 
 // Action types

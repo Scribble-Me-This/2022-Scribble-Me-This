@@ -17,7 +17,6 @@ class Routes extends Component {
   }
 
   render() {
-    console.log('props in routes', this.props)
     return (
       <div>
           <Switch>

@@ -10,19 +10,20 @@ import { getGameState } from "../store/gameState";
 class Home extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      username: "",
+    };
     this.socket = socket;
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({username: event.target.value});
+    console.log(this.state.username)
   }
 
   componentDidMount() {
     console.log("props", this.props)
-    this.socket.on("connect", () => {
-      console.log("Client connected: Home.js", this.socket);
-    })
-    // this.socket.on("newLobby", (lobbyState) => {
-    //   console.log("newLobby GOT", lobbyState);
-    //   this.props.lobbyInstanceUpdater(lobbyState)
-    //   this.props.updateState(lobbyState)
-    // })
   }
 
   render() {
@@ -34,6 +35,8 @@ class Home extends React.Component {
             className="smallMargin homeButtons"
             type="text"
             placeholder="Name Here!"
+            value={this.state.username}
+            onChange={(event) => this.handleChange(event)}
           ></input>
           <Link to="/lobbybrowser">
             <button
@@ -93,7 +96,8 @@ const mapState = (state) => {
 const mapDispatch = (dispatch) => {
   return {
     // explicitly forwarding arguments
-    updateState: (lobbyState) => dispatch(getGameState(lobbyState)),
+    updateGameState: (lobbyState) => dispatch(getGameState(lobbyState)),
+    updateClientState: (clientState) => dispatch(getClientState(clientState)),
   }
 }
 
