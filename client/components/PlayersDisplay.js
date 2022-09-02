@@ -7,9 +7,9 @@ class PlayersView extends React.Component {
   constructor(props) {
     super(props);
   }
+  
   render() {
     const { players, confidence, wordToDraw, drawingData } = this.props;
-    console.log("playersDisplay drawingdata", drawingData);
     return (
       <div id="playersDisplay">
         <div>
@@ -33,7 +33,7 @@ class PlayersView extends React.Component {
                   </h4>
                   <h4 className="playerInfoText">Score: {player.points}</h4>
                 </div>
-                <MiniCanvas imageData={drawingData} />
+                <MiniCanvas drawingData={drawingData} />
               </div>
             );
           })}
