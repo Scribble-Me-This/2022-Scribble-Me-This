@@ -68,9 +68,6 @@ io.on("connection", (socket) => {
     let lobbyId = idGen(5);
     LobbyList[socket.id] = lobbyId;
     state[lobbyId] = createState(lobbyId, socket.id);
-    //state[lobbyId].clients.push(client);
-    //handleJoinLobby(lobbyId);
-    console.log('server side app.js', state[lobbyId]);
     socket.join(lobbyId);
     console.log('all states here: ', state)
     io.to(socket.id).emit("newLobby", state[lobbyId]);
@@ -88,12 +85,14 @@ io.on("connection", (socket) => {
   }
   //join lobby
   socket.on("joinLobby", (lobbyId, client) => {
-    if (LobbyList[socket.id] = [lobbyId]) {
-      state[lobbyId].clients.push(client);
+    const uppLobbyId = lobbyId.toUpperCase();
+    if (LobbyList[socket.id] = [uppLobbyId]) {
+      state[uppLobbyId].clients.push(client);
       console.log('joined lobby');
-      io.to(socket.id).emit("joinedLobby", state[lobbyId]);
+      //fix to send to clients in joined lobby
+      io.emit("joinedLobby", state[uppLobbyId]);
     } else {
-      console.log('join lobby failed', state[lobbyId]);
+      console.log('join lobby failed', state[uppLobbyId]);
       io.to(socket.id).emit("joinedLobby", false);
     }
   });

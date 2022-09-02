@@ -11,6 +11,9 @@ class Lobby extends React.Component {
       gameState: {
         game: {
           clients: [],
+          settings: {
+            gameId: "",
+          },
         },
       },
       username: "",
@@ -25,7 +28,7 @@ class Lobby extends React.Component {
         "joinLobby",
         lobbyState.settings.gameId,
         {
-          username: "",
+          username: "Lobby Leader",
           clientId: this.socket.id,
           readyCheck: false,
           guessed: false,
@@ -54,6 +57,7 @@ class Lobby extends React.Component {
   render() {
     console.log("rendered");
     let players = this.state.gameState.game.clients || [];
+    let joinCode = this.state.gameState.game.settings.gameId || "";
     // let players = [];
     return (
       <div className="lobby-container">
@@ -72,7 +76,7 @@ class Lobby extends React.Component {
         <ul className="lobby-buttons-wrapper">
           <li className="boxa">RULES:</li>
           <button className="boxb">Ready Up</button>
-          <button className="boxc">Join Code</button>
+          <button className="boxc">{joinCode}</button>
         </ul>
       </div>
     );

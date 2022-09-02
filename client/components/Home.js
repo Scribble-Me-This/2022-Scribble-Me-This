@@ -12,18 +12,21 @@ class Home extends React.Component {
     super(props);
     this.state = {
       username: "",
+      input: "",
     };
     this.socket = socket;
     this.handleChange = this.handleChange.bind(this);
   }
 
   handleChange(event) {
-    this.setState({username: event.target.value});
-    console.log(this.state.username)
+    this.setState({ username: event.target.value });
   }
 
-  componentDidMount() {
+  handleInputChange(event) {
+    this.setState({ input: event.target.value });
   }
+
+  componentDidMount() {}
 
   render() {
     return (
@@ -76,8 +79,30 @@ class Home extends React.Component {
               className="homeButtons input40"
               type="text"
               placeholder="Code"
+              maxLength="5"
+              value={this.state.input}
+              onChange={(event) => this.handleInputChange(event)}
             ></input>
-            <button className="homeButtons hov">Submit</button>
+            <Link to="/lobby">
+              <button
+                className="homeButtons hov"
+                onClick={() => {
+                  console.log("join room");
+                  socket.emit("joinLobby", this.state.input, {
+                    username: this.state.username,
+                    clientId: this.socket.id,
+                    readyCheck: false,
+                    guessed: false,
+                    previewPic: {},
+                    bestGuess: "",
+                    confidence: [],
+                    score: 0,
+                  });
+                }}
+              >
+                Submit
+              </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -96,7 +121,7 @@ const mapDispatch = (dispatch) => {
     // explicitly forwarding arguments
     updateGameState: (lobbyState) => dispatch(getGameState(lobbyState)),
     updateClientState: (clientState) => dispatch(getClientState(clientState)),
-  }
-}
+  };
+};
 
 export default connect(mapState, mapDispatch)(Home);
