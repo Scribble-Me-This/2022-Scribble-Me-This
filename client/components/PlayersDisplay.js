@@ -1,41 +1,51 @@
+import { render } from "enzyme";
 import React from "react";
+import MiniCanvas from "./MiniCanvas";
 import Player from "./Player";
 
-const PlayersView = (props) => {
-  const { players, confidence, wordToDraw } = props;
-  return (
-    <div id="playersDisplay">
-      <div>
-        {players.map((player) => {
-          return (
-            <div
-              className={
-                player.correctStatus
-                  ? "playerInfoBoxCorrect"
-                  : "playerInfoBoxGuessing"
-              }
-              key={player.name}
-            >
-              <div className="column">
-                <h4 className="playerNameText">{player.name}</h4>
-                <h4 className="playerInfoText">
-                  Drawing: {player.correctStatus ? `${wordToDraw}!` : <></>}
-                  {confidence[0] && player.correctStatus === false
-                    ? `${confidence[0].label}?`
-                    : ""}
-                </h4>
-                <h4 className="playerInfoText">Score: {player.points}</h4>
+class PlayersView extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    const { players, confidence, wordToDraw, drawingData } = this.props;
+    console.log("playersDisplay drawingdata", drawingData);
+    return (
+      <div id="playersDisplay">
+        <div>
+          {players.map((player) => {
+            return (
+              <div
+                className={
+                  player.correctStatus
+                    ? "playerInfoBoxCorrect"
+                    : "playerInfoBoxGuessing"
+                }
+                key={player.name}
+              >
+                <div className="column">
+                  <h4 className="playerNameText">{player.name}</h4>
+                  <h4 className="playerInfoText">
+                    Drawing: {player.correctStatus ? `${wordToDraw}!` : <></>}
+                    {confidence[0] && player.correctStatus === false
+                      ? `${confidence[0].label}?`
+                      : ""}
+                  </h4>
+                  <h4 className="playerInfoText">Score: {player.points}</h4>
+                </div>
+                <MiniCanvas imageData={drawingData} />
               </div>
-              <img
-                className="miniDrawing"
-                src="https://i.imgur.com/LkWiJ0P.png"
-              />
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+}
+
+function drawPixel(color, context, x, y, size) {
+  context.fillStyle = color;
+  context.fillRect(x, y, size, size);
+}
 
 export default PlayersView;

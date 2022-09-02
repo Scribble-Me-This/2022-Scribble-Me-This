@@ -4,26 +4,30 @@ import ml5 from "ml5";
 import socket from "./client.js";
 import { Canvas, Confidence, Player, PlayersDisplay, possibilities } from "./components";
 
+let clock;
+let context;
+let stack = [];
+let undoing = [false];
+const height = 280;
+const width = 280;
+
 socket.on("connect", () => {
   console.log("Client connected: client same level", socket);
 });
 
-let clock;
+
 const options = {
   task: "classification",
   debug: false,
 };
+
 const nn = ml5.neuralNetwork(options);
+
 const modelDetails = {
   model: "./model.json",
   metadata: "./model_meta.json",
   weights: "./model.weights.bin",
 };
-let context;
-let stack = [];
-let undoing = false;
-const height = 280;
-const width = 280;
 
 nn.load(modelDetails, (() => console.log("Neural Net Loaded")));
 
@@ -43,6 +47,7 @@ class App extends React.Component {
       totalRounds: 5,
       currentRound: 1,
     };
+    this.setState = this.setState.bind(this)
   }
 
   render() {
@@ -79,12 +84,13 @@ class App extends React.Component {
                 </div>
                 <div className="canvasEtc">
                   <Confidence confidence={confidence} />
-                  <Canvas id="canvas" clearCanvas={clearCanvas} drawPixel={drawPixel} context={context}/>
-                  {this.loadCanvasLogic(this.mapPixels)}
+                  <Canvas id="canvas" clearCanvas={clearCanvas} mapPixels={this.mapPixels} drawPixel={drawPixel} context={context} stack={stack} undoing={undoing} undo={undo}/>
+                  {this.loadCanvasLogic(this.mapPixels, this.state, this.setState)}
                   <PlayersDisplay
                     players={players}
                     confidence={confidence}
                     wordToDraw={wordToDraw}
+                    drawingData={players[0].drawingData}
                   />
                 </div>
               </div>
@@ -99,13 +105,13 @@ class App extends React.Component {
             </button>
           )}
         </div>
-        <Routes />
       </div>
     );
   }
 
   beginRound = () => {
     let rand = Math.floor(Math.random() * possibilities.length);
+    stack = [];
     this.setState({
       timer: this.state.timeSetting,
       wordToDraw: possibilities[rand],
@@ -221,7 +227,7 @@ class App extends React.Component {
 // ~~~~ CANVAS LOGIC ~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~
 
-  loadCanvasLogic = (mapPixels) => {
+  loadCanvasLogic = (mapPixels, state, updateState) => {
     const canvas = document.querySelector("#canvas");
     if (!canvas) return;
     if (this.state.canvasLoaded) return;
@@ -230,13 +236,13 @@ class App extends React.Component {
     canvas.width = width;
     let drawing = false;
     const rect = canvas.getBoundingClientRect();
-    clearCanvas(context);
+    clearCanvas(context, this.mapPixels);
 
     function startDraw(e) {
       drawing = true;
-      if (undoing) {
+      if (undoing[0]) {
         stack.push(context.getImageData(0, 0, height, width));
-        undoing = false;
+        undoing[0] = false;
       }
       draw(e);
     }
@@ -247,6 +253,7 @@ class App extends React.Component {
     }
 
     function draw(e) {
+      let {players} = state;
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       if (!drawing) return;
@@ -256,7 +263,10 @@ class App extends React.Component {
       context.stroke();
       context.beginPath();
       context.moveTo(x, y);
-      mapPixels(context);
+      players[0].drawingData = mapPixels(context);
+      updateState({
+        players: players,
+      })
     }
 
     canvas.addEventListener("mousedown", startDraw);
@@ -267,19 +277,30 @@ class App extends React.Component {
     });
   };
 }
-function clearCanvas(context) {
+function clearCanvas(context, mapPixels) {
   for (let i = 0; i < 280; i++) {
     for (let j = 0; j < 280; j++) {
       drawPixel("white", context, i, j, 1);
     }
   }
   stack.push(context.getImageData(0, 0, 280, 280));
+  mapPixels(context);
 }
 
 function drawPixel(color, context, x, y, size) {
   context.fillStyle = color;
   context.fillRect(x, y, size, size);
 }
+
+function undo(context, stack, undoing) {
+  if (!stack.length) return;
+  if (!undoing[0]) {
+    undoing[0] = true;
+    stack.pop();
+  }
+  context.putImageData(stack.pop(), 0, 0);
+}
+
 
 
 export default App;

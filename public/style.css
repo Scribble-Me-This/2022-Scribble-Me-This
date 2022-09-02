@@ -242,3 +242,9 @@ td {
 .smallMargin {
   margin-top: 50px;
 }
+
+#miniPic {
+  width: 42px;
+  height: 42px;
+  margin: 1.5px;
+}
