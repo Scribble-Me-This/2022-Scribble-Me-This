@@ -3,9 +3,10 @@ import React from "react";
 import ml5 from "ml5";
 import socket from "./client.js";
 import { Canvas, Confidence, Player, PlayersDisplay, possibilities } from "./components";
+import Routes from "./Routes";
 
 socket.on("connect", () => {
-  console.log("Client connected: client same level", socket);
+  console.log("Client connected: App.js", socket);
 });
 
 let clock;
@@ -42,7 +43,25 @@ class App extends React.Component {
       canvasLoaded: false,
       totalRounds: 5,
       currentRound: 1,
+      lobbyInstance: {},
     };
+    this.socket = socket;
+  }
+
+  componentDidMount() {
+    this.socket.on("gameStart", (bool) => {
+      if (bool) {
+        setTimeout(() => {
+          this.beginRound();
+        }, 3000);
+      } else {
+        return;
+      }
+    });
+  }
+
+  lobbyInstanceUpdater = (newlobbyInstance) => {
+    this.setState({ lobbyInstance: newlobbyInstance });
   }
 
   render() {
@@ -90,16 +109,11 @@ class App extends React.Component {
               </div>
             </div>
           ) : (
-            <button
-              onClick={() => {
-                this.beginRound();
-              }}
-            >
-              Start
-            </button>
+            <div>
+            <Routes lobbyInstanceUpdater={this.lobbyInstanceUpdater}/>
+          </div>
           )}
         </div>
-        <Routes />
       </div>
     );
   }

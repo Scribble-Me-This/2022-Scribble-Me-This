@@ -1,7 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { logout } from '../store';
 
 const Navbar = ({ handleClick }) => {
   return (
@@ -16,25 +14,9 @@ const Navbar = ({ handleClick }) => {
           />
         </Link>
       </div>
-      <a href='#' onClick={handleClick}>
-        <button className='logout'>Logout</button>
-      </a>
     </header>
   );
 };
 
-const mapState = (state) => {
-  return {
-    isLoggedIn: !!state.auth.id,
-  };
-};
 
-const mapDispatch = (dispatch) => {
-  return {
-    handleClick() {
-      dispatch(logout());
-    },
-  };
-};
-
-export default connect(mapState, mapDispatch)(Navbar);
+export default Navbar;

@@ -13,7 +13,7 @@ const io = new Server(httpServer, {
 });
 //https://socket.io/docs/v4/server-initialization/
 
-const LobbyList = {};
+const LobbyList = [];
 const state = {};
 
 io.on("connection", (socket) => {
@@ -53,12 +53,12 @@ io.on("connection", (socket) => {
           maxPlayers: 4,
           password: "",
         },
-        gameState: {
+        gameViewLogic: {
           inGame: false,
           drawing: false,
           results: false,
         },
-      },
+      }, 
     };
   }
   //logic
@@ -68,39 +68,47 @@ io.on("connection", (socket) => {
     let lobbyId = idGen(5);
     LobbyList[socket.id] = lobbyId;
     state[lobbyId] = createState(lobbyId, socket.id);
-    //state[lobbyId].clients.push(client);
-    //handleJoinLobby(lobbyId);
-    console.log('here', state[lobbyId]);
     socket.join(lobbyId);
-    console.log(state)
+    console.log('all states here: ', state)
     io.to(socket.id).emit("newLobby", state[lobbyId]);
   }
   //update lobby
-  // socket.on("updateLobby", newState, handleUpdateLobby);
-  // function handleUpdateLobby(newState) {
-  //   state[gameId] = newState;
-  //   io.to(gameId).emit("lobbyUpdate", newState);
-  // }
+  socket.on("updateLobby", (newState) => {
+    state[gameId] = newState;
+    io.to(gameId).emit("lobbyUpdate", newState);
+  });
   //view lobbies
   socket.on("viewLobbies", handleViewLobbies);
   function handleViewLobbies() {
+    console.log("viewLobbies", LobbyList);
     io.to(socket.id).emit("lobbies", LobbyList);
   }
   //join lobby
-  // socket.on("joinLobby", ((lobbyId, client), handleJoinLobby));
-  // function handleJoinLobby(lobbyId) {
-  //   const lobby = findLobby(lobbyId);
-  //   if (LobbyList[socket.id][lobbyId]) {
-  //     state[lobbyId].clients.push(client);
-  //     io.to(socket.id).emit("joinedLobby", true);
-  //   } else {
-  //     io.to(socket.id).emit("joinedLobby", false);
-  //   }
-  // }
+  socket.on("joinLobby", (lobbyId, client) => {
+    const uppLobbyId = lobbyId.toUpperCase();
+    if (LobbyList[socket.id] = [uppLobbyId]) {
+      state[uppLobbyId].clients.push(client);
+      console.log('joined lobby');
+      //fix to send to clients in joined lobby
+      io.emit("joinedLobby", state[uppLobbyId]);
+    } else {
+      console.log('join lobby failed', state[uppLobbyId]);
+      io.to(socket.id).emit("joinedLobby", false);
+    }
+  });
+  //toggle ready
+  socket.on("toggleReady", (lobbyId) => {
+    if (LobbyList[socket.id] = [lobbyId]) {
+      const client = state[lobbyId].clients.find((client) => client.clientId === socket.id);
+      client.readyCheck = !client.readyCheck;
+      io.emit("lobbyUpdate", state[lobbyId]);
+    } else {
+      console.log('toggle ready failed');
+    }
+  })
   //Broadcast Ready Check
-  socket.on("readyCheck", handleReadyCheck);
-  function handleReadyCheck(lobbyId) {
-    if (LobbyList[socket.id][lobbyId]) {
+  socket.on("readyCheck", (lobbyId) => {
+    if (LobbyList[socket.id] = [lobbyId]) {
       let readyPlayers = [];
       let notReadyPlayers = [];
       for (let i = 0; i < state[lobbyId].clients.length; i++) {
@@ -115,12 +123,13 @@ io.on("connection", (socket) => {
       }
       if (readyPlayers.length === state[lobbyId].clients.length) {
         //game starts
-        io.to(socket.id).emit("readyCheck", true);
+        //fix to send to clients in joined lobby
+        io.emit("gameStart", true);
       } else {
-        io.to(socket.id).emit("readyCheck", false);
+        io.to(socket.id).emit("gameStart", false);
       }
     }
-  }
+  });
 });
 module.exports = httpServer;
 
