@@ -1,6 +1,8 @@
 import React from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import socket from "../client.js";
+import { getGameState } from "../store/gameState";
 
 /**
  * COMPONENT
@@ -8,9 +10,7 @@ import socket from "../client.js";
 class Home extends React.Component {
   constructor(props) {
     super(props);
-
     this.socket = socket;
-
   }
 
   componentDidMount() {
@@ -18,16 +18,15 @@ class Home extends React.Component {
     this.socket.on("connect", () => {
       console.log("Client connected: Home.js", this.socket);
     })
-    this.socket.on("newLobby", (lobbyState) => {
-      console.log("newLobby GOT", lobbyState);
-      this.props.lobbyInstanceUpdater(lobbyState)
-    })
+    // this.socket.on("newLobby", (lobbyState) => {
+    //   console.log("newLobby GOT", lobbyState);
+    //   this.props.lobbyInstanceUpdater(lobbyState)
+    //   this.props.updateState(lobbyState)
+    // })
   }
 
-
-
-
   render() {
+    console.log('state in Home.js', this.state)
     return (
       <div>
         <div className="centerWrapper">
@@ -85,5 +84,17 @@ class Home extends React.Component {
   }
 }
 
+const mapState = (state) => {
+  return {
+    gameState: state.gameState,
+  };
+};
 
-export default Home;
+const mapDispatch = (dispatch) => {
+  return {
+    // explicitly forwarding arguments
+    updateState: (lobbyState) => dispatch(getGameState(lobbyState)),
+  }
+}
+
+export default connect(mapState, mapDispatch)(Home);

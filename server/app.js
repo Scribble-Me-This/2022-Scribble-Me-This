@@ -58,7 +58,7 @@ io.on("connection", (socket) => {
           drawing: false,
           results: false,
         },
-      },
+      }, 
     };
   }
   //logic
