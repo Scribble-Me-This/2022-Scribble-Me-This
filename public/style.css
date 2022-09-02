@@ -242,3 +242,21 @@ td {
 .smallMargin {
   margin-top: 50px;
 }
+
+.margin {
+  width: 2rem;
+}
+
+.horPadding {
+  padding-right: 1.4rem;
+  padding-left: 1.4rem;
+}
+
+#left {
+  text-align: left;
+}
+
+#input {
+  display: inline-block;
+  float: right;
+}
