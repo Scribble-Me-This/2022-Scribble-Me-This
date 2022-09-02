@@ -2,10 +2,15 @@ import Navbar from "./components/Navbar";
 import React from "react";
 import ml5 from "ml5";
 import socket from "./client.js";
-import { Canvas, Confidence, Player, PlayersDisplay, possibilities } from "./components";
+import {
+  Canvas,
+  Confidence,
+  Player,
+  PlayersDisplay,
+  possibilities,
+} from "./components";
 import Routes from "./Routes";
 import { connect } from "react-redux";
-
 
 socket.on("connect", () => {
   console.log("Client connected: App.js", socket);
@@ -28,7 +33,7 @@ let undoing = false;
 const height = 280;
 const width = 280;
 
-nn.load(modelDetails, (() => console.log("Neural Net Loaded")));
+nn.load(modelDetails, () => console.log("Neural Net Loaded"));
 
 let player1 = new Player("Host", 0, null, null, false);
 
@@ -36,26 +41,17 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      // timeSetting: 15,  // MOVE
-      timer: null,    // MOVE
-      wordToDraw: "",     // MOVE
-      players: [player1],   // MOVE
-      activeRound: false,    // MOVE
-      totalRounds: 5,     // MOVE
-      currentRound: 1,     // MOVE
+      timer: null, // MOVE
+      wordToDraw: "", // MOVE
+      players: [player1], // MOVE
+      activeRound: false, // MOVE
+      totalRounds: 5, // MOVE
+      currentRound: 1, // MOVE
       confidence: [],
       canvasLoaded: false,
       lobbyInstance: {},
-      gameState: {
-        game: {
-          clients: [],
-          settings: {
-            gameId: "",
-            gameSettings: {
-              timeSetting: 0
-            }
-          },
-        },
+      gameSettings: {
+        timeSetting: 0,
       },
     };
     this.socket = socket;
@@ -71,14 +67,19 @@ class App extends React.Component {
         return;
       }
     });
+    this.socket.on("initGame", (masterSettings) => {
+      this.setState({
+        gameSettings: masterSettings,
+      });
+    });
   }
 
   lobbyInstanceUpdater = (newlobbyInstance) => {
     this.setState({ lobbyInstance: newlobbyInstance });
-  }
+  };
 
   render() {
-    const timeSetting = this.state.gameState.game.settings.gameSettings.timeSetting || 15;
+    const timeSetting = this.state.gameSettings.timeSetting || 0;
     const {
       wordToDraw,
       activeRound,
@@ -112,7 +113,12 @@ class App extends React.Component {
                 </div>
                 <div className="canvasEtc">
                   <Confidence confidence={confidence} />
-                  <Canvas id="canvas" clearCanvas={clearCanvas} drawPixel={drawPixel} context={context}/>
+                  <Canvas
+                    id="canvas"
+                    clearCanvas={clearCanvas}
+                    drawPixel={drawPixel}
+                    context={context}
+                  />
                   {this.loadCanvasLogic(this.mapPixels)}
                   <PlayersDisplay
                     players={players}
@@ -124,8 +130,8 @@ class App extends React.Component {
             </div>
           ) : (
             <div>
-            <Routes lobbyInstanceUpdater={this.lobbyInstanceUpdater}/>
-          </div>
+              <Routes lobbyInstanceUpdater={this.lobbyInstanceUpdater} />
+            </div>
           )}
         </div>
       </div>
@@ -133,7 +139,7 @@ class App extends React.Component {
   }
 
   beginRound = () => {
-    const timeSetting = this.state.gameState.game.settings.gameSettings.timeSetting || 15;
+    const timeSetting = this.state.gameSettings.timeSetting || 0;
 
     let rand = Math.floor(Math.random() * possibilities.length);
     this.setState({
@@ -160,7 +166,7 @@ class App extends React.Component {
   };
 
   gameTick = () => {
-    const timeSetting = this.state.gameState.game.settings.gameSettings.timeSetting || 15;
+    const timeSetting = this.state.gameSettings.timeSetting || 0;
     const {
       players,
       timer,
@@ -172,7 +178,7 @@ class App extends React.Component {
     this.setState({
       timer: (timer - 0.05).toFixed(2),
     });
-    if (timer < 0 && currentRound === totalRounds) {
+    if (timer <= 0 && currentRound === totalRounds) {
       this.endRound();
       console.log("Round over");
       this.setState({
@@ -213,6 +219,10 @@ class App extends React.Component {
     clearInterval(clock);
   };
 
+  guess = (input) => {
+    nn.classify(input, this.handleResults);
+  };
+
   handleResults = (error, result) => {
     if (error) {
       console.error(error);
@@ -221,10 +231,6 @@ class App extends React.Component {
     this.setState({
       confidence: result,
     });
-  };
-
-  guess = (input) => {
-    nn.classify(input, this.handleResults);
   };
 
   mapPixels = (canvas) => {
@@ -247,9 +253,9 @@ class App extends React.Component {
     return drawingData;
   };
 
-// ~~~~~~~~~~~~~~~~~~~~~~
-// ~~~~ CANVAS LOGIC ~~~~
-// ~~~~~~~~~~~~~~~~~~~~~~
+  // ~~~~~~~~~~~~~~~~~~~~~~
+  // ~~~~ CANVAS LOGIC ~~~~
+  // ~~~~~~~~~~~~~~~~~~~~~~
 
   loadCanvasLogic = (mapPixels) => {
     const canvas = document.querySelector("#canvas");
@@ -296,7 +302,6 @@ class App extends React.Component {
       canvasLoaded: true,
     });
   };
-
 }
 function clearCanvas(context) {
   for (let i = 0; i < 280; i++) {
@@ -324,6 +329,5 @@ const mapDispatch = (dispatch) => {
     // explicitly forwarding arguments
   };
 };
-
 
 export default connect(mapState, mapDispatch)(App);

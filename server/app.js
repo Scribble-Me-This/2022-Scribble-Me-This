@@ -47,6 +47,7 @@ io.on("connection", (socket) => {
         gameId: lobbyId,
         leader: leaderId,
         gameSettings: {
+          timeSetting: 15,
           currentWord: "",
           wordArr: [],
           drawTime: 60,
@@ -122,14 +123,17 @@ io.on("connection", (socket) => {
         }
       }
       if (readyPlayers.length === state[lobbyId].clients.length) {
+        const masterSettings = state[lobbyId].settings.gameSettings
         //game starts
         //fix to send to clients in joined lobby
         io.emit("gameStart", true);
+        io.emit("initGame", masterSettings)
       } else {
         io.to(socket.id).emit("gameStart", false);
       }
     }
   });
+
 });
 module.exports = httpServer;
 
@@ -172,3 +176,17 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).send(err.message || "Internal server error.");
 });
+
+  beginRound = () => {
+    const timeSetting = this.state.gameState.game.settings.gameSettings.timeSetting || 15;
+
+    let rand = Math.floor(Math.random() * possibilities.length);
+    this.setState({
+      timer: timeSetting,
+      wordToDraw: possibilities[rand],
+      canvasLoaded: false,
+      activeRound: true,
+    });
+    console.log("start round:", this.state);
+    this.startClock();
+  };
