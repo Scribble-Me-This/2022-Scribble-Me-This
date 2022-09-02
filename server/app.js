@@ -123,7 +123,8 @@ io.on("connection", (socket) => {
       }
       if (readyPlayers.length === state[lobbyId].clients.length) {
         //game starts
-        io.to(socket.id).emit("gameStart", true);
+        //fix to send to clients in joined lobby
+        io.emit("gameStart", true);
       } else {
         io.to(socket.id).emit("gameStart", false);
       }
