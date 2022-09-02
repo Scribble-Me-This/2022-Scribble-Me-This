@@ -45,6 +45,19 @@ class App extends React.Component {
       currentRound: 1,
       lobbyInstance: {},
     };
+    this.socket = socket;
+  }
+
+  componentDidMount() {
+    this.socket.on("gameStart", (bool) => {
+      if (bool) {
+        setTimeout(() => {
+          this.beginRound();
+        }, 3000);
+      } else {
+        return;
+      }
+    });
   }
 
   lobbyInstanceUpdater = (newlobbyInstance) => {
@@ -96,16 +109,11 @@ class App extends React.Component {
               </div>
             </div>
           ) : (
-            <button
-              onClick={() => {
-                this.beginRound();
-              }}
-            >
-              Start
-            </button>
+            <div>
+            <Routes lobbyInstanceUpdater={this.lobbyInstanceUpdater}/>
+          </div>
           )}
         </div>
-        <Routes lobbyInstanceUpdater={this.lobbyInstanceUpdater}/>
       </div>
     );
   }

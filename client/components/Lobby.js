@@ -24,31 +24,38 @@ class Lobby extends React.Component {
 
   componentDidMount() {
     this.socket.on("newLobby", (lobbyState) => {
-      socket.emit(
-        "joinLobby",
-        lobbyState.settings.gameId,
-        {
-          username: "Lobby Leader",
-          clientId: this.socket.id,
-          readyCheck: false,
-          guessed: false,
-          previewPic: {},
-          bestGuess: "",
-          confidence: [],
-          score: 0,
-        }
-      );
+      socket.emit("joinLobby", lobbyState.settings.gameId, {
+        username: "Lobby Leader",
+        clientId: this.socket.id,
+        readyCheck: false,
+        guessed: false,
+        previewPic: {},
+        bestGuess: "",
+        confidence: [],
+        score: 0,
+      });
       this.props.lobbyInstanceUpdater(lobbyState);
       this.props.updateGameState(lobbyState);
-      console.log('this.props in new lobby', this.props)
       this.setState(this.props);
     });
     this.socket.on("joinedLobby", (newState) => {
-      console.log("joinedLobby GOT", newState);
       this.props.lobbyInstanceUpdater(newState);
       this.props.updateGameState(newState);
-      console.log('this.props in join lobby', this.props.gameState)
-      this.setState({gameState: this.props.gameState});
+      this.setState({ gameState: this.props.gameState });
+    });
+    // this.socket.on("gameStart", (bool) => {
+    //   if (bool) {
+    //     setTimeout(() => {
+    //       alert("Game start!");
+    //     }, 3000);
+    //   } else {
+    //     return;
+    //   }
+    // });
+    this.socket.on("lobbyUpdate", (newState) => {
+      this.props.lobbyInstanceUpdater(newState);
+      this.props.updateGameState(newState);
+      this.setState({ gameState: this.props.gameState });
       console.log("props after joined", this.props);
       console.log("this.state after joined", this.state);
     });
@@ -75,7 +82,16 @@ class Lobby extends React.Component {
         </table>
         <ul className="lobby-buttons-wrapper">
           <li className="boxa">RULES:</li>
-          <button className="boxb">Ready Up</button>
+          <button
+            className="boxb"
+            onClick={() => {
+              this.socket.emit("toggleReady", joinCode);
+              this.socket.emit("readyCheck", joinCode);
+              //change style of ready up button
+            }}
+          >
+            Ready Up
+          </button>
           <button className="boxc">{joinCode}</button>
         </ul>
       </div>

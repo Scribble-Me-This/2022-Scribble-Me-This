@@ -96,9 +96,18 @@ io.on("connection", (socket) => {
       io.to(socket.id).emit("joinedLobby", false);
     }
   });
+  //toggle ready
+  socket.on("toggleReady", (lobbyId) => {
+    if (LobbyList[socket.id] = [lobbyId]) {
+      const client = state[lobbyId].clients.find((client) => client.clientId === socket.id);
+      client.readyCheck = !client.readyCheck;
+      io.emit("lobbyUpdate", state[lobbyId]);
+    } else {
+      console.log('toggle ready failed');
+    }
+  })
   //Broadcast Ready Check
-  socket.on("readyCheck", handleReadyCheck);
-  function handleReadyCheck(lobbyId) {
+  socket.on("readyCheck", (lobbyId) => {
     if (LobbyList[socket.id] = [lobbyId]) {
       let readyPlayers = [];
       let notReadyPlayers = [];
@@ -114,12 +123,12 @@ io.on("connection", (socket) => {
       }
       if (readyPlayers.length === state[lobbyId].clients.length) {
         //game starts
-        io.to(socket.id).emit("readyCheck", true);
+        io.to(socket.id).emit("gameStart", true);
       } else {
-        io.to(socket.id).emit("readyCheck", false);
+        io.to(socket.id).emit("gameStart", false);
       }
     }
-  }
+  });
 });
 module.exports = httpServer;
 
