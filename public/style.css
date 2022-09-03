@@ -1,5 +1,7 @@
 body {
   font-family: sans-serif;
+  background-image: url("https://i.imgur.com/VkUYFtu.png");
+  background-size: 100%
 }
 
 a {
@@ -92,6 +94,7 @@ td {
   flex: 0 0 100%;
   width: 50%;
   text-align: center;
+  background-color: gainsboro;
 }
 .boxb {
   background: lightgreen;
@@ -118,6 +121,7 @@ td {
 .canvas {
   height: 280px;
   width: 280px;
+  background-color: white;
 }
 
 .miniDrawing {
@@ -165,6 +169,7 @@ td {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
+  background-color: gainsboro;
 }
 
 .canvasEtc {
@@ -180,6 +185,7 @@ td {
   width: 200px;
   height: 280px;
   border: black 2px solid;
+  background-color: gainsboro;
 }
 
 .oneGuess {
@@ -227,6 +233,7 @@ td {
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   color: #0d6efd;
   border-color: #0d6efd;
+  background-color: gainsboro
 }
 
 .hov:hover {
