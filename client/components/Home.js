@@ -23,6 +23,7 @@ class Home extends React.Component {
   }
 
   handleInputChange(event) {
+    event.target.value = event.target.value.toUpperCase()
     this.setState({ input: event.target.value });
   }
 
@@ -104,7 +105,7 @@ class Home extends React.Component {
                     bestGuess: '',
                     confidence: [],
                     score: 0,
-                  }, this.state.gameState);
+                  });
                 }}
               >
                 Submit

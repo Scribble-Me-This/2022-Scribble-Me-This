@@ -54,7 +54,6 @@ class App extends React.Component {
       totalRounds: 5,
       wordToDraw: "",
       activeRound: false,
-      lobbyInstance: {},
     };
     this.setState = this.setState.bind(this)
     this.socket = socket;
@@ -70,6 +69,7 @@ class App extends React.Component {
     });
     socket.on("gameTick", (gameState) => {
       this.setState(gameState)
+      console.log('gameTick', gameState, this.state)
     });
   }
 
@@ -82,10 +82,6 @@ class App extends React.Component {
     let audio = new Audio('/pen_click.mp3');
     audio.play();
   }
-
-  lobbyInstanceUpdater = (newlobbyInstance) => {
-    this.setState({ lobbyInstance: newlobbyInstance });
-  };
 
   render() {
     const timeSetting = this.state.timeSetting || 0;
@@ -140,7 +136,7 @@ class App extends React.Component {
             </div>
           ) : (
             <div>
-              <Routes lobbyInstanceUpdater={this.lobbyInstanceUpdater} />
+              <Routes/>
             </div>
           )}
         </div>

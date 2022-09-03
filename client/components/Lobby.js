@@ -25,7 +25,7 @@ class Lobby extends React.Component {
   componentDidMount() {
     this.socket.on('newLobby', (lobbyState) => {
       console.log("lobbyState", lobbyState)
-      socket.emit('joinLobby', lobbyState.gameId, {
+      socket.emit('initLobby', lobbyState.gameId, {
         username: 'Lobby Leader',
         clientId: this.socket.id,
         readyCheck: false,
@@ -35,12 +35,10 @@ class Lobby extends React.Component {
         confidence: [],
         score: 0,
       }, lobbyState.gameState);
-      this.props.lobbyInstanceUpdater(lobbyState);
       this.props.updateGameState(lobbyState);
       this.setState(this.props);
     });
     this.socket.on('joinedLobby', (newState) => {
-      this.props.lobbyInstanceUpdater(newState);
       this.props.updateGameState(newState);
       this.setState({ gameState: this.props.gameState });
     });
@@ -54,7 +52,6 @@ class Lobby extends React.Component {
     //   }
     // });
     this.socket.on('lobbyUpdate', (newState) => {
-      this.props.lobbyInstanceUpdater(newState);
       this.props.updateGameState(newState);
       this.setState({ gameState: this.props.gameState });
       console.log('props after joined', this.props);
