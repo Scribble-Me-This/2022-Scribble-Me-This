@@ -42,7 +42,7 @@ const modelDetails = {
 
 nn.load(modelDetails, () => console.log('Neural Net Loaded'));
 
-let player1 = new Player('Host', 0, null, null, false);
+let player1 = new Player('Host', 0, null, null, false, [], false);
 
 class App extends React.Component {
   constructor() {
@@ -56,11 +56,6 @@ class App extends React.Component {
       currentRound: 1, // MOVE
       timeSetting: 15,
       timer: null,
-      wordToDraw: '',
-      players: [player1],
-      activeRound: false,
-      confidence: [],
-      canvasLoaded: false,
       lobbyInstance: {},
       gameSettings: {
         timeSetting: 0,
@@ -108,7 +103,6 @@ class App extends React.Component {
       wordToDraw,
       activeRound,
       timer,
-      confidence,
       currentRound,
       totalRounds,
       players,
@@ -137,7 +131,7 @@ class App extends React.Component {
                   <h3> Drawing: {wordToDraw} </h3>
                 </div>
                 <div className='canvasEtc'>
-                  <Confidence confidence={confidence} />
+                  <Confidence confidence={players[0].confidence} />
                   <Canvas 
                   id="canvas" 
                   clearCanvas={clearCanvas} 
@@ -147,7 +141,7 @@ class App extends React.Component {
 
                   <PlayersDisplay
                     players={players}
-                    confidence={confidence}
+                    confidence={players[0].confidence}
                     wordToDraw={wordToDraw}
                     drawingData={players[0].drawingData}
                   />
@@ -166,13 +160,14 @@ class App extends React.Component {
 
   beginRound = () => {
     const timeSetting = this.state.gameSettings.timeSetting || 0;
-
+    const players = this.state.players;
     let rand = Math.floor(Math.random() * possibilities.length);
     stack = [];
+    players[0].canvasLoaded = false;
     this.setState({
       timer: timeSetting,
       wordToDraw: possibilities[rand],
-      canvasLoaded: false,
+      players: players,
       activeRound: true,
     });
     console.log('start round:', this.state);
@@ -200,13 +195,16 @@ class App extends React.Component {
       timer,
       currentRound,
       totalRounds,
-      confidence,
       wordToDraw,
     } = this.state;
     this.setState({
+      //reduce timer by .05 seconds
       timer: (timer - 0.05).toFixed(2),
     });
+    //if time is out and it's the last round
     if (timer <= 0 && currentRound === totalRounds) {
+      // end the round
+      // some after-game logic we haven't made yet
       this.endRound();
       console.log('Round over');
       this.setState({
@@ -214,7 +212,9 @@ class App extends React.Component {
       });
       return;
     }
+    //if time is out and it's not the last round
     if (timer <= 0.0 && currentRound < totalRounds) {
+      // increase round count by one, end the round and begin a round
       this.setState({
         currentRound: currentRound + 1,
       });
@@ -222,11 +222,13 @@ class App extends React.Component {
       this.beginRound();
       return;
     }
+    //if time is proceeding
     players.forEach((player, i) => {
-      if (!confidence[0]) return;
+      //if player's top confidence is the correct word AND correctStatus is false, give points and set correctStatus to true
+      if (!player.confidence[0]) return;
       if (
         player.correctStatus === false &&
-        confidence[0].label === wordToDraw
+        player.confidence[0].label === wordToDraw
       ) {
         let turnPoints = 500 + Math.floor((500 * timer) / timeSetting);
         players[i].points += turnPoints;
@@ -252,12 +254,14 @@ class App extends React.Component {
   };
 
   handleResults = (error, result) => {
+    const {players} = this.state;
     if (error) {
       console.error(error);
       return;
     }
+    players[0].confidence = result;
     this.setState({
-      confidence: result,
+      players: players
     });
   };
 
@@ -288,7 +292,7 @@ class App extends React.Component {
   loadCanvasLogic = (mapPixels, state, updateState) => {
     const canvas = document.querySelector("#canvas");
     if (!canvas) return;
-    if (this.state.canvasLoaded) return;
+    if (this.state.players[0].canvasLoaded) return;
     context = canvas.getContext('2d');
     canvas.height = height;
     canvas.width = width;
@@ -330,8 +334,10 @@ class App extends React.Component {
     canvas.addEventListener('mousedown', startDraw);
     canvas.addEventListener('mouseup', stopDraw);
     canvas.addEventListener('mousemove', draw);
+    const players = state.players;
+    players[0].canvasLoaded = true;
     this.setState({
-      canvasLoaded: true,
+      players: players,
     });
   };
 }
