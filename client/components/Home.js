@@ -94,6 +94,7 @@ class Home extends React.Component {
                 onClick={() => {
                   this.penClick();
                   console.log('join room');
+                  console.log( "homeLobby state", this.state)
                   socket.emit('joinLobby', this.state.input, {
                     username: this.state.username,
                     clientId: this.socket.id,
@@ -103,7 +104,7 @@ class Home extends React.Component {
                     bestGuess: '',
                     confidence: [],
                     score: 0,
-                  });
+                  }, this.state.gameState);
                 }}
               >
                 Submit

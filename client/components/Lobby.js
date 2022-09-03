@@ -24,6 +24,7 @@ class Lobby extends React.Component {
 
   componentDidMount() {
     this.socket.on('newLobby', (lobbyState) => {
+      console.log("lobbyState", lobbyState)
       socket.emit('joinLobby', lobbyState.gameId, {
         username: 'Lobby Leader',
         clientId: this.socket.id,

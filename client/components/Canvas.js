@@ -13,6 +13,8 @@ const Canvas = (props) => {
         <button
           onClick={() => {
             props.clearCanvas(props.context);
+            //            props.clearCanvas(props.context, props.mapPixels(props.context));
+
             pencilClick();
           }}
         >

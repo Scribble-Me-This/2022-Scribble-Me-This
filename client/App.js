@@ -16,6 +16,7 @@ let clock;
 let context;
 let stack = [];
 let undoing = [false];
+let canvasLoaded = false;
 const height = 280;
 const width = 280;
 
@@ -42,30 +43,34 @@ const modelDetails = {
 
 nn.load(modelDetails, () => console.log('Neural Net Loaded'));
 
-let player1 = new Player('Host', 0, null, null, false, [], false);
-
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      timer: null, // MOVE
-      wordToDraw: "", // MOVE
-      players: [player1], // MOVE
-      activeRound: false, // MOVE
-      totalRounds: 5, // MOVE
-      currentRound: 1, // MOVE
-      timeSetting: 15,
-      timer: null,
+      timeSetting: 0,
+      players: [], 
+      timer: null, 
+      currentRound: 1, 
+      totalRounds: 5,
+      wordToDraw: "",
+      activeRound: false,
       lobbyInstance: {},
-      gameSettings: {
-        timeSetting: 0,
-      },
     };
     this.setState = this.setState.bind(this)
     this.socket = socket;
   }
 
   componentDidMount() {
+    socket.on("beginRound", (gameState) => {
+      this.setState(gameState)
+    });
+    socket.on("endRound", (gameState) => {
+      canvasLoaded = false;
+      this.setState(gameState)
+    });
+    socket.on("gameTick", (gameState) => {
+      this.setState(gameState)
+    });
   }
 
   pencilClick() {
@@ -83,7 +88,7 @@ class App extends React.Component {
   };
 
   render() {
-    const timeSetting = this.state.gameSettings.timeSetting || 0;
+    const timeSetting = this.state.timeSetting || 0;
     const {
       wordToDraw,
       activeRound,
@@ -108,7 +113,7 @@ class App extends React.Component {
                   <h3> Drawing: {wordToDraw} </h3>
                 </div>
                 <div className='canvasEtc'>
-                  <Confidence confidence={players[0].confidence} />
+                  <Confidence confidence={players[0]? players[0].confidence : []} />
                   <Canvas 
                   id="canvas" 
                   clearCanvas={clearCanvas} 
@@ -118,9 +123,9 @@ class App extends React.Component {
 
                   <PlayersDisplay
                     players={players}
-                    confidence={players[0].confidence}
+                    confidence={players[0]? players[0].confidence : []}
                     wordToDraw={wordToDraw}
-                    drawingData={players[0].drawingData}
+                    drawingData={players[0]? players[0].drawingData : []}
                   />
                 </div>
               </div>
@@ -142,97 +147,6 @@ class App extends React.Component {
       </div>
     );
   }
-
-  beginRound = () => {
-    const timeSetting = this.state.gameSettings.timeSetting || 0;
-    const players = this.state.players;
-    let rand = Math.floor(Math.random() * possibilities.length);
-    stack = [];
-    players[0].canvasLoaded = false;
-    this.setState({
-      timer: timeSetting,
-      wordToDraw: possibilities[rand],
-      players: players,
-      activeRound: true,
-    });
-    console.log('start round:', this.state);
-    //socket.emit('startRound', EXAMPLE);
-    this.startClock();
-  };
-
-  endRound = () => {
-    let { players } = this.state;
-    this.state.players.forEach((player, i) => {
-      players[i].correctStatus = false;
-    });
-    this.setState({
-      activeRound: false,
-      players: players,
-    });
-    console.log('end round:', this.state);
-    this.stopClock();
-  };
-
-  gameTick = () => {
-    const timeSetting = this.state.gameSettings.timeSetting || 0;
-    const {
-      players,
-      timer,
-      currentRound,
-      totalRounds,
-      wordToDraw,
-    } = this.state;
-    this.setState({
-      //reduce timer by .05 seconds
-      timer: (timer - 0.05).toFixed(2),
-    });
-    //if time is out and it's the last round
-    if (timer <= 0 && currentRound === totalRounds) {
-      // end the round
-      // some after-game logic we haven't made yet
-      this.endRound();
-      console.log('Round over');
-      this.setState({
-        currentRound: 1,
-      });
-      return;
-    }
-    //if time is out and it's not the last round
-    if (timer <= 0.0 && currentRound < totalRounds) {
-      // increase round count by one, end the round and begin a round
-      this.setState({
-        currentRound: currentRound + 1,
-      });
-      this.endRound();
-      this.beginRound();
-      return;
-    }
-    //if time is proceeding
-    players.forEach((player, i) => {
-      //if player's top confidence is the correct word AND correctStatus is false, give points and set correctStatus to true
-      if (!player.confidence[0]) return;
-      if (
-        player.correctStatus === false &&
-        player.confidence[0].label === wordToDraw
-      ) {
-        let turnPoints = 500 + Math.floor((500 * timer) / timeSetting);
-        players[i].points += turnPoints;
-        players[i].correctStatus = true;
-        console.log(`${players[i].name} correct for ${turnPoints} points`);
-      }
-    });
-    this.setState({
-      players: players,
-    });
-  };
-
-  startClock = () => {
-    clock = setInterval(() => this.gameTick(), 50);
-  };
-
-  stopClock = () => {
-    clearInterval(clock);
-  };
 
   guess = (input) => {
     nn.classify(input, this.handleResults);
@@ -277,7 +191,8 @@ class App extends React.Component {
   loadCanvasLogic = (mapPixels, state, updateState) => {
     const canvas = document.querySelector("#canvas");
     if (!canvas) return;
-    if (this.state.players[0].canvasLoaded) return;
+    if (!this.state.players[0]) return;
+    if (canvasLoaded) return;
     context = canvas.getContext('2d');
     canvas.height = height;
     canvas.width = width;
@@ -314,16 +229,13 @@ class App extends React.Component {
       updateState({
         players: players,
       })
+      socket.emit("clientUpdate", state)
     }
 
     canvas.addEventListener('mousedown', startDraw);
     canvas.addEventListener('mouseup', stopDraw);
     canvas.addEventListener('mousemove', draw);
-    const players = state.players;
-    players[0].canvasLoaded = true;
-    this.setState({
-      players: players,
-    });
+    canvasLoaded = true;
   };
 }
 function clearCanvas(context, mapPixels) {

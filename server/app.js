@@ -37,7 +37,6 @@ function createPlayer(client) {
     topGuess: null,
     correctStatus: false,
     confidence: [],
-    canvasLoaded: false,
   };
 }
 
@@ -64,7 +63,6 @@ function createState(lobbyId, leaderId) {
       currentRound: 1,
       totalRounds: 5,
       wordToDraw: "",
-      maxPlayers: 4,
       password: "",
     },
     gameId: lobbyId,
@@ -93,12 +91,11 @@ io.on("connection", (socket) => {
   };
 
   let clock; 
-  
+
   const beginRound = (gameState) => {
     let { timeSetting, players } = gameState;
     console.log("beginRound gameState in", gameState);
     let rand = Math.floor(Math.random() * possibilities.length);
-    players.forEach((player) => (player.canvasLoaded = false));
     gameState.players = players;
     gameState.timer = timeSetting;
     gameState.wordToDraw = possibilities[rand];
@@ -110,19 +107,16 @@ io.on("connection", (socket) => {
 
   const endRound = (gameState) => {
     let { players } = gameState;
-    console.log("endRound gameState in", gameState);
     players.forEach((player) => {
       player.correctStatus = false;
     });
     gameState.activeRound = false;
     gameState.players = players;
-    console.log("endRound gameState out", gameState);
     socket.emit("endRound", gameState);
     stopClock();
   };
 
   const gameTick = (gameState) => {
-    console.log("gameTick gameState in", gameState);
     let { timeSetting, timer, currentRound, totalRounds, wordToDraw, players } =
       gameState;
     gameState.timer = (timer - 0.05).toFixed(2);
@@ -153,9 +147,12 @@ io.on("connection", (socket) => {
       }
     });
     gameState.players = players;
-    console.log("gameTick gameState out", gameState);
     socket.emit("gameTick", gameState);
   };
+
+  socket.on("clientUpdate", (gameState) => {
+    console.log("client Update gameState", gameState)
+  })
 
   //logic
   //create lobby
@@ -185,7 +182,11 @@ io.on("connection", (socket) => {
     if ((LobbyList[socket.id] = [uppLobbyId])) {
       state[uppLobbyId].clients.push(client);
       let newPlayer = createPlayer(client);
+      console.log("gamestate:", gameState, "new player", newPlayer)
       gameState.players.push(newPlayer);
+      console.log("State clients", state[uppLobbyId].clients)
+      console.log("players", state[uppLobbyId].gameState.players)
+      state[uppLobbyId].gameState = gameState;
       console.log("joined lobby");
       //fix to send to clients in joined lobby
       io.emit("joinedLobby", state[uppLobbyId]);
