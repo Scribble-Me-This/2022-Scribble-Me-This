@@ -1,77 +1,114 @@
-import React from "react";
-import { connect } from "react-redux";
-import { Link } from "react-router-dom";
-import socket from "../client.js";
+import React from 'react';
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
+import socket from '../client.js';
+import { getGameState } from '../store/gameState';
 
 /**
  * COMPONENT
  */
 class Home extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      lobbies: data,
+      username: '',
+      input: '',
     };
+    this.socket = socket;
+    this.handleChange = this.handleChange.bind(this);
   }
-  // const dispatch = useDispatch();
-  // const clientGameState = useSelector((state) => state.clientGameState);
 
-  // socket.on("newLobby", (instanceState) => {
-  //   console.log("newLobby", instanceState);
+  handleChange(event) {
+    this.setState({ username: event.target.value });
+  }
 
-  // });
+  handleInputChange(event) {
+    this.setState({ input: event.target.value });
+  }
+
+  componentDidMount() {}
+
+  penClick() {
+    let audio = new Audio('/pen_click.mp3');
+    audio.play();
+  }
 
   render() {
     return (
       <div>
-        <div className="centerWrapper">
+        <div className='centerWrapper'>
           <input
-            className="smallMargin homeButtons"
-            type="text"
-            placeholder="Name Here!"
+            className='smallMargin homeButtons'
+            type='text'
+            placeholder='Name Here!'
+            value={this.state.username}
+            onChange={(event) => this.handleChange(event)}
           ></input>
-          <Link to="/lobbybrowser">
+          <Link to='/lobbybrowser'>
             <button
-              className="join homeButtons hov"
+              className='join homeButtons hov'
               onClick={() => {
-                console.log("lobbybrowser");
+                this.penClick();
               }}
             >
               View Lobbies
             </button>
           </Link>
-          <div className="flex">
-            <Link to="/lobby">
+          <div className='flex'>
+            <Link to='/lobby'>
               <button
-                className="homeButtons hov"
+                className='homeButtons hov'
                 onClick={() => {
-                  console.log("create room");
-                  socket.emit("newLobby");
+                  this.penClick();
+                  socket.emit('newLobby');
                 }}
               >
                 Create Room
               </button>
             </Link>
-            <div className="smallWrapper">
+            <div className='smallWrapper'>
               <img
-                className="flex"
-                src="/assets/leftArrow.svg"
-                height="50px"
-                width="100px"
+                className='flex'
+                src='/assets/leftArrow.svg'
+                height='50px'
+                width='100px'
               />
               <img
-                className="flex"
-                src="/assets/rightArrow.svg"
-                height="50px"
-                width="100px"
+                className='flex'
+                src='/assets/rightArrow.svg'
+                height='50px'
+                width='100px'
               />
             </div>
             <input
-              className="homeButtons input40"
-              type="text"
-              placeholder="Code"
+              className='homeButtons input40'
+              type='text'
+              placeholder='Code'
+              maxLength='5'
+              value={this.state.input}
+              onChange={(event) => this.handleInputChange(event)}
             ></input>
-            <button className="homeButtons hov">Submit</button>
+            <Link to='/lobby'>
+              <button
+                className='homeButtons hov'
+                onClick={() => {
+                  this.penClick();
+                  console.log('join room');
+                  socket.emit('joinLobby', this.state.input, {
+                    username: this.state.username,
+                    clientId: this.socket.id,
+                    readyCheck: false,
+                    guessed: false,
+                    previewPic: {},
+                    bestGuess: '',
+                    confidence: [],
+                    score: 0,
+                  });
+                }}
+              >
+                Submit
+              </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -79,14 +116,18 @@ class Home extends React.Component {
   }
 }
 
-/**
- * CONTAINER
- */
 const mapState = (state) => {
-  console.log("state", state);
   return {
-    clientGameState: state.clientGameState,
+    gameState: state.gameState,
   };
 };
 
-export default Home;
+const mapDispatch = (dispatch) => {
+  return {
+    // explicitly forwarding arguments
+    updateGameState: (lobbyState) => dispatch(getGameState(lobbyState)),
+    updateClientState: (clientState) => dispatch(getClientState(clientState)),
+  };
+};
+
+export default connect(mapState, mapDispatch)(Home);
