@@ -113,14 +113,6 @@ class App extends React.Component {
         <div>
           {activeRound ? (
             <div>
-              <button
-                onClick={() => {
-                  this.pencilClick();
-                  this.endRound();
-                }}
-              >
-                End
-              </button>
               <div className='column'>
                 <div className='instanceStats'>
                   <h3> Time: {timer} </h3>
@@ -147,6 +139,14 @@ class App extends React.Component {
                   />
                 </div>
               </div>
+              <button
+                onClick={() => {
+                  this.pencilClick();
+                  this.endRound();
+                }}
+              >
+                End
+              </button>
             </div>
           ) : (
             <div>
