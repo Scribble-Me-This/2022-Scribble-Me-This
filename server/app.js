@@ -162,8 +162,8 @@ io.on("connection", (socket) => {
       //start ticking based on time setting
       //begin round call
       let rand = Math.floor(Math.random() * possibilities.length);
-      (wordToDraw = possibilities[rand]), console.log("start round:");
-      //socket.emit('startRound', EXAMPLE);
+      let wordToDraw = possibilities[rand];
+      socket.emit('startRound', wordToDraw, timeSetting);
       startClock();
     }
     startClock = () => {
@@ -198,8 +198,8 @@ io.on("connection", (socket) => {
       if (timer <= 0.0 && currentRound < totalRounds) {
         currentRound++;
         //make socket command
-        this.endRound();
-        this.beginRound();
+        socket.emit('endRound', wordToDraw, timeSetting);
+        socket.emit('startRound', wordToDraw, timeSetting);
         return;
       }
       players.forEach((player, i) => {
