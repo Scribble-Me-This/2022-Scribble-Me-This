@@ -5,7 +5,6 @@ const { createServer } = require("http");
 const { Server } = require("socket.io");
 const app = express();
 const httpServer = createServer(app);
-const util = require("util");
 const io = new Server(httpServer, {
   cors: {
     origin: ["http://localhost:8080/"],
@@ -28,6 +27,58 @@ const possibilities = [
   "penguin",
 ];
 
+function createPlayer(client) {
+  return {
+    name: client.username,
+    // id = socket id
+    id: client.clientId,
+    points: 0,
+    drawingData: [],
+    topGuess: null,
+    correctStatus: false,
+    confidence: [],
+    canvasLoaded: false,
+  };
+}
+
+//generate a simple id for sharing
+const idGen = (length) => {
+  let result = "";
+  let characters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};
+//initialize state
+
+function createState(lobbyId, leaderId) {
+  return {
+    gameMode: "ScribbleMeThisClassic",
+    clients: [],
+    gameState: {
+      timeSetting: 15,
+      players: [],
+      timer: 15,
+      currentRound: 1,
+      totalRounds: 5,
+      wordToDraw: "",
+      maxPlayers: 4,
+      password: "",
+    },
+    gameId: lobbyId,
+    leader: leaderId,
+    settings: {
+      gameViewLogic: {
+        inGame: false,
+        drawing: false,
+        results: false,
+      },
+    },
+  };
+}
+
 io.on("connection", (socket) => {
   // console.log(`Socket: ${util.inspect(socket)} has connected`);
   //utils
@@ -40,40 +91,72 @@ io.on("connection", (socket) => {
     }
     return alert("Lobby not found");
   };
-  //generate a simple id for sharing
-  const idGen = (length) => {
-    let result = "";
-    let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
+
+  let clock; 
+  
+  const beginRound = (gameState) => {
+    let { timeSetting, players } = gameState;
+    console.log("beginRound gameState in", gameState);
+    let rand = Math.floor(Math.random() * possibilities.length);
+    players.forEach((player) => (player.canvasLoaded = false));
+    gameState.players = players;
+    gameState.timer = timeSetting;
+    gameState.wordToDraw = possibilities[rand];
+    gameState.activeRound = true;
+    console.log("beginRound gameState out", gameState);
+    socket.emit("beginRound", gameState);
+    startClock(gameState);
   };
-  //initialize state
-  function createState(lobbyId, leaderId) {
-    return {
-      gameMode: "ScribbleMeThisClassic",
-      clients: [],
-      settings: {
-        gameId: lobbyId,
-        leader: leaderId,
-        gameSettings: {
-          timeSetting: 15,
-          currentWord: "",
-          wordArr: [],
-          drawTime: 60,
-          maxPlayers: 4,
-          password: "",
-        },
-        gameViewLogic: {
-          inGame: false,
-          drawing: false,
-          results: false,
-        },
-      },
-    };
-  }
+
+  const endRound = (gameState) => {
+    let { players } = gameState;
+    console.log("endRound gameState in", gameState);
+    players.forEach((player) => {
+      player.correctStatus = false;
+    });
+    gameState.activeRound = false;
+    gameState.players = players;
+    console.log("endRound gameState out", gameState);
+    socket.emit("endRound", gameState);
+    stopClock();
+  };
+
+  const gameTick = (gameState) => {
+    console.log("gameTick gameState in", gameState);
+    let { timeSetting, timer, currentRound, totalRounds, wordToDraw, players } =
+      gameState;
+    gameState.timer = (timer - 0.05).toFixed(2);
+
+    if (gameState.timer <= 0 && currentRound === totalRounds) {
+      endRound(gameState);
+      // some after-game logic we haven't made yet
+      return;
+    }
+
+    if (gameState.timer <= 0.0 && currentRound < totalRounds) {
+      gameState.currentRound = currentRound + 1;
+      endRound(gameState);
+      beginRound(gameState);
+      return;
+    }
+
+    players.forEach((player, i) => {
+      if (!player.confidence[0]) return;
+      if (
+        player.correctStatus === false &&
+        player.confidence[0].label === wordToDraw
+      ) {
+        let turnPoints = 500 + Math.floor((500 * timer) / timeSetting);
+        players[i].points += turnPoints;
+        players[i].correctStatus = true;
+        console.log(`${players[i].name} correct for ${turnPoints} points`);
+      }
+    });
+    gameState.players = players;
+    console.log("gameTick gameState out", gameState);
+    socket.emit("gameTick", gameState);
+  };
+
   //logic
   //create lobby
   socket.on("newLobby", handleNewLobby);
@@ -97,10 +180,12 @@ io.on("connection", (socket) => {
     io.to(socket.id).emit("lobbies", LobbyList);
   }
   //join lobby
-  socket.on("joinLobby", (lobbyId, client) => {
+  socket.on("joinLobby", (lobbyId, client, gameState) => {
     const uppLobbyId = lobbyId.toUpperCase();
     if ((LobbyList[socket.id] = [uppLobbyId])) {
       state[uppLobbyId].clients.push(client);
+      let newPlayer = createPlayer(client);
+      gameState.players.push(newPlayer);
       console.log("joined lobby");
       //fix to send to clients in joined lobby
       io.emit("joinedLobby", state[uppLobbyId]);
@@ -137,100 +222,23 @@ io.on("connection", (socket) => {
         }
       }
       if (readyPlayers.length === state[lobbyId].clients.length) {
-        const masterSettings = state[lobbyId].settings.gameSettings;
+        const gameState = state[lobbyId].gameState;
         //game starts
         //fix to send to clients in joined lobby
-        io.emit("gameStart", true);
-        io.emit("initGame", masterSettings);
+        beginRound(gameState);
       } else {
         io.to(socket.id).emit("gameStart", false);
       }
     }
   });
-  //start game
-  socket.on("startGame", (lobbyId, initSettings) => {
-    let {
-      timeSetting,
-      players,
-      timer,
-      currentRound,
-      totalRounds,
-      //HEY DUMMY, DONT FORGET TO MOVE TO PLAYERS
-      confidence,
-    } = initSettings;
-    if ((LobbyList[socket.id] = [lobbyId])) {
-      //start ticking based on time setting
-      //begin round call
-      let rand = Math.floor(Math.random() * possibilities.length);
-      let wordToDraw = possibilities[rand];
-      socket.emit('startRound', wordToDraw, timeSetting);
-      startClock();
-    }
-    startClock = () => {
-      clock = setInterval((initSettings) => oneTick(initSettings), 50);
-    };
-    stopClock = () => {
-      clearInterval(clock);
-    };
-    //one tick logic
-    function oneTick(initSettings) {
-      let {
-        timeSetting,
-        players,
-        timer,
-        currentRound,
-        totalRounds,
-        //HEY DUMMY, DONT FORGET TO MOVE TO PLAYERS
-        confidence,
-        wordToDraw,
-      } = initSettings;
-      //decrement timer
-      timer = (timer - 0.05).toFixed(2);
-      //check if timer vals
-      if (timer <= 0 && currentRound === totalRounds) {
-        //make socket command
-        this.endRound();
-        //ENDGAME();
-        //endgame conditions {activeRound = false}
-        console.log("Round over");
-        return;
-      }
-      if (timer <= 0.0 && currentRound < totalRounds) {
-        currentRound++;
-        //make socket command
-        socket.emit('endRound', wordToDraw, timeSetting);
-        socket.emit('startRound', wordToDraw, timeSetting);
-        return;
-      }
-      players.forEach((player, i) => {
-        if (!confidence[0]) return;
-        if (
-          player.correctStatus === false &&
-          confidence[0].label === wordToDraw
-        ) {
-          let turnPoints = 500 + Math.floor((500 * timer) / timeSetting);
-          players[i].points += turnPoints;
-          players[i].correctStatus = true;
-          console.log(`${players[i].name} correct for ${turnPoints} points`);
-        }
-      });
-      //at end of tick
-      //socket.emit('tick', EXAMPLE);
-    }
 
-    endRound = () => {
-      let { players } = this.state;
-      this.state.players.forEach((player, i) => {
-        players[i].correctStatus = false;
-      });
-      this.setState({
-        activeRound: false,
-        players: players,
-      });
-      console.log("end round:", this.state);
-      this.stopClock();
-    };
-  });
+  startClock = (gameState) => {
+    clock = setInterval(() => gameTick(gameState), 50);
+  };
+  
+  stopClock = () => {
+    clearInterval(clock);
+  };
 });
 module.exports = httpServer;
 
@@ -240,8 +248,7 @@ app.use(morgan("dev"));
 // body parsing middleware
 app.use(express.json());
 
-// auth and api routes
-app.use("/auth", require("./auth"));
+// api route
 app.use("/api", require("./api"));
 
 app.get("/", (req, res) =>
@@ -274,17 +281,4 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).send(err.message || "Internal server error.");
 });
 
-beginRound = () => {
-  const timeSetting =
-    this.state.gameState.game.settings.gameSettings.timeSetting || 15;
 
-  let rand = Math.floor(Math.random() * possibilities.length);
-  this.setState({
-    timer: timeSetting,
-    wordToDraw: possibilities[rand],
-    canvasLoaded: false,
-    activeRound: true,
-  });
-  console.log("start round:", this.state);
-  this.startClock();
-};

@@ -9,10 +9,6 @@ const updateRate = 1000;
 //   username: "",
 //   clientId: "",
 //   readyCheck: false,
-//   guessed: false,
-//   previewPic: canvas,
-//   bestGuess: "",
-//   confidence: [],
 //   score: 0,
 // };
 // //View lobbies

@@ -66,21 +66,6 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.socket.on('gameStart', (bool) => {
-      if (bool) {
-        setTimeout(() => {
-          this.beginRound();
-        }, 3000);
-      } else {
-        return;
-      }
-    });
-    this.socket.on("initGame", (masterSettings) => {
-      this.setState({
-        gameSettings: masterSettings,
-      });
-    });
-    //this.socket.on('endRound', EXAMPLE);
   }
 
   pencilClick() {

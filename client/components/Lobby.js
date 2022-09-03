@@ -24,7 +24,7 @@ class Lobby extends React.Component {
 
   componentDidMount() {
     this.socket.on('newLobby', (lobbyState) => {
-      socket.emit('joinLobby', lobbyState.settings.gameId, {
+      socket.emit('joinLobby', lobbyState.gameId, {
         username: 'Lobby Leader',
         clientId: this.socket.id,
         readyCheck: false,
@@ -33,7 +33,7 @@ class Lobby extends React.Component {
         bestGuess: '',
         confidence: [],
         score: 0,
-      });
+      }, lobbyState.gameState);
       this.props.lobbyInstanceUpdater(lobbyState);
       this.props.updateGameState(lobbyState);
       this.setState(this.props);
@@ -74,7 +74,7 @@ class Lobby extends React.Component {
   render() {
     console.log('rendered');
     let players = this.state.gameState.game.clients || [];
-    let joinCode = this.state.gameState.game.settings.gameId || '';
+    let joinCode = this.state.gameState.game.gameId || '';
     // let players = [];
     return (
       <div className='lobby-container'>
