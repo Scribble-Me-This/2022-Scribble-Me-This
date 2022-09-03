@@ -243,13 +243,12 @@ td {
   margin-top: 50px;
 }
 
-<<<<<<< HEAD
-#miniPic {
+.miniPic {
   width: 42px;
   height: 42px;
   margin: 1.5px;
 }
-=======
+
 .margin {
   width: 2rem;
 }
@@ -267,4 +266,3 @@ td {
   display: inline-block;
   float: right;
 }
->>>>>>> 88db8470ac8cdaa87505c288342948f32decfdaa

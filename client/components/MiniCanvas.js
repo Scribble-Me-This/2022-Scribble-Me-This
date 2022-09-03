@@ -23,7 +23,7 @@ class MiniCanvas extends React.Component {
   }
 
   render() {
-    return <canvas id="miniPic" height="28" width="28" ref={this.canvasRef} />;
+    return <canvas className="miniPic" height="28" width="28" ref={this.canvasRef} />;
   }
 }
 
