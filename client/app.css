@@ -1,7 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
-  font-family: sans-serif;
-  background-image: url("https://i.imgur.com/VkUYFtu.png");
-  background-size: 100%
+  font-family: 'Indie Flower', sans-serif;
+
+  background-image: url('https://i.imgur.com/VkUYFtu.png');
+  background-size: 100%;
 }
 
 a {
@@ -90,21 +95,35 @@ td {
 }
 
 .boxa {
-  border: solid 3px black;
+  border: solid 1px black;
   flex: 0 0 100%;
   width: 50%;
   text-align: center;
-  background-color: gainsboro;
+  background-color: rgb(178, 211, 238);
+  font-size: xx-large;
 }
+
 .boxb {
   background: lightgreen;
   order: 2;
+  font-size: xx-large;
+  /* border-radius: 2px; */
+  /* margin: 10px; */
+}
+
+.boxb:hover {
+  background-color: rgb(40, 186, 77);
+  color: rgb(205, 235, 253);
 }
 
 .boxb,
 .boxc {
   flex: 0 0 50%;
   width: 50%;
+}
+
+.boxc {
+  background-color: #fff;
 }
 
 .row {
@@ -227,13 +246,15 @@ td {
   background-color: transparent;
   border: 1px solid transparent;
   padding: 6px 12px;
-  font-size: 1rem;
+  font-size: 2rem;
   border-radius: 0.25rem;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   color: #0d6efd;
   border-color: #0d6efd;
-  background-color: gainsboro
+  background-color: gainsboro;
+  /* min-width: 5rem; */
+  /* margin: 0.5rem; */
 }
 
 .hov:hover {

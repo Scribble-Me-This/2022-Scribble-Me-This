@@ -26,6 +26,7 @@
     "axios": "^0.21.1",
     "bcrypt": "^5.0.0",
     "compression": "^1.7.3",
+    "css-loader": "^6.7.1",
     "express": "^4.16.4",
     "history": "^4.9.0",
     "jsonwebtoken": "^8.5.1",
@@ -33,16 +34,19 @@
     "morgan": "^1.9.1",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "pg": "^8.5.1",
+    "postcss-loader": "^7.0.1",
     "quickdraw.js": "^1.0.6",
     "sequelize": "^6.3.5",
     "socket.io": "^4.5.1",
     "socket.io-client": "^4.5.1",
+    "style-loader": "^3.3.1",
     "url-loader": "^4.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.18.13",
     "@babel/preset-react": "^7.12.10",
     "@babel/register": "^7.12.10",
+    "autoprefixer": "^10.4.8",
     "axios": "^0.21.1",
     "axios-mock-adapter": "^1.16.0",
     "babel-loader": "^8.2.5",
@@ -52,6 +56,7 @@
     "esm": "^3.2.25",
     "mocha": "^6.2.3",
     "nodemon": "^1.19.4",
+    "postcss": "^8.4.16",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-redux": "^7.0.1",
@@ -63,6 +68,7 @@
     "redux-mock-store": "^1.5.3",
     "redux-thunk": "^2.3.0",
     "supertest": "^4.0.2",
+    "tailwindcss": "^3.1.8",
     "webpack": "^5.15.0",
     "webpack-cli": "^4.3.1"
   }

@@ -1,16 +1,17 @@
-import Navbar from "./components/Navbar";
-import React from "react";
-import ml5 from "ml5";
-import socket from "./client.js";
+import Navbar from './components/Navbar';
+import React from 'react';
+import './app.css';
+import ml5 from 'ml5';
+import socket from './client.js';
 import {
   Canvas,
   Confidence,
   Player,
   PlayersDisplay,
   possibilities,
-} from "./components";
-import Routes from "./Routes";
-import { connect } from "react-redux";
+} from './components';
+import Routes from './Routes';
+import { connect } from 'react-redux';
 
 let clock;
 let context;
@@ -19,13 +20,12 @@ let undoing = [false];
 const height = 280;
 const width = 280;
 
-socket.on("connect", () => {
-  console.log("Client connected: client same level", socket);
 socket.on('connect', () => {
-  console.log('Client connected: App.js', socket);
+  console.log('Client connected: client same level', socket);
+  socket.on('connect', () => {
+    console.log('Client connected: App.js', socket);
+  });
 });
-})
-
 
 const options = {
   task: 'classification',
@@ -49,7 +49,7 @@ class App extends React.Component {
     super();
     this.state = {
       timer: null, // MOVE
-      wordToDraw: "", // MOVE
+      wordToDraw: '', // MOVE
       players: [player1], // MOVE
       activeRound: false, // MOVE
       totalRounds: 5, // MOVE
@@ -61,7 +61,7 @@ class App extends React.Component {
         timeSetting: 0,
       },
     };
-    this.setState = this.setState.bind(this)
+    this.setState = this.setState.bind(this);
     this.socket = socket;
   }
 
@@ -75,7 +75,7 @@ class App extends React.Component {
         return;
       }
     });
-    this.socket.on("initGame", (masterSettings) => {
+    this.socket.on('initGame', (masterSettings) => {
       this.setState({
         gameSettings: masterSettings,
       });
@@ -124,12 +124,21 @@ class App extends React.Component {
                 </div>
                 <div className='canvasEtc'>
                   <Confidence confidence={players[0].confidence} />
-                  <Canvas 
-                  id="canvas" 
-                  clearCanvas={clearCanvas} 
-                  mapPixels={this.mapPixels} 
-                  drawPixel={drawPixel} context={context} stack={stack} undoing={undoing} undo={undo}/>
-                  {this.loadCanvasLogic(this.mapPixels, this.state, this.setState)}
+                  <Canvas
+                    id='canvas'
+                    clearCanvas={clearCanvas}
+                    mapPixels={this.mapPixels}
+                    drawPixel={drawPixel}
+                    context={context}
+                    stack={stack}
+                    undoing={undoing}
+                    undo={undo}
+                  />
+                  {this.loadCanvasLogic(
+                    this.mapPixels,
+                    this.state,
+                    this.setState
+                  )}
 
                   <PlayersDisplay
                     players={players}
@@ -190,13 +199,8 @@ class App extends React.Component {
 
   gameTick = () => {
     const timeSetting = this.state.gameSettings.timeSetting || 0;
-    const {
-      players,
-      timer,
-      currentRound,
-      totalRounds,
-      wordToDraw,
-    } = this.state;
+    const { players, timer, currentRound, totalRounds, wordToDraw } =
+      this.state;
     this.setState({
       //reduce timer by .05 seconds
       timer: (timer - 0.05).toFixed(2),
@@ -254,14 +258,14 @@ class App extends React.Component {
   };
 
   handleResults = (error, result) => {
-    const {players} = this.state;
+    const { players } = this.state;
     if (error) {
       console.error(error);
       return;
     }
     players[0].confidence = result;
     this.setState({
-      players: players
+      players: players,
     });
   };
 
@@ -290,7 +294,7 @@ class App extends React.Component {
   // ~~~~~~~~~~~~~~~~~~~~~~
 
   loadCanvasLogic = (mapPixels, state, updateState) => {
-    const canvas = document.querySelector("#canvas");
+    const canvas = document.querySelector('#canvas');
     if (!canvas) return;
     if (this.state.players[0].canvasLoaded) return;
     context = canvas.getContext('2d');
@@ -315,7 +319,7 @@ class App extends React.Component {
     }
 
     function draw(e) {
-      let {players} = state;
+      let { players } = state;
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       if (!drawing) return;
@@ -328,7 +332,7 @@ class App extends React.Component {
       players[0].drawingData = mapPixels(context);
       updateState({
         players: players,
-      })
+      });
     }
 
     canvas.addEventListener('mousedown', startDraw);
@@ -364,7 +368,6 @@ function undo(context, stack, undoing) {
   }
   context.putImageData(stack.pop(), 0, 0);
 }
-
 
 const mapState = (state) => {
   return {
