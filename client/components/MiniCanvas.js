@@ -4,26 +4,26 @@ import React from "react";
 class MiniCanvas extends React.Component {
   constructor(props) {
     super(props);
-    this.context = null;
-    this.miniCanvas = (
-      <canvas
-        id="miniPic"
-        height="42"
-        width="42"
-        ref={(node) => {
-          this.context = node ? node.getContext("2d") : null;
-        }}
-      />
-    );
+    this.canvasRef = React.createRef();
+    let context = null;
+    let canvas = null;
+  }
+
+  componentDidMount() {
+    this.canvas = this.canvasRef.current;
+    this.context = this.canvas.getContext('2d');
+    clearCanvas(this.context)
   }
 
   componentDidUpdate() {
-    console.log("this.props", this.props.drawingData)
-    drawImage(this.context, this.props.drawingData);
+    this.canvas = this.canvasRef.current;
+    this.context = this.canvas.getContext('2d');
+    drawImage(this.context,this.props.drawingData);
+    // drawImage(this.context, this.props.drawingData);
   }
 
   render() {
-    return this.miniCanvas;
+    return <canvas id="miniPic" height="28" width="28" ref={this.canvasRef} />;
   }
 }
 
@@ -42,16 +42,14 @@ function drawPixel(color, context, x, y, size) {
 
 function drawImage(canvas, drawingData) {
   if (!drawingData) return;
-  console.log(canvas, drawingData);
   let pixelIndex = 0;
   for (let i = 0; i < 28; i++) {
     for (let j = 0; j < 28; j++) {
-      let color = `rgb(${drawingData[pixelIndex]},${drawingData[pixelIndex]},${drawingData[pixelIndex]})`;
-      drawPixel(color, canvas, i, j, 1);
+      let pixel = 255 - Math.floor(255*drawingData[pixelIndex])
+      let color = `rgb(${pixel},${pixel},${pixel})`;
+      drawPixel(color, canvas, j, i, 1);
       pixelIndex++;
     }
   }
-  console.log(drawingData);
-  return drawingData;
 }
 export default MiniCanvas;
