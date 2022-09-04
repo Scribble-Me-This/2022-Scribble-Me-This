@@ -36,28 +36,31 @@ class Home extends React.Component {
   render() {
     return (
       <div>
-        <div className='centerWrapper'>
+        <div className="centerWrapper">
           <input
-            className='smallMargin homeButtons'
-            type='text'
-            placeholder='Name Here!'
+            className="smallMargin homeButtons"
+            type="text"
+            placeholder="Name Here!"
             value={this.state.username}
             onChange={(event) => this.handleChange(event)}
           ></input>
-          <Link to='/lobbybrowser'>
-            <button
-              className='join homeButtons hov'
-              onClick={() => {
-                this.penClick();
-              }}
-            >
-              View Lobbies
-            </button>
-          </Link>
-          <div className='flex'>
-            <Link to='/lobby'>
+          <div>
+            <Link to="/lobbybrowser">
               <button
-                className='homeButtons hov'
+                className="join homeButtons hov"
+                onClick={() => {
+                  this.penClick();
+                }}
+              >
+                View Lobbies
+              </button>
+            </Link>
+          </div>
+          <div className="flex">
+            <Link to="/lobby">
+              <button
+                className="homeButtons hov"
+                id="equal"
                 onClick={() => {
                   this.penClick();
                   socket.emit('newLobby');
@@ -66,31 +69,31 @@ class Home extends React.Component {
                 Create Room
               </button>
             </Link>
-            <div className='smallWrapper'>
+            <div className="smallWrapper">
               <img
-                className='flex'
-                src='/assets/leftArrow.svg'
-                height='50px'
-                width='100px'
+                className="flex"
+                src="/assets/leftArrow.svg"
+                height="50px"
+                width="100px"
               />
               <img
-                className='flex'
-                src='/assets/rightArrow.svg'
-                height='50px'
-                width='100px'
+                className="flex"
+                src="/assets/rightArrow.svg"
+                height="50px"
+                width="100px"
               />
             </div>
             <input
-              className='homeButtons input40'
-              type='text'
-              placeholder='Code'
-              maxLength='5'
+              className="homeButtons input40"
+              type="text"
+              placeholder="Code"
+              maxLength="5"
               value={this.state.input}
               onChange={(event) => this.handleInputChange(event)}
             ></input>
-            <Link to='/lobby'>
+            <Link to="/lobby">
               <button
-                className='homeButtons hov'
+                className="homeButtons hov"
                 onClick={() => {
                   this.penClick();
                   console.log('join room');
