@@ -7,13 +7,17 @@ class PlayersView extends React.Component {
   constructor(props) {
     super(props);
   }
-  
+
   render() {
-    const { players, confidence, wordToDraw, drawingData } = this.props;
+    const { players, wordToDraw } = this.props;
+    console.log("playersDisplay players", players);
     return (
       <div id="playersDisplay">
         <div>
           {players.map((player) => {
+            const confidence = player.confidence;
+            const drawingData = player.drawingData;
+            if (!drawingData[0])
             return (
               <div
                 className={

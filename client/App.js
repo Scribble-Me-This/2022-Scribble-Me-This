@@ -155,9 +155,7 @@ class App extends React.Component {
 
                   <PlayersDisplay
                     players={players}
-                    confidence={players[playerId] ? players[playerId].confidence : []}
                     wordToDraw={wordToDraw}
-                    drawingData={players[playerId] ? players[playerId].drawingData : []}
                   />
                 </div>
               </div>
