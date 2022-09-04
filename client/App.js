@@ -5,14 +5,11 @@ import socket from "./client.js";
 import {
   Canvas,
   Confidence,
-  Player,
   PlayersDisplay,
-  possibilities,
 } from "./components";
 import Routes from "./Routes";
 import { connect } from "react-redux";
 
-let clock;
 let context;
 let stack = [];
 let undoing = [false];
@@ -71,6 +68,7 @@ class App extends React.Component {
       this.setState(gameState)
       console.log('gameTick', gameState, this.state)
     });
+    socket.on("playerId", playerId => console.log("player ID: ", playerId))
   }
 
   pencilClick() {

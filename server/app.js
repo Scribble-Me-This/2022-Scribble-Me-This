@@ -64,6 +64,7 @@ function createState(lobbyId, leaderId) {
       totalRounds: 5,
       wordToDraw: "",
       password: "",
+      playerId: null,
     },
     gameId: lobbyId,
     leader: leaderId,
@@ -91,7 +92,7 @@ io.on("connection", (socket) => {
   const checkConnect = (lobbyId) => {
     console.log("viewLobbies", LobbyList);
     for (let i = 0; i < LobbyList.length; i++) {
-      console.log('this must be lobbyid', LobbyList[i][socket.id])
+      console.log("this must be lobbyid", LobbyList[i][socket.id]);
       if (LobbyList[i][socket.id] === lobbyId) return true;
     }
     return false;
@@ -194,6 +195,7 @@ io.on("connection", (socket) => {
     if (checkConnect(uppLobbyId)) {
       state[uppLobbyId].clients.push(client);
       let newPlayer = createPlayer(client);
+      newPlayer.playerId = state[uppLobbyId].gameState.players.length;
       console.log("gamestate:", gameState, "new player", newPlayer);
       gameState.players.push(newPlayer);
       console.log("State clients", state[uppLobbyId].clients);
@@ -202,6 +204,7 @@ io.on("connection", (socket) => {
       console.log("joined lobby");
       //fix to send to clients in joined lobby
       io.emit("joinedLobby", state[uppLobbyId]);
+      io.to(socket.id).emit("playerId", newPlayer.playerId);
     } else {
       console.log("join lobby failed", state[uppLobbyId]);
       io.to(socket.id).emit("joinedLobby", false);
@@ -217,12 +220,14 @@ io.on("connection", (socket) => {
     if (checkConnect(uppLobbyId)) {
       state[uppLobbyId].clients.push(client);
       let newPlayer = createPlayer(client);
+      newPlayer.playerId = state[uppLobbyId].gameState.players.length;
       console.log("new player", newPlayer);
       state[uppLobbyId].gameState.players.push(newPlayer);
       console.log("players", state[uppLobbyId].gameState.players);
       console.log("joined lobby");
       //fix to send to clients in joined lobby
       io.emit("joinedLobby", state[uppLobbyId]);
+      io.to(socket.id).emit("playerId", newPlayer.playerId);
     } else {
       console.log("join lobby failed", state[uppLobbyId]);
       io.to(socket.id).emit("joinedLobby", false);
