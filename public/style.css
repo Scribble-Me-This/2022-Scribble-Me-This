@@ -1,7 +1,7 @@
 body {
   font-family: sans-serif;
-  background-image: url("https://i.imgur.com/VkUYFtu.png");
-  background-size: 100%
+  background-image: url('https://i.imgur.com/VkUYFtu.png');
+  background-size: 100%;
 }
 
 a {
@@ -203,6 +203,7 @@ td {
 }
 .flex {
   display: flex;
+  align-items: center;
 }
 
 .smallWrapper {
@@ -214,7 +215,7 @@ td {
 }
 
 .input40 {
-  width: 40px;
+  width: 45px;
 }
 
 .homeButtons {
@@ -233,7 +234,7 @@ td {
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   color: #0d6efd;
   border-color: #0d6efd;
-  background-color: gainsboro
+  background-color: gainsboro;
 }
 
 .hov:hover {
@@ -243,7 +244,9 @@ td {
 }
 
 .join {
-  margin: 75px;
+  display: flex !important;
+  margin-top: 75px;
+  margin-bottom: 75px;
 }
 
 .smallMargin {
@@ -272,4 +275,8 @@ td {
 #input {
   display: inline-block;
   float: right;
+}
+
+#equal {
+  width: 146.8px;
 }
