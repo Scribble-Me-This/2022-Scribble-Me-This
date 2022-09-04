@@ -23,8 +23,8 @@ class Lobby extends React.Component {
   }
 
   componentDidMount() {
+    console.log('Lobby.js mounted');
     this.socket.on("newLobby", (lobbyState) => {
-      console.log("lobbyState", lobbyState);
       socket.emit(
         "initLobby",
         lobbyState.gameId,
@@ -47,20 +47,15 @@ class Lobby extends React.Component {
       this.props.updateGameState(newState);
       this.setState({ gameState: this.props.gameState });
     });
-    // this.socket.on("gameStart", (bool) => {
-    //   if (bool) {
-    //     setTimeout(() => {
-    //       alert("Game start!");
-    //     }, 3000);
-    //   } else {
-    //     return;
-    //   }
-    // });
     this.socket.on("lobbyUpdate", (newState) => {
       this.props.updateGameState(newState);
       this.setState({ gameState: this.props.gameState });
-      console.log("props after joined", this.props);
       console.log("this.state after joined", this.state);
+    });
+    socket.on("beginRound", (gameState) => {
+      console.log("beginRound");
+      this.setState(gameState);
+      this.forceUpdate();
     });
   }
 

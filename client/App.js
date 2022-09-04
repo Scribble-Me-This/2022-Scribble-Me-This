@@ -16,6 +16,7 @@ let undoing = [false];
 let canvasLoaded = false;
 const height = 280;
 const width = 280;
+let listenersLoaded = false;
 
 socket.on("connect", () => {
   console.log("Client connected: client same level", socket);
@@ -23,7 +24,6 @@ socket.on('connect', () => {
   console.log('Client connected: App.js', socket);
 });
 })
-
 
 const options = {
   task: 'classification',
@@ -50,25 +50,45 @@ class App extends React.Component {
       currentRound: 1, 
       totalRounds: 5,
       wordToDraw: "",
+      playerId: null,
       activeRound: false,
     };
     this.setState = this.setState.bind(this)
+    this.socketListeners = this.socketListeners.bind(this)
     this.socket = socket;
   }
 
-  componentDidMount() {
+  socketListeners() {
+    if (listenersLoaded) {
+      return;
+    }
+    console.log('socket listeners loaded');
+    listenersLoaded = true;
     socket.on("beginRound", (gameState) => {
-      this.setState(gameState)
+      console.log("beginRound");
+      this.setState(gameState);
+      this.forceUpdate();
     });
     socket.on("endRound", (gameState) => {
+      console.log("endRound");
       canvasLoaded = false;
       this.setState(gameState)
+      this.forceUpdate();
     });
     socket.on("gameTick", (gameState) => {
-      this.setState(gameState)
+      this.state = (gameState);
       console.log('gameTick', gameState, this.state)
+      this.forceUpdate();
     });
     socket.on("playerId", playerId => console.log("player ID: ", playerId))
+  }
+
+  componentDidMount() {
+    this.socketListeners();
+  }
+
+  componentDidUpdate() {
+    this.socketListeners();
   }
 
   pencilClick() {

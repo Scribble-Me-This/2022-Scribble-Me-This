@@ -65,6 +65,7 @@ function createState(lobbyId, leaderId) {
       wordToDraw: "",
       password: "",
       playerId: null,
+      activeRound: false,
     },
     gameId: lobbyId,
     leader: leaderId,
@@ -109,7 +110,7 @@ io.on("connection", (socket) => {
     gameState.wordToDraw = possibilities[rand];
     gameState.activeRound = true;
     console.log("beginRound gameState out", gameState);
-    socket.emit("beginRound", gameState);
+    io.emit("beginRound", gameState);
     startClock(gameState);
   };
 
@@ -120,14 +121,14 @@ io.on("connection", (socket) => {
     });
     gameState.activeRound = false;
     gameState.players = players;
-    socket.emit("endRound", gameState);
+    io.emit("endRound", gameState);
     stopClock();
   };
 
   const gameTick = (gameState) => {
     let { timeSetting, timer, currentRound, totalRounds, wordToDraw, players } =
       gameState;
-    gameState.timer = (timer - 0.05).toFixed(2);
+    gameState.timer = (timer - 1).toFixed(2);
 
     if (gameState.timer <= 0 && currentRound === totalRounds) {
       endRound(gameState);
@@ -155,7 +156,7 @@ io.on("connection", (socket) => {
       }
     });
     gameState.players = players;
-    socket.emit("gameTick", gameState);
+    io.emit("gameTick", gameState);
   };
 
   socket.on("clientUpdate", (gameState) => {
@@ -164,6 +165,13 @@ io.on("connection", (socket) => {
     let clientGameId = findLobby(playerSocket);
     state[clientGameId] = gameState;
   });
+
+  socket.on("singlePlayerUpdate", (playerArr, playerId, lobbyId) => {
+    //looks for playerId in master state and updates matching Id FROM playerArr
+    //looks for playerId in master state and updates it with playerArrValue
+    state[lobbyId].gameState.players[playerId] = playerArr[playerId];
+  });
+
 
   //logic
   //create lobby
@@ -196,7 +204,6 @@ io.on("connection", (socket) => {
       state[uppLobbyId].clients.push(client);
       let newPlayer = createPlayer(client);
       newPlayer.playerId = state[uppLobbyId].gameState.players.length;
-      console.log("gamestate:", gameState, "new player", newPlayer);
       gameState.players.push(newPlayer);
       console.log("State clients", state[uppLobbyId].clients);
       console.log("players", state[uppLobbyId].gameState.players);
@@ -206,7 +213,7 @@ io.on("connection", (socket) => {
       io.emit("joinedLobby", state[uppLobbyId]);
       io.to(socket.id).emit("playerId", newPlayer.playerId);
     } else {
-      console.log("join lobby failed", state[uppLobbyId]);
+      console.log("join lobby failed on", socket.id, "failed state:", state[uppLobbyId]);
       io.to(socket.id).emit("joinedLobby", false);
     }
   });
@@ -218,6 +225,7 @@ io.on("connection", (socket) => {
     newClientRef[socket.id] = uppLobbyId;
     LobbyList.push(newClientRef);
     if (checkConnect(uppLobbyId)) {
+      socket.join(uppLobbyId);
       state[uppLobbyId].clients.push(client);
       let newPlayer = createPlayer(client);
       newPlayer.playerId = state[uppLobbyId].gameState.players.length;
@@ -251,8 +259,8 @@ io.on("connection", (socket) => {
     if (checkConnect(uppLobbyId)) {
       let readyPlayers = [];
       let notReadyPlayers = [];
-      for (let i = 0; i < state[lobbyId].clients.length; i++) {
-        let currentUser = state[lobbyId].clients[i];
+      for (let i = 0; i < state[uppLobbyId].clients.length; i++) {
+        let currentUser = state[uppLobbyId].clients[i];
         if (currentUser.readyCheck === true) {
           console.log(currentUser.username + " is ready");
           readyPlayers.push(currentUser.username);
@@ -261,19 +269,17 @@ io.on("connection", (socket) => {
           notReadyPlayers.push(currentUser.username);
         }
       }
-      if (readyPlayers.length === state[lobbyId].clients.length) {
-        const gameState = state[lobbyId].gameState;
-        //game starts
-        //fix to send to clients in joined lobby
+      if (readyPlayers.length === state[uppLobbyId].clients.length) {
+        const gameState = state[uppLobbyId].gameState;
         beginRound(gameState);
       } else {
-        io.to(socket.id).emit("gameStart", false);
+        console.log('not all players are ready');
       }
     }
   });
 
   startClock = (gameState) => {
-    clock = setInterval(() => gameTick(gameState), 50);
+    clock = setInterval(() => gameTick(gameState), 1000);
   };
 
   stopClock = () => {
