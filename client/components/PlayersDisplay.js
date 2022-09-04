@@ -21,7 +21,7 @@ class PlayersView extends React.Component {
                     ? "playerInfoBoxCorrect"
                     : "playerInfoBoxGuessing"
                 }
-                key={player.name}
+                key={player.playerId}
               >
                 <div className="column">
                   <h4 className="playerNameText">{player.name}</h4>

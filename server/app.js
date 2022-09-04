@@ -64,7 +64,6 @@ function createState(lobbyId, leaderId) {
       totalRounds: 5,
       wordToDraw: "",
       password: "",
-      playerId: null,
       activeRound: false,
     },
     gameId: lobbyId,
@@ -159,19 +158,13 @@ io.on("connection", (socket) => {
     io.emit("gameTick", gameState);
   };
 
-  socket.on("clientUpdate", (gameState) => {
-    console.log("client Update gameState", gameState);
+  socket.on("playerUpdate", (player) => {
+    console.log("client Update gameState", player);
     let playerSocket = socket.id;
     let clientGameId = findLobby(playerSocket);
-    state[clientGameId] = gameState;
+    console.log("@@@@@@@@@@@", state[clientGameId]);
+    state[clientGameId].gameState.players[player.playerId] = player
   });
-
-  socket.on("singlePlayerUpdate", (playerArr, playerId, lobbyId) => {
-    //looks for playerId in master state and updates matching Id FROM playerArr
-    //looks for playerId in master state and updates it with playerArrValue
-    state[lobbyId].gameState.players[playerId] = playerArr[playerId];
-  });
-
 
   //logic
   //create lobby
