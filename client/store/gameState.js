@@ -13,7 +13,7 @@ export default function gameState(state = initialState, action) {
   console.log('action', action, 'state', state)
   switch (action.type) {
     case GET_GAME_STATE:
-      return {...state, game: action.gameState};
+      return action.gameState;
     default:
       return state;
   }

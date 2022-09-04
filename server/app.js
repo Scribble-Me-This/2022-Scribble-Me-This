@@ -57,13 +57,14 @@ function createState(lobbyId, leaderId) {
     gameMode: "ScribbleMeThisClassic",
     clients: [],
     gameState: {
-      timeSetting: 15,
+      timeSetting: 20,
       players: [],
-      timer: 15,
+      timer: null,
       currentRound: 1,
       totalRounds: 5,
       wordToDraw: "",
       password: "",
+      playerId: null
     },
     gameId: lobbyId,
     leader: leaderId,
@@ -104,7 +105,7 @@ io.on("connection", (socket) => {
     // console.log("beginRound gameState in", gameState);
     let rand = Math.floor(Math.random() * possibilities.length);
     // gameState.players = players;
-    gameState.timer = timeSetting;
+    gameState.timer = +timeSetting;
     gameState.wordToDraw = possibilities[rand];
     gameState.activeRound = true;
     console.log("beginRound gameState out", gameState);
@@ -126,7 +127,7 @@ io.on("connection", (socket) => {
   const gameTick = (gameState) => {
     let { timeSetting, timer, currentRound, totalRounds, wordToDraw, players } =
       gameState;
-    gameState.timer = (timer - 0.05).toFixed(2);
+    gameState.timer = (timer - 2).toFixed(2);
 
     if (gameState.timer <= 0 && currentRound === totalRounds) {
       endRound(gameState);
@@ -195,6 +196,7 @@ io.on("connection", (socket) => {
       state[uppLobbyId].clients.push(client);
       let newPlayer = createPlayer(client);
       console.log("gamestate:", gameState, "new player", newPlayer);
+      newPlayer.playerId = gameState.players.length;
       gameState.players.push(newPlayer);
       console.log("State clients", state[uppLobbyId].clients);
       console.log("players", state[uppLobbyId].gameState.players);
@@ -202,6 +204,7 @@ io.on("connection", (socket) => {
       console.log("joined lobby");
       //fix to send to clients in joined lobby
       io.emit("joinedLobby", state[uppLobbyId]);
+      io.to(socket.id).emit("playerId", newPlayer.playerId)
     } else {
       console.log("join lobby failed", state[uppLobbyId]);
       io.to(socket.id).emit("joinedLobby", false);
@@ -217,12 +220,14 @@ io.on("connection", (socket) => {
     if (checkConnect(uppLobbyId)) {
       state[uppLobbyId].clients.push(client);
       let newPlayer = createPlayer(client);
+      newPlayer.playerId = state[uppLobbyId].gameState.players.length;
       console.log("new player", newPlayer);
       state[uppLobbyId].gameState.players.push(newPlayer);
       console.log("players", state[uppLobbyId].gameState.players);
       console.log("joined lobby");
       //fix to send to clients in joined lobby
       io.emit("joinedLobby", state[uppLobbyId]);
+      io.to(socket.id).emit("playerId", newPlayer.playerId)
     } else {
       console.log("join lobby failed", state[uppLobbyId]);
       io.to(socket.id).emit("joinedLobby", false);
@@ -268,7 +273,7 @@ io.on("connection", (socket) => {
   });
 
   startClock = (gameState) => {
-    clock = setInterval(() => gameTick(gameState), 50);
+    clock = setInterval(() => gameTick(gameState), 2000);
   };
 
   stopClock = () => {
