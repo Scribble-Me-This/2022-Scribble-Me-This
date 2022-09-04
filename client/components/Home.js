@@ -45,20 +45,23 @@ class Home extends React.Component {
             value={this.state.username}
             onChange={(event) => this.handleChange(event)}
           ></input>
-          <Link to="/lobbybrowser">
-            <button
-              className="join homeButtons hov"
-              onClick={() => {
-                this.penClick();
-              }}
-            >
-              View Lobbies
-            </button>
-          </Link>
+          <div>
+            <Link to="/lobbybrowser">
+              <button
+                className="join homeButtons hov"
+                onClick={() => {
+                  this.penClick();
+                }}
+              >
+                View Lobbies
+              </button>
+            </Link>
+          </div>
           <div className="flex">
             <Link to="/lobby">
               <button
                 className="homeButtons hov"
+                id="equal"
                 onClick={() => {
                   this.penClick();
                   socket.emit("newLobby");
