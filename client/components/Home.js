@@ -1,8 +1,8 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import socket from '../client.js';
-import { getGameState } from '../store/gameState';
+import React from "react";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+import socket from "../client.js";
+import { getGameState } from "../store/gameState";
 
 /**
  * COMPONENT
@@ -11,8 +11,8 @@ class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: '',
-      input: '',
+      username: "",
+      input: "",
     };
     this.socket = socket;
     this.handleChange = this.handleChange.bind(this);
@@ -23,13 +23,14 @@ class Home extends React.Component {
   }
 
   handleInputChange(event) {
+    event.target.value = event.target.value.toUpperCase();
     this.setState({ input: event.target.value });
   }
 
   componentDidMount() {}
 
   penClick() {
-    let audio = new Audio('/pen_click.mp3');
+    let audio = new Audio("/pen_click.mp3");
     audio.play();
   }
 
@@ -63,7 +64,7 @@ class Home extends React.Component {
                 id="equal"
                 onClick={() => {
                   this.penClick();
-                  socket.emit('newLobby');
+                  socket.emit("newLobby");
                 }}
               >
                 Create Room
@@ -96,14 +97,15 @@ class Home extends React.Component {
                 className="homeButtons hov"
                 onClick={() => {
                   this.penClick();
-                  console.log('join room');
-                  socket.emit('joinLobby', this.state.input, {
+                  console.log("join room");
+                  console.log("homeLobby state", this.state);
+                  socket.emit("joinLobby", this.state.input, {
                     username: this.state.username,
                     clientId: this.socket.id,
                     readyCheck: false,
                     guessed: false,
                     previewPic: {},
-                    bestGuess: '',
+                    bestGuess: "",
                     confidence: [],
                     score: 0,
                   });

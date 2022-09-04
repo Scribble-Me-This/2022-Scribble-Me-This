@@ -21,8 +21,7 @@ class Routes extends Component {
       <div>
           <Switch>
             <Route exact path='/home' component={Home} />
-            <Route exact path='/lobby' 
-            render={(props) => <Lobby lobbyInstanceUpdater={this.props.lobbyInstanceUpdater} />}  />
+            <Route exact path='/lobby' component={Lobby} />
             <Route path='/lobbybrowser' component={LobbyBrowser} />
             <Route path='/instance' component={Instance} />
             <Redirect to='/home' />
