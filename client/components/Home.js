@@ -51,6 +51,7 @@ class Home extends React.Component {
                 className="join homeButtons hov"
                 onClick={() => {
                   this.penClick();
+                  socket.emit("viewLobbies");
                 }}
               >
                 View Lobbies
