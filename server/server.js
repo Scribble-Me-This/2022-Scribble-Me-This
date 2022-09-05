@@ -2,7 +2,7 @@ const { emit } = require('nodemon');
 
 const io = require('socket.io')(8081, {
   cors: {
-    origin: ['https://scribblemethis.io/'],
+    origin: ['http://localhost:8080/'],
   },
 });
 
