@@ -2,7 +2,7 @@ import Navbar from "./components/Navbar";
 import React from "react";
 import ml5 from "ml5";
 import socket from "./client.js";
-import { Canvas, Confidence, PlayersDisplay } from "./components";
+import { Canvas, Confidence, PlayersDisplay, GameResults } from "./components";
 import Routes from "./Routes";
 import { connect } from "react-redux";
 
@@ -48,6 +48,7 @@ class App extends React.Component {
       wordToDraw: "",
       playerId: null,
       activeRound: false,
+      gameEnd: false,
     };
     this.setState = this.setState.bind(this);
     this.socketListeners = this.socketListeners.bind(this);
@@ -63,12 +64,15 @@ class App extends React.Component {
     socket.on("beginRound", (gameState) => {
       console.log("beginRound");
       this.setState(gameState);
+      this.setState({gameEnd: false})
       this.forceUpdate();
     });
     socket.on("endRound", (gameState) => {
       console.log("endRound");
       canvasLoaded = false;
       this.setState(gameState);
+      this.setState({activeRound: true})
+      this.setState({gameEnd: true})
       this.forceUpdate();
     });
     socket.on("gameTick", (gameState) => {
@@ -79,14 +83,13 @@ class App extends React.Component {
       this.state.totalRounds = gameState.totalRounds;
       this.state.wordToDraw = gameState.wordToDraw;
       this.state.activeRound = gameState.activeRound;
-
-      console.log("gameTick state", gameState, "this.state", this.state);
       this.forceUpdate();
     });
     socket.on("playerId", (playerId) => {
       this.state.playerId = playerId;
       console.log("player ID state ", this.state);
     });
+    socket.on("gameEnd", this.gameEnd = true)
   }
 
   componentDidMount() {
@@ -116,12 +119,15 @@ class App extends React.Component {
       currentRound,
       totalRounds,
       players,
-      playerId
+      playerId,
+      gameEnd
     } = this.state;
     return (
       <div>
         <Navbar />
-        <div>
+
+
+        {gameEnd? <GameResults players={players}/> : <div>
           {activeRound ? (
             <div>
               <div className="column">
@@ -173,7 +179,7 @@ class App extends React.Component {
               <Routes />
             </div>
           )}
-        </div>
+        </div>}
       </div>
     );
   }

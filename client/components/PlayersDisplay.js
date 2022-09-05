@@ -10,7 +10,6 @@ class PlayersView extends React.Component {
 
   render() {
     const { players, wordToDraw } = this.props;
-    console.log("playersDisplay players", players);
     return (
       <div id="playersDisplay">
         <div>
