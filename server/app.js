@@ -7,7 +7,7 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: ['https://scribblemethis.io/'],
+    origin: ['http://localhost:8080/'],
   },
 });
 //https://socket.io/docs/v4/server-initialization/
