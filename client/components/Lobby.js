@@ -64,6 +64,11 @@ class Lobby extends React.Component {
     audio.play();
   }
 
+  pencilClick() {
+    let audio = new Audio("/pencil.mp3");
+    audio.play();
+  }
+
   bubbleClick() {
     let audio = new Audio("/bubble.mp3");
     audio.play();

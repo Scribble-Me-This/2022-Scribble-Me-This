@@ -56,6 +56,7 @@ function createState(lobbyId, leaderId) {
   return {
     gameMode: "ScribbleMeThisClassic",
     clients: [],
+    lobbyName: "",
     gameState: {
       timeSetting: 15,
       players: [],
@@ -65,6 +66,7 @@ function createState(lobbyId, leaderId) {
       wordToDraw: "",
       password: "",
       activeRound: false,
+      maxPlayers: 4,
     },
     gameId: lobbyId,
     leader: leaderId,
@@ -186,10 +188,13 @@ io.on("connection", (socket) => {
     io.emit("lobbyUpdate", newState);
   });
   //view lobbies
-  socket.on("viewLobbies", handleViewLobbies);
-  function handleViewLobbies() {
-    io.to(socket.id).emit("lobbies", LobbyList);
-  }
+  socket.on("viewLobbies", () => {
+    let stateLobbies = [];
+    for (let key in state) {
+      stateLobbies.push(state[key]);
+    }
+    io.to(socket.id).emit("lobbies", stateLobbies);
+  })
   //join lobby (leader)
   socket.on("initLobby", (lobbyId, client, gameState) => {
     const uppLobbyId = lobbyId.toUpperCase();
