@@ -62,14 +62,22 @@ td {
   background-color: rgb(205, 235, 253);
 }
 .navbar {
-  background-color: gainsboro;
-}
-
-.navbar_wrapper {
   display: flex;
   justify-content: space-around;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.navbar_wrapper {
+  background-color: gainsboro;
+  border-radius: 20px;
+  background-color: #e5e5f7;
+  opacity: 0.9;
+  background-size: 41px 41px;
+  background-image:  repeating-linear-gradient(0deg, #0d6efd, #0d6efd 2.1px, #e5e5f7 2.1px, #e5e5f7);#e5e5f7
+  );
+  margin: 2rem;
+  margin-bottom: 0 !important;
 }
 
 .logo {
@@ -209,13 +217,12 @@ td {
 .smallWrapper {
   height: 100%;
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
 }
 
 .input40 {
-  width: 45px;
+  width: 70px;
 }
 
 .homeButtons {
@@ -278,5 +285,5 @@ td {
 }
 
 #equal {
-  width: 146.8px;
+  width: 171.8px;
 }
