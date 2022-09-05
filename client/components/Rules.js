@@ -52,7 +52,7 @@ class Rules extends React.Component {
             ></input>
           </li>
         </ul>
-        <button className="homeButtons hov startGame">Start Game</button>
+        <button className="homeButtons hov startGame">Save Settings</button>
       </div>
     );
   }
