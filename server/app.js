@@ -90,9 +90,7 @@ io.on("connection", (socket) => {
   };
 
   const checkConnect = (lobbyId) => {
-    console.log("viewLobbies", LobbyList);
     for (let i = 0; i < LobbyList.length; i++) {
-      console.log("this must be lobbyid", LobbyList[i][socket.id]);
       if (LobbyList[i][socket.id] === lobbyId) return true;
     }
     return false;
@@ -102,7 +100,6 @@ io.on("connection", (socket) => {
 
   const beginRound = (gameState) => {
     let { timeSetting, players } = gameState;
-    // console.log("beginRound gameState in", gameState);
     let rand = Math.floor(Math.random() * possibilities.length);
     // gameState.players = players;
     gameState.timer = timeSetting;
@@ -127,17 +124,21 @@ io.on("connection", (socket) => {
   const gameTick = (gameState) => {
     let { timeSetting, timer, currentRound, totalRounds, wordToDraw, players } =
       gameState;
-    gameState.timer = (timer - .1).toFixed(1);
-    console.log("!!!players", players)
-    let unfinishedPlayers = players.filter(player => !player.correctStatus)
-    console.log("!!!unfinishedPlayers", unfinishedPlayers)
-    if ((gameState.timer <= 0 || unfinishedPlayers.length === 0) && currentRound === totalRounds) {
+    gameState.timer = (timer - 0.1).toFixed(1);
+    let unfinishedPlayers = players.filter((player) => !player.correctStatus);
+    if (
+      (gameState.timer <= 0 || unfinishedPlayers.length === 0) &&
+      currentRound === totalRounds
+    ) {
       endRound(gameState);
       io.emit("gameEnd", gameState);
       return;
     }
 
-    if ((gameState.timer <= 0 || unfinishedPlayers.length === 0) && currentRound < totalRounds) {
+    if (
+      (gameState.timer <= 0 || unfinishedPlayers.length === 0) &&
+      currentRound < totalRounds
+    ) {
       gameState.currentRound = currentRound + 1;
       endRound(gameState);
       beginRound(gameState);
@@ -162,7 +163,7 @@ io.on("connection", (socket) => {
   socket.on("playerUpdate", (player) => {
     let playerSocket = socket.id;
     let clientGameId = findLobby(playerSocket);
-    state[clientGameId].gameState.players[player.playerId] = player
+    state[clientGameId].gameState.players[player.playerId] = player;
   });
 
   //logic
@@ -186,54 +187,64 @@ io.on("connection", (socket) => {
   //get rules
   socket.on("getRules", () => {
     lobbyToChange = findLobby(socket.id);
-    thisClient = {};
-    for (let i = 0; i < state[lobbyToChange].clients.length; i++) {
-      if (state[lobbyToChange].clients[i].clientId === socket.id) {
-        thisClient = state[lobbyToChange].clients[i];
+    let thisClient = {};
+    if (checkConnect(lobbyToChange) && state[lobbyToChange]) {
+      for (let i = 0; i < state[lobbyToChange].clients.length; i++) {
+        if (state[lobbyToChange].clients[i].clientId === socket.id) {
+          thisClient = state[lobbyToChange].clients[i];
+        }
       }
-    }
-    console.log("getRules", state[lobbyToChange]);
-    io.to(socket.id).emit("rulesUpdate", {
-      lobbyName: state[lobbyToChange].lobbyName,
-      username: thisClient.username,
-      gameMode: state[lobbyToChange].gameMode,
-      maxPlayers: state[lobbyToChange].gameState.maxPlayers,
-      timeSetting: state[lobbyToChange].gameState.timeSetting,
-      totalRounds: state[lobbyToChange].gameState.totalRounds,
-    });
+      io.to(socket.id).emit("rulesUpdate", {
+        lobbyName: state[lobbyToChange].lobbyName,
+        username: thisClient.username,
+        gameMode: state[lobbyToChange].gameMode,
+        maxPlayers: state[lobbyToChange].gameState.maxPlayers,
+        timeSetting: state[lobbyToChange].gameState.timeSetting,
+        totalRounds: state[lobbyToChange].gameState.totalRounds,
+      });
+    } else io.to(socket.id).emit("sendToHome");
   });
   //update rules
   socket.on("updateRules", (newState) => {
-    ({ lobbyName, username, gameMode, maxPlayers, timeSetting, rounds } =
+    ({ lobbyName, username, gameMode, totalRounds, maxPlayers, timeSetting } =
       newState);
     lobbyToChange = findLobby(socket.id);
-    thisClient = {};
-    for (let i = 0; i < state[lobbyToChange].clients.length; i++) {
-      if (state[lobbyToChange].clients[i].clientId === socket.id) {
-        thisClient = state[lobbyToChange].clients[i];
+    let thisClient = {};
+    console.log("before rule change", state[lobbyToChange]);
+    if (checkConnect(lobbyToChange) && state[lobbyToChange]) {
+      for (let i = 0; i < state[lobbyToChange].clients.length; i++) {
+        if (state[lobbyToChange].clients[i].clientId === socket.id) {
+          thisClient = state[lobbyToChange].clients[i];
+        }
       }
+      state[lobbyToChange].lobbyName = lobbyName;
+      state[lobbyToChange].gameMode = gameMode;
+      state[lobbyToChange].gameState.maxPlayers = maxPlayers;
+      state[lobbyToChange].gameState.timeSetting = timeSetting;
+      state[lobbyToChange].gameState.totalRounds = totalRounds;
+      thisClient.username = username;
+      io.emit("rulesUpdate", {
+        lobbyName: state[lobbyToChange].lobbyName,
+        username: thisClient.username,
+        gameMode: state[lobbyToChange].gameMode,
+        maxPlayers: state[lobbyToChange].gameState.maxPlayers,
+        timeSetting: state[lobbyToChange].gameState.timeSetting,
+        totalRounds: state[lobbyToChange].gameState.totalRounds,
+      });
+      console.log("after rule change", state[lobbyToChange]);
+    } else {
+      console.log("rule change fail");
+      io.to(socket.id).emit("sendToHome");
     }
-    state[lobbyToChange].lobbyName = lobbyName;
-    state[lobbyToChange].gameMode = gameMode;
-    state[lobbyToChange].gameState.maxPlayers = maxPlayers;
-    state[lobbyToChange].gameState.timeSetting = timeSetting;
-    state[lobbyToChange].gameState.totalRounds = rounds;
-    thisClient.username = username;
-    io.emit("rulesUpdate", {
-      lobbyName: state[lobbyToChange].lobbyName,
-      username: thisClient.username,
-      gameMode: state[lobbyToChange].gameMode,
-      maxPlayers: state[lobbyToChange].gameState.maxPlayers,
-      timeSetting: state[lobbyToChange].gameState.timeSetting,
-      totalRounds: state[lobbyToChange].gameState.totalRounds,
-    });
-    console.log('rules updated', state[lobbyToChange])
   });
   //reload page
-  socket.on("reloadPage", () => { 
+  socket.on("reloadPage", () => {
     lobbyToChange = findLobby(socket.id);
     io.to(lobbyToChange).emit("reloadPage");
-
+  });
+  //send to home
+  socket.on("sendToHome", () => {
+    io.to(socket.id).emit("sendToHome");
   });
   //view lobbies
   socket.on("viewLobbies", () => {
@@ -246,7 +257,7 @@ io.on("connection", (socket) => {
   //join lobby (leader)
   socket.on("initLobby", (lobbyId, client, gameState) => {
     const uppLobbyId = lobbyId.toUpperCase();
-    if (checkConnect(uppLobbyId)) {
+    if (checkConnect(uppLobbyId) && state[uppLobbyId]) {
       state[uppLobbyId].clients.push(client);
       let newPlayer = createPlayer(client);
       newPlayer.playerId = state[uppLobbyId].gameState.players.length;
@@ -273,7 +284,7 @@ io.on("connection", (socket) => {
     let newClientRef = {};
     newClientRef[socket.id] = uppLobbyId;
     LobbyList.push(newClientRef);
-    if (checkConnect(uppLobbyId)) {
+    if (checkConnect(uppLobbyId) && state[uppLobbyId]) {
       socket.join(uppLobbyId);
       state[uppLobbyId].clients.push(client);
       let newPlayer = createPlayer(client);
@@ -285,12 +296,12 @@ io.on("connection", (socket) => {
       io.to(socket.id).emit("playerId", newPlayer.playerId);
     } else {
       console.log("join lobby failed", state[uppLobbyId]);
-      io.to(socket.id).emit("joinedLobby", false);
+      io.to(socket.id).emit("sendToHome");
     }
   });
   socket.on("toggleReady", (lobbyId) => {
     const uppLobbyId = lobbyId.toUpperCase();
-    if (checkConnect(uppLobbyId)) {
+    if (checkConnect(uppLobbyId) && state[uppLobbyId]) {
       const client = state[lobbyId].clients.find(
         (client) => client.clientId === socket.id
       );
@@ -303,7 +314,7 @@ io.on("connection", (socket) => {
   //Broadcast Ready Check
   socket.on("readyCheck", (lobbyId) => {
     const uppLobbyId = lobbyId.toUpperCase();
-    if (checkConnect(uppLobbyId)) {
+    if (checkConnect(uppLobbyId) && state[uppLobbyId]) {
       let readyPlayers = [];
       let notReadyPlayers = [];
       for (let i = 0; i < state[uppLobbyId].clients.length; i++) {

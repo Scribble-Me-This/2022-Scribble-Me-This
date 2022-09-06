@@ -21,6 +21,11 @@ socket.on("connect", () => {
   });
 });
 
+socket.on("sendToHome", () => {
+  window.location.href = "/";
+});
+
+
 const options = {
   task: "classification",
   debug: false,
@@ -64,15 +69,15 @@ class App extends React.Component {
     socket.on("beginRound", (gameState) => {
       console.log("beginRound");
       this.setState(gameState);
-      this.setState({gameEnd: false})
+      this.setState({ gameEnd: false });
       this.forceUpdate();
     });
     socket.on("endRound", (gameState) => {
       console.log("endRound");
       canvasLoaded = false;
       this.setState(gameState);
-      this.setState({activeRound: true})
-      this.setState({gameEnd: true})
+      this.setState({ activeRound: true });
+      this.setState({ gameEnd: true });
       this.forceUpdate();
     });
     socket.on("gameTick", (gameState) => {
@@ -83,13 +88,21 @@ class App extends React.Component {
       this.state.totalRounds = gameState.totalRounds;
       this.state.wordToDraw = gameState.wordToDraw;
       this.state.activeRound = gameState.activeRound;
+      console.log("gameTick", gameState);
+      if (gameState.timer <= -1) {
+        canvasLoaded = false;
+        this.setState(gameState);
+        this.setState({ activeRound: true });
+        this.setState({ gameEnd: true });
+        this.forceUpdate();
+      }
       this.forceUpdate();
     });
     socket.on("playerId", (playerId) => {
       this.state.playerId = playerId;
       console.log("player ID state ", this.state);
     });
-    socket.on("gameEnd", this.gameEnd = true)
+    socket.on("gameEnd", (this.gameEnd = true));
   }
 
   componentDidMount() {
@@ -120,66 +133,68 @@ class App extends React.Component {
       totalRounds,
       players,
       playerId,
-      gameEnd
+      gameEnd,
     } = this.state;
     return (
       <div>
         <Navbar />
 
+        {gameEnd ? (
+          <GameResults players={players} />
+        ) : (
+          <div>
+            {activeRound ? (
+              <div>
+                <div className="column">
+                  <div className="instanceStats">
+                    <h3> Time: {timer} </h3>
+                    <h3>
+                      {" "}
+                      Round: {currentRound} / {totalRounds}{" "}
+                    </h3>
+                    <h3> Drawing: {wordToDraw} </h3>
+                  </div>
+                  <div className="canvasEtc">
+                    <Confidence
+                      confidence={
+                        players[playerId] ? players[playerId].confidence : []
+                      }
+                    />
+                    <Canvas
+                      id="canvas"
+                      clearCanvas={clearCanvas}
+                      mapPixels={this.mapPixels}
+                      drawPixel={drawPixel}
+                      context={context}
+                      stack={stack}
+                      undoing={undoing}
+                      undo={undo}
+                    />
+                    {this.loadCanvasLogic(
+                      this.mapPixels,
+                      this.state,
+                      this.setState
+                    )}
 
-        {gameEnd? <GameResults players={players}/> : <div>
-          {activeRound ? (
-            <div>
-              <div className="column">
-                <div className="instanceStats">
-                  <h3> Time: {timer} </h3>
-                  <h3>
-                    {" "}
-                    Round: {currentRound} / {totalRounds}{" "}
-                  </h3>
-                  <h3> Drawing: {wordToDraw} </h3>
+                    <PlayersDisplay players={players} wordToDraw={wordToDraw} />
+                  </div>
                 </div>
-                <div className="canvasEtc">
-                  <Confidence
-                    confidence={players[playerId] ? players[playerId].confidence : []}
-                  />
-                  <Canvas
-                    id="canvas"
-                    clearCanvas={clearCanvas}
-                    mapPixels={this.mapPixels}
-                    drawPixel={drawPixel}
-                    context={context}
-                    stack={stack}
-                    undoing={undoing}
-                    undo={undo}
-                  />
-                  {this.loadCanvasLogic(
-                    this.mapPixels,
-                    this.state,
-                    this.setState
-                  )}
-
-                  <PlayersDisplay
-                    players={players}
-                    wordToDraw={wordToDraw}
-                  />
-                </div>
+                <button
+                  onClick={() => {
+                    this.pencilClick();
+                    this.endRound();
+                  }}
+                >
+                  End
+                </button>
               </div>
-              <button
-                onClick={() => {
-                  this.pencilClick();
-                  this.endRound();
-                }}
-              >
-                End
-              </button>
-            </div>
-          ) : (
-            <div>
-              <Routes />
-            </div>
-          )}
-        </div>}
+            ) : (
+              <div>
+                <Routes />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   }
