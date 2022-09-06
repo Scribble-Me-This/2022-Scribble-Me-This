@@ -139,8 +139,10 @@ class App extends React.Component {
         <Navbar />
 
         {gameEnd ? (
+          <div>
           <GameResults players={players} />
-        ) : (
+          <button onClick={() => this.setState({gameEnd : false})}> Return to Lobby </button>
+          </div>        ) : (
           <div>
             {activeRound ? (
               <div>
