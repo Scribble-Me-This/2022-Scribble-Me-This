@@ -5,6 +5,7 @@ import socket from "./client.js";
 import { Canvas, Confidence, PlayersDisplay, GameResults } from "./components";
 import Routes from "./Routes";
 import { connect } from "react-redux";
+import Footer from "./components/Footer";
 
 let context;
 let stack = [];
@@ -24,7 +25,6 @@ socket.on("connect", () => {
 socket.on("sendToHome", () => {
   window.location.href = "/";
 });
-
 
 const options = {
   task: "classification",
@@ -196,6 +196,7 @@ class App extends React.Component {
             )}
           </div>
         )}
+        <Footer />
       </div>
     );
   }
@@ -279,15 +280,15 @@ class App extends React.Component {
       player.drawingData = mapPixels(context);
 
       if (!player.confidence[0]) return;
-        if (
-          player.correctStatus === false &&
-          player.confidence[0].label === wordToDraw
-        ) {
-          let turnPoints = 500 + Math.floor((500 * timer) / timeSetting);
-          player.points += turnPoints;
-          player.correctStatus = true;
-        }
-      
+      if (
+        player.correctStatus === false &&
+        player.confidence[0].label === wordToDraw
+      ) {
+        let turnPoints = 500 + Math.floor((500 * timer) / timeSetting);
+        player.points += turnPoints;
+        player.correctStatus = true;
+      }
+
       state.players[playerId] = player;
       socket.emit("playerUpdate", player);
     }
