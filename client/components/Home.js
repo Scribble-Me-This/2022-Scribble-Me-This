@@ -42,6 +42,7 @@ class Home extends React.Component {
             className="smallMargin homeButtons"
             type="text"
             placeholder="Name Here!"
+            maxLength="12"
             value={this.state.username}
             onChange={(event) => this.handleChange(event)}
           ></input>

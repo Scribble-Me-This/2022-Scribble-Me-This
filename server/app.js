@@ -81,8 +81,6 @@ function createState(lobbyId, leaderId) {
 }
 
 io.on("connection", (socket) => {
-  // console.log(`Socket: ${util.inspect(socket)} has connected`);
-  //utils
   const findLobby = (socketIdToFind) => {
     for (let i = 0; i < LobbyList.length; i++) {
       if (LobbyList[i][socketIdToFind]) {
@@ -129,15 +127,17 @@ io.on("connection", (socket) => {
   const gameTick = (gameState) => {
     let { timeSetting, timer, currentRound, totalRounds, wordToDraw, players } =
       gameState;
-    gameState.timer = (timer - 0.1).toFixed(2);
-
-    if (gameState.timer <= 0 && currentRound === totalRounds) {
+    gameState.timer = (timer - .1).toFixed(1);
+    console.log("!!!players", players)
+    let unfinishedPlayers = players.filter(player => !player.correctStatus)
+    console.log("!!!unfinishedPlayers", unfinishedPlayers)
+    if ((gameState.timer <= 0 || unfinishedPlayers.length === 0) && currentRound === totalRounds) {
       endRound(gameState);
-      // some after-game logic we haven't made yet
+      io.emit("gameEnd", gameState);
       return;
     }
 
-    if (gameState.timer <= 0.0 && currentRound < totalRounds) {
+    if ((gameState.timer <= 0 || unfinishedPlayers.length === 0) && currentRound < totalRounds) {
       gameState.currentRound = currentRound + 1;
       endRound(gameState);
       beginRound(gameState);
@@ -153,7 +153,6 @@ io.on("connection", (socket) => {
         let turnPoints = 500 + Math.floor((500 * timer) / timeSetting);
         players[i].points += turnPoints;
         players[i].correctStatus = true;
-        console.log(`${players[i].name} correct for ${turnPoints} points`);
       }
     });
     gameState.players = players;
@@ -161,11 +160,9 @@ io.on("connection", (socket) => {
   };
 
   socket.on("playerUpdate", (player) => {
-    console.log("client Update gameState", player);
     let playerSocket = socket.id;
     let clientGameId = findLobby(playerSocket);
-    console.log("@@@@@@@@@@@", state[clientGameId]);
-    state[clientGameId].gameState.players[player.playerId] = player;
+    state[clientGameId].gameState.players[player.playerId] = player
   });
 
   //logic
@@ -178,7 +175,6 @@ io.on("connection", (socket) => {
     LobbyList.push(newClientRef);
     state[lobbyId] = createState(lobbyId, socket.id);
     socket.join(lobbyId);
-    console.log("all states here: ", state);
     io.to(socket.id).emit("newLobby", state[lobbyId]);
   }
   //update lobby
@@ -255,8 +251,6 @@ io.on("connection", (socket) => {
       let newPlayer = createPlayer(client);
       newPlayer.playerId = state[uppLobbyId].gameState.players.length;
       gameState.players.push(newPlayer);
-      console.log("State clients", state[uppLobbyId].clients);
-      console.log("players", state[uppLobbyId].gameState.players);
       state[uppLobbyId].gameState = gameState;
       console.log("joined lobby");
       //fix to send to clients in joined lobby
@@ -284,9 +278,7 @@ io.on("connection", (socket) => {
       state[uppLobbyId].clients.push(client);
       let newPlayer = createPlayer(client);
       newPlayer.playerId = state[uppLobbyId].gameState.players.length;
-      console.log("new player", newPlayer);
       state[uppLobbyId].gameState.players.push(newPlayer);
-      console.log("players", state[uppLobbyId].gameState.players);
       console.log("joined lobby");
       //fix to send to clients in joined lobby
       io.emit("joinedLobby", state[uppLobbyId]);
