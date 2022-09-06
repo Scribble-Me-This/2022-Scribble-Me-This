@@ -173,7 +173,8 @@ class App extends React.Component {
                     {this.loadCanvasLogic(
                       this.mapPixels,
                       this.state,
-                      this.setState
+                      this.setState,
+                      this.forceUpdate
                     )}
 
                     <PlayersDisplay players={players} wordToDraw={wordToDraw} />
@@ -209,10 +210,7 @@ class App extends React.Component {
       console.error(error);
       return;
     }
-    players[playerId].confidence = result;
-    this.setState({
-      players: players,
-    });
+    this.state.players[playerId].confidence = result;
   };
 
   mapPixels = (canvas) => {
@@ -239,7 +237,7 @@ class App extends React.Component {
   // ~~~~ CANVAS LOGIC ~~~~
   // ~~~~~~~~~~~~~~~~~~~~~~
 
-  loadCanvasLogic = (mapPixels, state, updateState) => {
+  loadCanvasLogic = (mapPixels, state, updateState, forceUpdate) => {
     const playerId = this.state.playerId;
     const canvas = document.querySelector("#canvas");
     if (!canvas) return;
@@ -267,7 +265,8 @@ class App extends React.Component {
     }
 
     function draw(e) {
-      let { players } = state;
+      const { players, wordToDraw, timer, timeSetting } = state;
+      let player = players[playerId];
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       if (!drawing) return;
@@ -277,11 +276,20 @@ class App extends React.Component {
       context.stroke();
       context.beginPath();
       context.moveTo(x, y);
-      players[playerId].drawingData = mapPixels(context);
-      updateState({
-        players: players,
-      });
-      socket.emit("playerUpdate", players[playerId]);
+      player.drawingData = mapPixels(context);
+
+      if (!player.confidence[0]) return;
+        if (
+          player.correctStatus === false &&
+          player.confidence[0].label === wordToDraw
+        ) {
+          let turnPoints = 500 + Math.floor((500 * timer) / timeSetting);
+          player.points += turnPoints;
+          player.correctStatus = true;
+        }
+      
+      state.players[playerId] = player;
+      socket.emit("playerUpdate", player);
     }
 
     canvas.addEventListener("mousedown", startDraw);

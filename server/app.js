@@ -122,7 +122,7 @@ io.on("connection", (socket) => {
   };
 
   const gameTick = (gameState) => {
-    let { timeSetting, timer, currentRound, totalRounds, wordToDraw, players } =
+    let { timer, currentRound, totalRounds, players } =
       gameState;
     gameState.timer = (timer - 0.1).toFixed(1);
     let unfinishedPlayers = players.filter((player) => !player.correctStatus);
@@ -145,22 +145,11 @@ io.on("connection", (socket) => {
       return;
     }
 
-    players.forEach((player, i) => {
-      if (!player.confidence[0]) return;
-      if (
-        player.correctStatus === false &&
-        player.confidence[0].label === wordToDraw
-      ) {
-        let turnPoints = 500 + Math.floor((500 * timer) / timeSetting);
-        players[i].points += turnPoints;
-        players[i].correctStatus = true;
-      }
-    });
-    gameState.players = players;
     io.emit("gameTick", gameState);
   };
 
   socket.on("playerUpdate", (player) => {
+    console.log("playerUpdate player", player)
     let playerSocket = socket.id;
     let clientGameId = findLobby(playerSocket);
     state[clientGameId].gameState.players[player.playerId] = player;
