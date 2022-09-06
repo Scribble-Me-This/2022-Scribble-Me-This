@@ -114,6 +114,7 @@ io.on("connection", (socket) => {
     let { players } = gameState;
     players.forEach((player) => {
       player.correctStatus = false;
+      player.confidence = [];
     });
     gameState.activeRound = false;
     gameState.players = players;
