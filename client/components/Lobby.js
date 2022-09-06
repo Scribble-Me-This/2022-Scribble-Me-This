@@ -2,6 +2,8 @@ import React from "react";
 import { connect } from "react-redux";
 import { getGameState } from "../store/gameState";
 import { getClientState } from "../store/clientState";
+import Rules from "./Rules";
+import LockedRules from "./LockedRules";
 import socket from "../client.js";
 
 class Lobby extends React.Component {
@@ -23,7 +25,7 @@ class Lobby extends React.Component {
   }
 
   componentDidMount() {
-    console.log('Lobby.js mounted');
+    console.log("Lobby.js mounted");
     this.socket.on("newLobby", (lobbyState) => {
       socket.emit(
         "initLobby",
@@ -57,6 +59,9 @@ class Lobby extends React.Component {
       this.setState(gameState);
       this.forceUpdate();
     });
+    socket.on("reloadPage", () => {
+      this.forceUpdate();
+    });
   }
 
   penClick() {
@@ -76,8 +81,11 @@ class Lobby extends React.Component {
 
   render() {
     console.log("rendered");
-    let players = this.state.gameState.game.clients || [];
-    let joinCode = this.state.gameState.game.gameId || "";
+    let currentGame = this.state || {};
+    let leader = currentGame.gameState.game.leader || "";
+    let players = currentGame.gameState.game.clients || [];
+    let joinCode = currentGame.gameState.game.gameId || "";
+    console.log("currentGame", currentGame);
     // let players = [];
     return (
       <div className="lobby-container">
@@ -94,7 +102,18 @@ class Lobby extends React.Component {
           </tbody>
         </table>
         <ul className="lobby-buttons-wrapper">
-          <li className="boxa">RULES:</li>
+          <li className="boxa">
+            RULES:
+            <div>{this.socket.id === leader ? (
+            <div>
+              <Rules props={currentGame} />
+            </div>
+            ) : (
+            <div>
+              <LockedRules props={currentGame}/>
+            </div>)
+            }</div>
+          </li>
           <button
             className="boxb"
             onClick={() => {

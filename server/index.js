@@ -11,24 +11,3 @@ const init = async () => {
 };
 
 init();
-
-//*********Game lobby*********//
-
-//Create lobby
-/* 'response', {Method: 'CreateLobby', game: {settings like game id and settings} } */
-
-//Update lobby Reciever
-/* 'response', {Method: 'UpdateLobby', game: {new settings} } 
-this goes out to all connected clients*/
-
-//Join lobby
-/* 'response', {Method: 'CreateLobby', {game: {settings}, clients: [arr of players]} } */
-
-//Broadcast Ready Check
-
-//*********Game mode ScribbleMeThis*********//
-
-//*********Game mode Scribblio*********//
-
-//**Server emits drawing data from drawer to other clients and AI player
-//**Server runs AI player

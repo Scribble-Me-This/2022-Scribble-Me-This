@@ -47,6 +47,7 @@ class LobbyBrowser extends React.Component {
 
   render() {
     let lobbies = this.state.lobbies || [];
+    console.log("Looooooooooobies", lobbies);
     return (
       <div className="lobby-browser-container">
         <input
