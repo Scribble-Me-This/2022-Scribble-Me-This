@@ -129,7 +129,7 @@ io.on("connection", (socket) => {
   const gameTick = (gameState) => {
     let { timeSetting, timer, currentRound, totalRounds, wordToDraw, players } =
       gameState;
-    gameState.timer = (timer - 1).toFixed(2);
+    gameState.timer = (timer - 0.1).toFixed(2);
 
     if (gameState.timer <= 0 && currentRound === totalRounds) {
       endRound(gameState);
@@ -165,7 +165,7 @@ io.on("connection", (socket) => {
     let playerSocket = socket.id;
     let clientGameId = findLobby(playerSocket);
     console.log("@@@@@@@@@@@", state[clientGameId]);
-    state[clientGameId].gameState.players[player.playerId] = player
+    state[clientGameId].gameState.players[player.playerId] = player;
   });
 
   //logic
@@ -187,6 +187,52 @@ io.on("connection", (socket) => {
     // io.to(gameId).emit("lobbyUpdate", newState);
     io.emit("lobbyUpdate", newState);
   });
+  //get rules
+  socket.on("getRules", () => {
+    lobbyToChange = findLobby(socket.id);
+    thisClient = {};
+    for (let i = 0; i < state[lobbyToChange].clients.length; i++) {
+      if (state[lobbyToChange].clients[i].clientId === socket.id) {
+        thisClient = state[lobbyToChange].clients[i];
+      }
+    }
+    console.log("getRules", state[lobbyToChange]);
+    io.to(socket.id).emit("rulesUpdate", {
+      lobbyName: state[lobbyToChange].lobbyName,
+      username: thisClient.username,
+      gameMode: state[lobbyToChange].gameMode,
+      maxPlayers: state[lobbyToChange].gameState.maxPlayers,
+      timeSetting: state[lobbyToChange].gameState.timeSetting,
+      totalRounds: state[lobbyToChange].gameState.totalRounds,
+    });
+  });
+  //update rules
+  socket.on("updateRules", (newState) => {
+    ({ lobbyName, username, gameMode, maxPlayers, timeSetting, rounds } =
+      newState);
+    lobbyToChange = findLobby(socket.id);
+    thisClient = {};
+    for (let i = 0; i < state[lobbyToChange].clients.length; i++) {
+      if (state[lobbyToChange].clients[i].clientId === socket.id) {
+        thisClient = state[lobbyToChange].clients[i];
+      }
+    }
+    state[lobbyToChange].lobbyName = lobbyName;
+    state[lobbyToChange].gameMode = gameMode;
+    state[lobbyToChange].gameState.maxPlayers = maxPlayers;
+    state[lobbyToChange].gameState.timeSetting = timeSetting;
+    state[lobbyToChange].gameState.totalRounds = rounds;
+    thisClient.username = username;
+    io.emit("rulesUpdate", {
+      lobbyName: state[lobbyToChange].lobbyName,
+      username: thisClient.username,
+      gameMode: state[lobbyToChange].gameMode,
+      maxPlayers: state[lobbyToChange].gameState.maxPlayers,
+      timeSetting: state[lobbyToChange].gameState.timeSetting,
+      totalRounds: state[lobbyToChange].gameState.totalRounds,
+    });
+    console.log('rules updated', state[lobbyToChange])
+  });
   //view lobbies
   socket.on("viewLobbies", () => {
     let stateLobbies = [];
@@ -194,7 +240,7 @@ io.on("connection", (socket) => {
       stateLobbies.push(state[key]);
     }
     io.to(socket.id).emit("lobbies", stateLobbies);
-  })
+  });
   //join lobby (leader)
   socket.on("initLobby", (lobbyId, client, gameState) => {
     const uppLobbyId = lobbyId.toUpperCase();
@@ -211,7 +257,12 @@ io.on("connection", (socket) => {
       io.emit("joinedLobby", state[uppLobbyId]);
       io.to(socket.id).emit("playerId", newPlayer.playerId);
     } else {
-      console.log("join lobby failed on", socket.id, "failed state:", state[uppLobbyId]);
+      console.log(
+        "join lobby failed on",
+        socket.id,
+        "failed state:",
+        state[uppLobbyId]
+      );
       io.to(socket.id).emit("joinedLobby", false);
     }
   });
@@ -271,13 +322,13 @@ io.on("connection", (socket) => {
         const gameState = state[uppLobbyId].gameState;
         beginRound(gameState);
       } else {
-        console.log('not all players are ready');
+        console.log("not all players are ready");
       }
     }
   });
 
   startClock = (gameState) => {
-    clock = setInterval(() => gameTick(gameState), 1000);
+    clock = setInterval(() => gameTick(gameState), 100);
   };
 
   stopClock = () => {

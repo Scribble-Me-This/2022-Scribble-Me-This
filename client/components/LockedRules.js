@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import socket from "../client";
 import { getGameState } from "../store/gameState";
 
-class Rules extends React.Component {
+class LockedRules extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -44,6 +44,7 @@ class Rules extends React.Component {
           className="homeButtons marOne"
           type="text"
           placeholder="Lobby Name Here!"
+          disabled = {true}
           value={this.state.lobbyName}
           onChange={(event) => this.handleChange(event)}
         ></input>
@@ -51,7 +52,8 @@ class Rules extends React.Component {
           name="username"
           className="homeButtons marOne"
           type="text"
-          placeholder="Host Name Here!"
+          placeholder="Lobby Leader Name Here!"
+          disabled = {true}
           value={this.state.username}
           onChange={(event) => this.handleChange(event)}
         ></input>
@@ -79,6 +81,7 @@ class Rules extends React.Component {
               min = "1"
               id="input"
               name="maxPlayers"
+              disabled = {true}
               value={this.state.maxPlayers}
               onChange={(event) => this.handleChange(event)}
             ></input>
@@ -91,6 +94,7 @@ class Rules extends React.Component {
               min="1"
               id="input"
               name="totalRounds"
+              disabled = {true}
               value={this.state.totalRounds}
               onChange={(event) => this.handleChange(event)}
             ></input>
@@ -103,30 +107,12 @@ class Rules extends React.Component {
               min="5"
               placeholder="Ex. 15,30,45 sec (min 5)"
               id="input"
+              disabled = {true}
               value={this.state.timeSetting}
               onChange={(event) => this.handleChange(event)}
             ></input>
           </li>
-          {/* <li id="left">
-            Input Locked Pass:
-            <input
-              type="text"
-              placeholder="Ex. True or False"
-              width="1rem"
-              id="input"
-            ></input>
-          </li> */}
         </ul>
-        <button
-          className="homeButtons hov saveSettings"
-          onClick={() => {
-            console.log("this.state", this.state);
-            socket.emit("updateRules", this.state);
-            socket.emit("reloadPage");
-          }}
-        >
-          Save Settings
-        </button>
       </div>
     );
   }
@@ -145,4 +131,4 @@ const mapDispatch = (dispatch) => {
   };
 };
 
-export default connect(mapState, mapDispatch)(Rules);
+export default connect(mapState, mapDispatch)(LockedRules);

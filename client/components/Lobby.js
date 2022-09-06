@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { getGameState } from "../store/gameState";
 import { getClientState } from "../store/clientState";
 import Rules from "./Rules";
+import LockedRules from "./LockedRules";
 import socket from "../client.js";
 
 class Lobby extends React.Component {
@@ -58,6 +59,9 @@ class Lobby extends React.Component {
       this.setState(gameState);
       this.forceUpdate();
     });
+    socket.on("reloadPage", () => {
+      this.forceUpdate();
+    });
   }
 
   penClick() {
@@ -78,8 +82,10 @@ class Lobby extends React.Component {
   render() {
     console.log("rendered");
     let currentGame = this.state || {};
+    let leader = currentGame.gameState.game.leader || "";
     let players = currentGame.gameState.game.clients || [];
     let joinCode = currentGame.gameState.game.gameId || "";
+    console.log("currentGame", currentGame);
     // let players = [];
     return (
       <div className="lobby-container">
@@ -98,13 +104,13 @@ class Lobby extends React.Component {
         <ul className="lobby-buttons-wrapper">
           <li className="boxa">
             RULES:
-            <div>{this.socket.id === currentGame.leader ? (
+            <div>{this.socket.id === leader ? (
             <div>
-              <Rules />
+              <Rules props={currentGame} />
             </div>
             ) : (
             <div>
-              <Rules />
+              <LockedRules props={currentGame}/>
             </div>)
             }</div>
           </li>
