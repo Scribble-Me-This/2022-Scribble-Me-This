@@ -1,13 +1,13 @@
-const path = require("path");
-const express = require("express");
-const morgan = require("morgan");
-const { createServer } = require("http");
-const { Server } = require("socket.io");
+const path = require('path');
+const express = require('express');
+const morgan = require('morgan');
+const { createServer } = require('http');
+const { Server } = require('socket.io');
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:8080/"],
+    origin: ['http://localhost:8080/'],
   },
 });
 //https://socket.io/docs/v4/server-initialization/
@@ -15,16 +15,16 @@ const io = new Server(httpServer, {
 const LobbyList = [];
 const state = {};
 const possibilities = [
-  "airplane",
-  "banana",
-  "candle",
-  "cat",
-  "dog",
-  "fish",
-  "flower",
-  "guitar",
-  "house",
-  "penguin",
+  'airplane',
+  'banana',
+  'candle',
+  'cat',
+  'dog',
+  'fish',
+  'flower',
+  'guitar',
+  'house',
+  'penguin',
 ];
 
 function createPlayer(client) {
@@ -42,8 +42,8 @@ function createPlayer(client) {
 
 //generate a simple id for sharing
 const idGen = (length) => {
-  let result = "";
-  let characters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let result = '';
+  let characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let charactersLength = characters.length;
   for (let i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -54,17 +54,17 @@ const idGen = (length) => {
 
 function createState(lobbyId, leaderId) {
   return {
-    gameMode: "ScribbleMeThisClassic",
+    gameMode: 'ScribbleMeThisClassic',
     clients: [],
-    lobbyName: "",
+    lobbyName: '',
     gameState: {
       timeSetting: 15,
       players: [],
       timer: 15,
       currentRound: 1,
       totalRounds: 5,
-      wordToDraw: "",
-      password: "",
+      wordToDraw: '',
+      password: '',
       activeRound: false,
       maxPlayers: 4,
     },
@@ -80,7 +80,7 @@ function createState(lobbyId, leaderId) {
   };
 }
 
-io.on("connection", (socket) => {
+io.on('connection', (socket) => {
   const findLobby = (socketIdToFind) => {
     for (let i = 0; i < LobbyList.length; i++) {
       if (LobbyList[i][socketIdToFind]) {
@@ -105,8 +105,8 @@ io.on("connection", (socket) => {
     gameState.timer = timeSetting;
     gameState.wordToDraw = possibilities[rand];
     gameState.activeRound = true;
-    console.log("beginRound gameState out", gameState);
-    io.emit("beginRound", gameState);
+    console.log('beginRound gameState out', gameState);
+    io.emit('beginRound', gameState);
     startClock(gameState);
   };
 
@@ -118,13 +118,12 @@ io.on("connection", (socket) => {
     });
     gameState.activeRound = false;
     gameState.players = players;
-    io.emit("endRound", gameState);
+    io.emit('endRound', gameState);
     stopClock();
   };
 
   const gameTick = (gameState) => {
-    let { timer, currentRound, totalRounds, players } =
-      gameState;
+    let { timer, currentRound, totalRounds, players } = gameState;
     gameState.timer = (timer - 0.1).toFixed(1);
     let unfinishedPlayers = players.filter((player) => !player.correctStatus);
     if (
@@ -132,7 +131,7 @@ io.on("connection", (socket) => {
       currentRound === totalRounds
     ) {
       endRound(gameState);
-      io.emit("gameEnd", gameState);
+      io.emit('gameEnd', gameState);
       return;
     }
 
@@ -146,11 +145,11 @@ io.on("connection", (socket) => {
       return;
     }
 
-    io.emit("gameTick", gameState);
+    io.emit('gameTick', gameState);
   };
 
-  socket.on("playerUpdate", (player) => {
-    console.log("playerUpdate player", player)
+  socket.on('playerUpdate', (player) => {
+    console.log('playerUpdate player', player);
     let playerSocket = socket.id;
     let clientGameId = findLobby(playerSocket);
     state[clientGameId].gameState.players[player.playerId] = player;
@@ -158,7 +157,7 @@ io.on("connection", (socket) => {
 
   //logic
   //create lobby
-  socket.on("newLobby", handleNewLobby);
+  socket.on('newLobby', handleNewLobby);
   function handleNewLobby() {
     let lobbyId = idGen(5);
     let newClientRef = {};
@@ -166,16 +165,16 @@ io.on("connection", (socket) => {
     LobbyList.push(newClientRef);
     state[lobbyId] = createState(lobbyId, socket.id);
     socket.join(lobbyId);
-    io.to(socket.id).emit("newLobby", state[lobbyId]);
+    io.to(socket.id).emit('newLobby', state[lobbyId]);
   }
   //update lobby
-  socket.on("updateLobby", (newState) => {
+  socket.on('updateLobby', (newState) => {
     state[gameId] = newState;
     // io.to(gameId).emit("lobbyUpdate", newState);
-    io.emit("lobbyUpdate", newState);
+    io.emit('lobbyUpdate', newState);
   });
   //get rules
-  socket.on("getRules", () => {
+  socket.on('getRules', () => {
     lobbyToChange = findLobby(socket.id);
     let thisClient = {};
     if (checkConnect(lobbyToChange) && state[lobbyToChange]) {
@@ -184,7 +183,7 @@ io.on("connection", (socket) => {
           thisClient = state[lobbyToChange].clients[i];
         }
       }
-      io.to(socket.id).emit("rulesUpdate", {
+      io.to(socket.id).emit('rulesUpdate', {
         lobbyName: state[lobbyToChange].lobbyName,
         username: thisClient.username,
         gameMode: state[lobbyToChange].gameMode,
@@ -192,15 +191,15 @@ io.on("connection", (socket) => {
         timeSetting: state[lobbyToChange].gameState.timeSetting,
         totalRounds: state[lobbyToChange].gameState.totalRounds,
       });
-    } else io.to(socket.id).emit("sendToHome");
+    } else io.to(socket.id).emit('sendToHome');
   });
   //update rules
-  socket.on("updateRules", (newState) => {
+  socket.on('updateRules', (newState) => {
     ({ lobbyName, username, gameMode, totalRounds, maxPlayers, timeSetting } =
       newState);
     lobbyToChange = findLobby(socket.id);
     let thisClient = {};
-    console.log("before rule change", state[lobbyToChange]);
+    console.log('before rule change', state[lobbyToChange]);
     if (checkConnect(lobbyToChange) && state[lobbyToChange]) {
       for (let i = 0; i < state[lobbyToChange].clients.length; i++) {
         if (state[lobbyToChange].clients[i].clientId === socket.id) {
@@ -213,7 +212,7 @@ io.on("connection", (socket) => {
       state[lobbyToChange].gameState.timeSetting = timeSetting;
       state[lobbyToChange].gameState.totalRounds = totalRounds;
       thisClient.username = username;
-      io.emit("rulesUpdate", {
+      io.emit('rulesUpdate', {
         lobbyName: state[lobbyToChange].lobbyName,
         username: thisClient.username,
         gameMode: state[lobbyToChange].gameMode,
@@ -221,31 +220,31 @@ io.on("connection", (socket) => {
         timeSetting: state[lobbyToChange].gameState.timeSetting,
         totalRounds: state[lobbyToChange].gameState.totalRounds,
       });
-      console.log("after rule change", state[lobbyToChange]);
+      console.log('after rule change', state[lobbyToChange]);
     } else {
-      console.log("rule change fail");
-      io.to(socket.id).emit("sendToHome");
+      console.log('rule change fail');
+      io.to(socket.id).emit('sendToHome');
     }
   });
   //reload page
-  socket.on("reloadPage", () => {
+  socket.on('reloadPage', () => {
     lobbyToChange = findLobby(socket.id);
-    io.to(lobbyToChange).emit("reloadPage");
+    io.to(lobbyToChange).emit('reloadPage');
   });
   //send to home
-  socket.on("sendToHome", () => {
-    io.to(socket.id).emit("sendToHome");
+  socket.on('sendToHome', () => {
+    io.to(socket.id).emit('sendToHome');
   });
   //view lobbies
-  socket.on("viewLobbies", () => {
+  socket.on('viewLobbies', () => {
     let stateLobbies = [];
     for (let key in state) {
       stateLobbies.push(state[key]);
     }
-    io.to(socket.id).emit("lobbies", stateLobbies);
+    io.to(socket.id).emit('lobbies', stateLobbies);
   });
   //join lobby (leader)
-  socket.on("initLobby", (lobbyId, client, gameState) => {
+  socket.on('initLobby', (lobbyId, client, gameState) => {
     const uppLobbyId = lobbyId.toUpperCase();
     if (checkConnect(uppLobbyId) && state[uppLobbyId]) {
       state[uppLobbyId].clients.push(client);
@@ -253,23 +252,23 @@ io.on("connection", (socket) => {
       newPlayer.playerId = state[uppLobbyId].gameState.players.length;
       gameState.players.push(newPlayer);
       state[uppLobbyId].gameState = gameState;
-      console.log("joined lobby");
+      console.log('joined lobby');
       //fix to send to clients in joined lobby
-      io.emit("joinedLobby", state[uppLobbyId]);
-      io.to(socket.id).emit("playerId", newPlayer.playerId);
+      io.emit('joinedLobby', state[uppLobbyId]);
+      io.to(socket.id).emit('playerId', newPlayer.playerId);
     } else {
       console.log(
-        "join lobby failed on",
+        'join lobby failed on',
         socket.id,
-        "failed state:",
+        'failed state:',
         state[uppLobbyId]
       );
-      io.to(socket.id).emit("joinedLobby", false);
+      io.to(socket.id).emit('joinedLobby', false);
     }
   });
   //join lobby (client)
   //toggle ready
-  socket.on("joinLobby", (lobbyId, client) => {
+  socket.on('joinLobby', (lobbyId, client) => {
     const uppLobbyId = lobbyId.toUpperCase();
     let newClientRef = {};
     newClientRef[socket.id] = uppLobbyId;
@@ -280,29 +279,29 @@ io.on("connection", (socket) => {
       let newPlayer = createPlayer(client);
       newPlayer.playerId = state[uppLobbyId].gameState.players.length;
       state[uppLobbyId].gameState.players.push(newPlayer);
-      console.log("joined lobby");
+      console.log('joined lobby');
       //fix to send to clients in joined lobby
-      io.emit("joinedLobby", state[uppLobbyId]);
-      io.to(socket.id).emit("playerId", newPlayer.playerId);
+      io.emit('joinedLobby', state[uppLobbyId]);
+      io.to(socket.id).emit('playerId', newPlayer.playerId);
     } else {
-      console.log("join lobby failed", state[uppLobbyId]);
-      io.to(socket.id).emit("sendToHome");
+      console.log('join lobby failed', state[uppLobbyId]);
+      io.to(socket.id).emit('sendToHome');
     }
   });
-  socket.on("toggleReady", (lobbyId) => {
+  socket.on('toggleReady', (lobbyId) => {
     const uppLobbyId = lobbyId.toUpperCase();
     if (checkConnect(uppLobbyId) && state[uppLobbyId]) {
       const client = state[lobbyId].clients.find(
         (client) => client.clientId === socket.id
       );
       client.readyCheck = !client.readyCheck;
-      io.emit("lobbyUpdate", state[lobbyId]);
+      io.emit('lobbyUpdate', state[lobbyId]);
     } else {
-      console.log("toggle ready failed");
+      console.log('toggle ready failed');
     }
   });
   //Broadcast Ready Check
-  socket.on("readyCheck", (lobbyId) => {
+  socket.on('readyCheck', (lobbyId) => {
     const uppLobbyId = lobbyId.toUpperCase();
     if (checkConnect(uppLobbyId) && state[uppLobbyId]) {
       let readyPlayers = [];
@@ -310,10 +309,10 @@ io.on("connection", (socket) => {
       for (let i = 0; i < state[uppLobbyId].clients.length; i++) {
         let currentUser = state[uppLobbyId].clients[i];
         if (currentUser.readyCheck === true) {
-          console.log(currentUser.username + " is ready");
+          console.log(currentUser.username + ' is ready');
           readyPlayers.push(currentUser.username);
         } else {
-          console.log(currentUser.username + " is not ready");
+          console.log(currentUser.username + ' is not ready');
           notReadyPlayers.push(currentUser.username);
         }
       }
@@ -321,7 +320,7 @@ io.on("connection", (socket) => {
         const gameState = state[uppLobbyId].gameState;
         beginRound(gameState);
       } else {
-        console.log("not all players are ready");
+        console.log('not all players are ready');
       }
     }
   });
@@ -337,25 +336,25 @@ io.on("connection", (socket) => {
 module.exports = httpServer;
 
 // logging middleware
-app.use(morgan("dev"));
+app.use(morgan('dev'));
 
 // body parsing middleware
 app.use(express.json());
 
 // api route
-app.use("/api", require("./api"));
+app.use('/api', require('./api'));
 
-app.get("/", (req, res) =>
-  res.sendFile(path.join(__dirname, "..", "public/index.html"))
+app.get('/', (req, res) =>
+  res.sendFile(path.join(__dirname, '..', 'public/index.html'))
 );
 
 // static file-serving middleware
-app.use(express.static(path.join(__dirname, "..", "public")));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // any remaining requests with an extension (.js, .css, etc.) send 404
 app.use((req, res, next) => {
   if (path.extname(req.path).length) {
-    const err = new Error("Not found");
+    const err = new Error('Not found');
     err.status = 404;
     next(err);
   } else {
@@ -364,13 +363,13 @@ app.use((req, res, next) => {
 });
 
 // sends index.html
-app.use("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "public/index.html"));
+app.use('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public/index.html'));
 });
 
 // error handling endware
 app.use((err, req, res, next) => {
   console.error(err);
   console.error(err.stack);
-  res.status(err.status || 500).send(err.message || "Internal server error.");
+  res.status(err.status || 500).send(err.message || 'Internal server error.');
 });

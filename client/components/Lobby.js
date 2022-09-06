@@ -1,10 +1,10 @@
-import React from "react";
-import { connect } from "react-redux";
-import { getGameState } from "../store/gameState";
-import { getClientState } from "../store/clientState";
-import Rules from "./Rules";
-import LockedRules from "./LockedRules";
-import socket from "../client.js";
+import React from 'react';
+import { connect } from 'react-redux';
+import { getGameState } from '../store/gameState';
+import { getClientState } from '../store/clientState';
+import Rules from './Rules';
+import LockedRules from './LockedRules';
+import socket from '../client.js';
 
 class Lobby extends React.Component {
   constructor(props) {
@@ -14,29 +14,29 @@ class Lobby extends React.Component {
         game: {
           clients: [],
           settings: {
-            gameId: "",
+            gameId: '',
           },
         },
       },
-      username: "",
+      username: '',
     };
 
     this.socket = socket;
   }
 
   componentDidMount() {
-    console.log("Lobby.js mounted");
-    this.socket.on("newLobby", (lobbyState) => {
+    console.log('Lobby.js mounted');
+    this.socket.on('newLobby', (lobbyState) => {
       socket.emit(
-        "initLobby",
+        'initLobby',
         lobbyState.gameId,
         {
-          username: "Lobby Leader",
+          username: 'Lobby Leader',
           clientId: this.socket.id,
           readyCheck: false,
           guessed: false,
           previewPic: {},
-          bestGuess: "",
+          bestGuess: '',
           confidence: [],
           score: 0,
         },
@@ -45,50 +45,50 @@ class Lobby extends React.Component {
       this.props.updateGameState(lobbyState);
       this.setState(this.props);
     });
-    this.socket.on("joinedLobby", (newState) => {
+    this.socket.on('joinedLobby', (newState) => {
       this.props.updateGameState(newState);
       this.setState({ gameState: this.props.gameState });
     });
-    this.socket.on("lobbyUpdate", (newState) => {
+    this.socket.on('lobbyUpdate', (newState) => {
       this.props.updateGameState(newState);
       this.setState({ gameState: this.props.gameState });
-      console.log("this.state after joined", this.state);
+      console.log('this.state after joined', this.state);
     });
-    socket.on("beginRound", (gameState) => {
-      console.log("beginRound");
+    socket.on('beginRound', (gameState) => {
+      console.log('beginRound');
       this.setState(gameState);
       this.forceUpdate();
     });
-    socket.on("reloadPage", () => {
+    socket.on('reloadPage', () => {
       this.forceUpdate();
     });
   }
 
   penClick() {
-    let audio = new Audio("/pen_click.mp3");
+    let audio = new Audio('/pen_click.mp3');
     audio.play();
   }
 
   pencilClick() {
-    let audio = new Audio("/pencil.mp3");
+    let audio = new Audio('/pencil.mp3');
     audio.play();
   }
 
   bubbleClick() {
-    let audio = new Audio("/bubble.mp3");
+    let audio = new Audio('/bubble.mp3');
     audio.play();
   }
 
   render() {
-    console.log("rendered");
+    console.log('rendered');
     let currentGame = this.state || {};
-    let leader = currentGame.gameState.game.leader || "";
+    let leader = currentGame.gameState.game.leader || '';
     let players = currentGame.gameState.game.clients || [];
-    let joinCode = currentGame.gameState.game.gameId || "";
-    console.log("currentGame", currentGame);
+    let joinCode = currentGame.gameState.game.gameId || '';
+    console.log('currentGame', currentGame);
     // let players = [];
     return (
-      <div className="lobby-container">
+      <div className='lobby-container'>
         <table>
           <tbody>
             {players.map((player, index) => {
@@ -101,25 +101,27 @@ class Lobby extends React.Component {
             })}
           </tbody>
         </table>
-        <ul className="lobby-buttons-wrapper">
-          <li className="boxa">
+        <ul className='lobby-buttons-wrapper'>
+          <li className='boxa'>
             RULES:
-            <div>{this.socket.id === leader ? (
             <div>
-              <Rules props={currentGame} />
+              {this.socket.id === leader ? (
+                <div>
+                  <Rules props={currentGame} />
+                </div>
+              ) : (
+                <div>
+                  <LockedRules props={currentGame} />
+                </div>
+              )}
             </div>
-            ) : (
-            <div>
-              <LockedRules props={currentGame}/>
-            </div>)
-            }</div>
           </li>
           <button
-            className="boxb"
+            className='boxb'
             onClick={() => {
               this.bubbleClick();
-              this.socket.emit("toggleReady", joinCode);
-              this.socket.emit("readyCheck", joinCode);
+              this.socket.emit('toggleReady', joinCode);
+              this.socket.emit('readyCheck', joinCode);
               //change style of ready up button
             }}
           >
@@ -129,7 +131,7 @@ class Lobby extends React.Component {
             onClick={() => {
               navigator.clipboard.writeText(joinCode);
             }}
-            className="boxc"
+            className='boxc'
           >
             {joinCode}
           </button>
