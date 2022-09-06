@@ -94,7 +94,6 @@ class App extends React.Component {
         this.setState(gameState);
         this.setState({ activeRound: true });
         this.setState({ gameEnd: true });
-        this.forceUpdate();
       }
       this.forceUpdate();
     });
