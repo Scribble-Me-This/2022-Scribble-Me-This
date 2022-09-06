@@ -233,6 +233,12 @@ io.on("connection", (socket) => {
     });
     console.log('rules updated', state[lobbyToChange])
   });
+  //reload page
+  socket.on("reloadPage", () => { 
+    lobbyToChange = findLobby(socket.id);
+    io.to(lobbyToChange).emit("reloadPage");
+
+  });
   //view lobbies
   socket.on("viewLobbies", () => {
     let stateLobbies = [];
