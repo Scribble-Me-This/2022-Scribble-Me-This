@@ -88,6 +88,14 @@ class App extends React.Component {
       this.state.totalRounds = gameState.totalRounds;
       this.state.wordToDraw = gameState.wordToDraw;
       this.state.activeRound = gameState.activeRound;
+      console.log("gameTick", gameState);
+      if (gameState.timer <= -1) {
+        canvasLoaded = false;
+        this.setState(gameState);
+        this.setState({ activeRound: true });
+        this.setState({ gameEnd: true });
+        this.forceUpdate();
+      }
       this.forceUpdate();
     });
     socket.on("playerId", (playerId) => {

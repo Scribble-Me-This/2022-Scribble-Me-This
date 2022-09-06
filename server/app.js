@@ -206,11 +206,12 @@ io.on("connection", (socket) => {
   });
   //update rules
   socket.on("updateRules", (newState) => {
-    ({ lobbyName, username, gameMode, maxPlayers, timeSetting, rounds } =
+    ({ lobbyName, username, gameMode, totalRounds, maxPlayers, timeSetting } =
       newState);
     lobbyToChange = findLobby(socket.id);
     let thisClient = {};
-    if (checkConnect(lobbyToChange && state[lobbyToChange])) {
+    console.log("before rule change", state[lobbyToChange]);
+    if (checkConnect(lobbyToChange) && state[lobbyToChange]) {
       for (let i = 0; i < state[lobbyToChange].clients.length; i++) {
         if (state[lobbyToChange].clients[i].clientId === socket.id) {
           thisClient = state[lobbyToChange].clients[i];
@@ -220,7 +221,7 @@ io.on("connection", (socket) => {
       state[lobbyToChange].gameMode = gameMode;
       state[lobbyToChange].gameState.maxPlayers = maxPlayers;
       state[lobbyToChange].gameState.timeSetting = timeSetting;
-      state[lobbyToChange].gameState.totalRounds = rounds;
+      state[lobbyToChange].gameState.totalRounds = totalRounds;
       thisClient.username = username;
       io.emit("rulesUpdate", {
         lobbyName: state[lobbyToChange].lobbyName,
@@ -230,7 +231,11 @@ io.on("connection", (socket) => {
         timeSetting: state[lobbyToChange].gameState.timeSetting,
         totalRounds: state[lobbyToChange].gameState.totalRounds,
       });
-    } else io.to(socket.id).emit("sendToHome");
+      console.log("after rule change", state[lobbyToChange]);
+    } else {
+      console.log("rule change fail");
+      io.to(socket.id).emit("sendToHome");
+    }
   });
   //reload page
   socket.on("reloadPage", () => {
