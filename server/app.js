@@ -59,6 +59,7 @@ io.on("connection", (socket) => {
 
   // Game socket logic *****************************************//
   let clock;
+  let timeOut = false;
 
   startClock = (gameState, lobbyId) => {
     clock = setInterval(() => gameTick(gameState, lobbyId), 100);
@@ -75,7 +76,6 @@ io.on("connection", (socket) => {
     gameState.timer = timeSetting;
     gameState.wordToDraw = possibilities[rand];
     gameState.activeRound = true;
-    console.log("beginRound gameState out", gameState);
     io.in(lobbyId).emit("beginRound", gameState);
     startClock(gameState, lobbyId);
   };
@@ -84,6 +84,7 @@ io.on("connection", (socket) => {
     let { players } = gameState;
     players.forEach((player) => {
       player.correctStatus = false;
+      player.confidence = [];
     });
     gameState.activeRound = false;
     gameState.players = players;
@@ -100,32 +101,47 @@ io.on("connection", (socket) => {
       (gameState.timer <= 0 || unfinishedPlayers.length === 0) &&
       currentRound === totalRounds
     ) {
-      endRound(gameState, lobbyId);
-      io.in(lobbyId).emit("gameEnd", gameState);
+      if (gameState.timer <= 1) {
+        endRound(gameState, lobbyId);
+        io.in(lobbyId).emit("gameEnd", gameState);
+        return;
+      }
+      if (!timeOut) {
+      timeOut = true;
+      console.log("set timeout")
+      setTimeout(() => {
+        endRound(gameState);
+        io.emit("gameEnd", gameState);
+        timeOut = false;
+        return;
+      }, 1000);
+    }
+    
     }
     if (
       (gameState.timer <= 0 || unfinishedPlayers.length === 0) &&
       currentRound < totalRounds
     ) {
-      gameState.currentRound = currentRound + 1;
-      endRound(gameState, lobbyId);
-      beginRound(gameState, lobbyId);
-      return;
+      if (gameState.timer <= 1) {
+        gameState.currentRound = currentRound + 1;
+        endRound(gameState, lobbyId);
+        beginRound(gameState, lobbyId);
+        return;
+      }
+
+      if (!timeOut) {
+        timeOut = true;
+        console.log("set timeout")
+        setTimeout(() => {
+          gameState.currentRound = currentRound + 1;
+          endRound(gameState);
+          beginRound(gameState);
+          timeOut = false;
+          return;
+        }, 1000);
+      }
     }
 
-    //score calculation
-    players.forEach((player, i) => {
-      if (!player.confidence[0]) return;
-      if (
-        player.correctStatus === false &&
-        player.confidence[0].label === wordToDraw
-      ) {
-        let turnPoints = 500 + Math.floor((500 * timer) / timeSetting);
-        players[i].points += turnPoints;
-        players[i].correctStatus = true;
-      }
-    });
-    gameState.players = players;
     io.to(lobbyId).emit("gameTick", gameState);
   };
 
@@ -236,7 +252,6 @@ io.on("connection", (socket) => {
       newState);
     lobbyToChange = findLobby(socket.id);
     let thisClient = {};
-    console.log("before rule change", state[lobbyToChange]);
     if (checkConnect(lobbyToChange) && state[lobbyToChange]) {
       for (let i = 0; i < state[lobbyToChange].clients.length; i++) {
         if (state[lobbyToChange].clients[i].clientId === socket.id) {
@@ -257,7 +272,6 @@ io.on("connection", (socket) => {
         timeSetting: state[lobbyToChange].gameState.timeSetting,
         totalRounds: state[lobbyToChange].gameState.totalRounds,
       });
-      console.log("after rule change", state[lobbyToChange]);
     } else {
       console.log("rule change fail");
       io.to(socket.id).emit("sendToHome");

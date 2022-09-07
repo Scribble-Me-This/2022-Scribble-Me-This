@@ -1,10 +1,12 @@
-import Navbar from "./components/Navbar";
-import React from "react";
-import ml5 from "ml5";
-import socket from "./client.js";
-import { Canvas, Confidence, PlayersDisplay, GameResults } from "./components";
-import Routes from "./Routes";
-import { connect } from "react-redux";
+import Navbar from './components/Navbar';
+import React from 'react';
+import ml5 from 'ml5';
+import socket from './client.js';
+import { Canvas, Confidence, PlayersDisplay, GameResults } from './components';
+import Routes from './Routes';
+import { connect } from 'react-redux';
+import Footer from './components/Footer';
+import Tut from './components/Music';
 
 let context;
 let stack = [];
@@ -14,10 +16,10 @@ const height = 280;
 const width = 280;
 let listenersLoaded = false;
 
-socket.on("connect", () => {
-  console.log("Client connected: client same level", socket);
-  socket.on("connect", () => {
-    console.log("Client connected: App.js", socket);
+socket.on('connect', () => {
+  console.log('Client connected: client same level', socket);
+  socket.on('connect', () => {
+    console.log('Client connected: App.js', socket);
   });
 });
 
@@ -32,19 +34,19 @@ socket.on("leftLobby", () => {
 });
 
 const options = {
-  task: "classification",
+  task: 'classification',
   debug: false,
 };
 
 const nn = ml5.neuralNetwork(options);
 
 const modelDetails = {
-  model: "./model.json",
-  metadata: "./model_meta.json",
-  weights: "./model.weights.bin",
+  model: './model.json',
+  metadata: './model_meta.json',
+  weights: './model.weights.bin',
 };
 
-nn.load(modelDetails, () => console.log("Neural Net Loaded"));
+nn.load(modelDetails, () => console.log('Neural Net Loaded'));
 
 class App extends React.Component {
   constructor() {
@@ -55,7 +57,7 @@ class App extends React.Component {
       timer: null,
       currentRound: 1,
       totalRounds: 5,
-      wordToDraw: "",
+      wordToDraw: '',
       playerId: null,
       activeRound: false,
       gameEnd: false,
@@ -69,23 +71,23 @@ class App extends React.Component {
     if (listenersLoaded) {
       return;
     }
-    console.log("socket listeners loaded");
+    console.log('socket listeners loaded');
     listenersLoaded = true;
-    socket.on("beginRound", (gameState) => {
-      console.log("beginRound");
+    socket.on('beginRound', (gameState) => {
+      console.log('beginRound');
       this.setState(gameState);
       this.setState({ gameEnd: false });
       this.forceUpdate();
     });
-    socket.on("endRound", (gameState) => {
-      console.log("endRound");
+    socket.on('endRound', (gameState) => {
+      console.log('endRound');
       canvasLoaded = false;
       this.setState(gameState);
       this.setState({ activeRound: true });
       this.setState({ gameEnd: true });
       this.forceUpdate();
     });
-    socket.on("gameTick", (gameState) => {
+    socket.on('gameTick', (gameState) => {
       this.state.timeSetting = gameState.timeSetting;
       this.state.players = gameState.players;
       this.state.timer = gameState.timer;
@@ -93,21 +95,20 @@ class App extends React.Component {
       this.state.totalRounds = gameState.totalRounds;
       this.state.wordToDraw = gameState.wordToDraw;
       this.state.activeRound = gameState.activeRound;
-      console.log("gameTick", gameState);
+      console.log('gameTick', gameState);
       if (gameState.timer <= -1) {
         canvasLoaded = false;
         this.setState(gameState);
         this.setState({ activeRound: true });
         this.setState({ gameEnd: true });
-        this.forceUpdate();
       }
       this.forceUpdate();
     });
-    socket.on("playerId", (playerId) => {
+    socket.on('playerId', (playerId) => {
       this.state.playerId = playerId;
-      console.log("player ID state ", this.state);
+      console.log('player ID state ', this.state);
     });
-    socket.on("gameEnd", (this.gameEnd = true));
+    socket.on('gameEnd', (this.gameEnd = true));
   }
 
   componentDidMount() {
@@ -119,12 +120,12 @@ class App extends React.Component {
   }
 
   pencilClick() {
-    let audio = new Audio("/pencil.mp3");
+    let audio = new Audio('/pencil.mp3');
     audio.play();
   }
 
   penClick() {
-    let audio = new Audio("/pen_click.mp3");
+    let audio = new Audio('/pen_click.mp3');
     audio.play();
   }
 
@@ -143,30 +144,32 @@ class App extends React.Component {
     return (
       <div>
         <Navbar />
-
+        <Tut />
         {gameEnd ? (
+          <div>
           <GameResults players={players} socket={socket} />
-        ) : (
+          <button onClick={() => this.setState({gameEnd : false})}> Return to Lobby </button>
+          </div>        ) : (
           <div>
             {activeRound ? (
               <div>
-                <div className="column">
-                  <div className="instanceStats">
+                <div className='column'>
+                  <div className='instanceStats'>
                     <h3> Time: {timer} </h3>
                     <h3>
-                      {" "}
-                      Round: {currentRound} / {totalRounds}{" "}
+                      {' '}
+                      Round: {currentRound} / {totalRounds}{' '}
                     </h3>
                     <h3> Drawing: {wordToDraw} </h3>
                   </div>
-                  <div className="canvasEtc">
+                  <div className='canvasEtc'>
                     <Confidence
                       confidence={
                         players[playerId] ? players[playerId].confidence : []
                       }
                     />
                     <Canvas
-                      id="canvas"
+                      id='canvas'
                       clearCanvas={clearCanvas}
                       mapPixels={this.mapPixels}
                       drawPixel={drawPixel}
@@ -178,13 +181,15 @@ class App extends React.Component {
                     {this.loadCanvasLogic(
                       this.mapPixels,
                       this.state,
-                      this.setState
+                      this.setState,
+                      this.forceUpdate
                     )}
 
                     <PlayersDisplay players={players} wordToDraw={wordToDraw} />
                   </div>
                 </div>
                 <button
+                  className='canvas-button'
                   onClick={() => {
                     this.pencilClick();
                     this.endRound();
@@ -200,6 +205,7 @@ class App extends React.Component {
             )}
           </div>
         )}
+        <Footer />
       </div>
     );
   }
@@ -214,10 +220,7 @@ class App extends React.Component {
       console.error(error);
       return;
     }
-    players[playerId].confidence = result;
-    this.setState({
-      players: players,
-    });
+    this.state.players[playerId].confidence = result;
   };
 
   mapPixels = (canvas) => {
@@ -244,13 +247,13 @@ class App extends React.Component {
   // ~~~~ CANVAS LOGIC ~~~~
   // ~~~~~~~~~~~~~~~~~~~~~~
 
-  loadCanvasLogic = (mapPixels, state, updateState) => {
+  loadCanvasLogic = (mapPixels, state, updateState, forceUpdate) => {
     const playerId = this.state.playerId;
-    const canvas = document.querySelector("#canvas");
+    const canvas = document.querySelector('#canvas');
     if (!canvas) return;
     if (!this.state.players[playerId]) return;
     if (canvasLoaded) return;
-    context = canvas.getContext("2d");
+    context = canvas.getContext('2d');
     canvas.height = height;
     canvas.width = width;
     let drawing = false;
@@ -272,33 +275,43 @@ class App extends React.Component {
     }
 
     function draw(e) {
-      let { players } = state;
+      const { players, wordToDraw, timer, timeSetting } = state;
+      let player = players[playerId];
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       if (!drawing) return;
       context.lineWidth = 10;
-      context.lineCap = "round";
+      context.lineCap = 'round';
       context.lineTo(x, y);
       context.stroke();
       context.beginPath();
       context.moveTo(x, y);
-      players[playerId].drawingData = mapPixels(context);
-      updateState({
-        players: players,
-      });
-      socket.emit("playerUpdate", players[playerId]);
+      player.drawingData = mapPixels(context);
+
+      if (!player.confidence[0]) return;
+      if (
+        player.correctStatus === false &&
+        player.confidence[0].label === wordToDraw
+      ) {
+        let turnPoints = 500 + Math.floor((500 * timer) / timeSetting);
+        player.points += turnPoints;
+        player.correctStatus = true;
+      }
+
+      state.players[playerId] = player;
+      socket.emit('playerUpdate', player);
     }
 
-    canvas.addEventListener("mousedown", startDraw);
-    canvas.addEventListener("mouseup", stopDraw);
-    canvas.addEventListener("mousemove", draw);
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mousemove', draw);
     canvasLoaded = true;
   };
 }
 function clearCanvas(context, mapPixels) {
   for (let i = 0; i < 280; i++) {
     for (let j = 0; j < 280; j++) {
-      drawPixel("white", context, i, j, 1);
+      drawPixel('white', context, i, j, 1);
     }
   }
   stack.push(context.getImageData(0, 0, 280, 280));

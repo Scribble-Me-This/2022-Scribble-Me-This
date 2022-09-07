@@ -1,4 +1,3 @@
-import { render } from "enzyme";
 import React from "react";
 
 class MiniCanvas extends React.Component {
