@@ -22,6 +22,7 @@ class Lobby extends React.Component {
     };
 
     this.socket = socket;
+    this.ready = false;
   }
 
   componentDidMount() {
@@ -115,12 +116,12 @@ class Lobby extends React.Component {
             }</div>
           </li>
           <button
-            className="boxb"
+            className={this.ready?"boxb":"boxb-unready"}
             onClick={() => {
+              this.ready = true;
               this.bubbleClick();
               this.socket.emit("toggleReady", joinCode);
               this.socket.emit("readyCheck", joinCode);
-              //change style of ready up button
             }}
           >
             Ready Up
