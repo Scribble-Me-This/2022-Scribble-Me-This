@@ -51,6 +51,8 @@ const possibilities = [
   "windmill"
 
 ];
+let remainingChoices = [];
+
 
 //nests socket.io logic on connection
 io.on("connection", (socket) => {
@@ -94,10 +96,12 @@ io.on("connection", (socket) => {
 
   const beginRound = (gameState, lobbyId) => {
     let { timeSetting, players } = gameState;
-    let rand = Math.floor(Math.random() * possibilities.length);
+    if (remainingChoices.length < 1) {
+      remainingChoices = shuffle(possibilities)
+    }
     // gameState.players = players;
     gameState.timer = timeSetting;
-    gameState.wordToDraw = possibilities[rand];
+    gameState.wordToDraw = remainingChoices.pop();
     gameState.activeRound = true;
     io.in(lobbyId).emit("beginRound", gameState);
     startClock(gameState, lobbyId);
@@ -380,3 +384,18 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).send(err.message || "Internal server error.");
 });
+
+function shuffle(array) {
+  let currentIndex = array.length,  randomIndex;
+
+  while (currentIndex != 0) {
+
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
+}
