@@ -43,7 +43,8 @@ nav a {
   opacity: 0.85;
 }
 
-.audioToggle:active {
+.audioToggle:active,
+.canvas-button:active {
   transform: scale(0.9);
 }
 
@@ -248,7 +249,8 @@ td {
   width: 70px;
 }
 
-.homeButtons {
+.homeButtons,
+.canvas-button {
   cursor: pointer;
   outline: 0;
   display: inline-block;
@@ -268,7 +270,8 @@ td {
 }
 
 .hov:hover,
-.audioToggle {
+.audioToggle:hover,
+.canvas-button:hover {
   color: #fff;
   background-color: #0d6efd;
   border-color: #0d6efd;

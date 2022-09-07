@@ -11,6 +11,7 @@ const Canvas = (props) => {
       <canvas id='canvas' className='canvas' height='280' width='280' />
       <div className='row'>
         <button
+          className='canvas-button'
           onClick={() => {
             props.clearCanvas(props.context);
             //            props.clearCanvas(props.context, props.mapPixels(props.context));
@@ -21,6 +22,7 @@ const Canvas = (props) => {
           clear
         </button>
         <button
+          className='canvas-button'
           onClick={() => {
             if (!stack.length) return;
             if (!undoing) {

@@ -182,6 +182,7 @@ class App extends React.Component {
                   </div>
                 </div>
                 <button
+                  className='canvas-button'
                   onClick={() => {
                     this.pencilClick();
                     this.endRound();
