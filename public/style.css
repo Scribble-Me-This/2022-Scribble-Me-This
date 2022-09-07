@@ -132,8 +132,18 @@ td {
   background: lightgreen;
   order: 2;
 }
+.boxb-unready {
+  background: rgb(205, 235, 253);
+  order: 2;
+}
 
 .boxb,
+.boxc {
+  flex: 0 0 50%;
+  width: 50%;
+}
+
+.boxb-unready,
 .boxc {
   flex: 0 0 50%;
   width: 50%;
