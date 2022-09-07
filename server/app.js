@@ -110,8 +110,8 @@ io.on("connection", (socket) => {
       timeOut = true;
       console.log("set timeout")
       setTimeout(() => {
-        endRound(gameState);
-        io.emit("gameEnd", gameState);
+        endRound(gameState, lobbyId);
+        io.in(lobbyId).emit("gameEnd", gameState);
         timeOut = false;
         return;
       }, 1000);
@@ -134,8 +134,8 @@ io.on("connection", (socket) => {
         console.log("set timeout")
         setTimeout(() => {
           gameState.currentRound = currentRound + 1;
-          endRound(gameState);
-          beginRound(gameState);
+          endRound(gameState, lobbyId);
+          beginRound(gameState, lobbyId);
           timeOut = false;
           return;
         }, 1000);
