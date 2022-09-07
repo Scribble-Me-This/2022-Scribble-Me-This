@@ -15,6 +15,7 @@ let canvasLoaded = false;
 const height = 280;
 const width = 280;
 let listenersLoaded = false;
+const modelFolder= "30at1000"
 
 socket.on('connect', () => {
   console.log('Client connected: client same level', socket);
@@ -41,9 +42,9 @@ const options = {
 const nn = ml5.neuralNetwork(options);
 
 const modelDetails = {
-  model: './model.json',
-  metadata: './model_meta.json',
-  weights: './model.weights.bin',
+  model: `./models/${modelFolder}/model.json`,
+  metadata: `./models/${modelFolder}/model_meta.json`,
+  weights: `./models/${modelFolder}/model.weights.bin`,
 };
 
 nn.load(modelDetails, () => console.log('Neural Net Loaded'));
@@ -170,6 +171,7 @@ class App extends React.Component {
                       confidence={
                         players[playerId] ? players[playerId].confidence : []
                       }
+                      wordToDraw={wordToDraw}
                     />
                     <Canvas
                       id='canvas'

@@ -225,6 +225,12 @@ td {
   margin: 0.5px;
 }
 
+.wordToDraw {
+  font-size: 12px;
+  margin: 0.5px;
+  background-color: rgb(0, 223, 59);
+}
+
 .centerWrapper {
   height: 100%;
   display: flex;

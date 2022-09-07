@@ -18,15 +18,38 @@ const LobbyList = [];
 const state = {};
 const possibilities = [
   "airplane",
-  "banana",
-  "candle",
+  "angel",
+  "anvil",
+  "bee",
+  "butterfly",
+  "cactus",
+  "camel",
+  "camera",
+  "campfire",
+  "car",
+
   "cat",
-  "dog",
-  "fish",
-  "flower",
-  "guitar",
-  "house",
-  "penguin",
+  "clock",
+  "cookie",
+  "cow",
+  "crown",
+  "diamond",
+  "donut",
+  "eye",
+  "fan",
+  "flashlight",
+
+  "pizza",
+  "scissors",
+  "skull",
+  "snail",
+  "tooth",
+  "tornado",
+  "train",
+  "tree",
+  "umbrella",
+  "windmill"
+
 ];
 
 //nests socket.io logic on connection
