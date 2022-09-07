@@ -23,8 +23,13 @@ socket.on("connect", () => {
 
 socket.on("sendToHome", () => {
   window.location.href = "/";
+  alert("Something went wrong. Please try again.");
 });
 
+socket.on("leftLobby", () => {
+  window.location.href = "/";
+  alert("Thank you for playing!");
+});
 
 const options = {
   task: "classification",
@@ -140,7 +145,7 @@ class App extends React.Component {
         <Navbar />
 
         {gameEnd ? (
-          <GameResults players={players} />
+          <GameResults players={players} socket={socket} />
         ) : (
           <div>
             {activeRound ? (
