@@ -13,7 +13,7 @@ const Canvas = (props) => {
         <button
           className='canvas-button'
           onClick={() => {
-            props.clearCanvas(props.context);
+            props.clearCanvas(props.context, props.stack);
             //            props.clearCanvas(props.context, props.mapPixels(props.context));
 
             pencilClick();
@@ -24,12 +24,12 @@ const Canvas = (props) => {
         <button
           className='canvas-button'
           onClick={() => {
-            if (!stack.length) return;
-            if (!undoing) {
-              undoing = true;
-              stack.pop();
+            if (!props.stack.length) return;
+            if (!props.undoing[0]) {
+              props.undoing[0] = true;
+              props.stack.pop();
             }
-            context.putImageData(stack.pop(), 0, 0);
+            props.context.putImageData(props.stack.pop(), 0, 0);
           }}
         >
           Undo
