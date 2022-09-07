@@ -95,7 +95,6 @@ class App extends React.Component {
         this.setState(gameState);
         this.setState({ activeRound: true });
         this.setState({ gameEnd: true });
-        this.forceUpdate();
       }
       this.forceUpdate();
     });
@@ -141,8 +140,10 @@ class App extends React.Component {
         <Navbar />
         <Tut />
         {gameEnd ? (
+          <div>
           <GameResults players={players} />
-        ) : (
+          <button onClick={() => this.setState({gameEnd : false})}> Return to Lobby </button>
+          </div>        ) : (
           <div>
             {activeRound ? (
               <div>

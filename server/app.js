@@ -97,6 +97,7 @@ io.on("connection", (socket) => {
   };
 
   let clock;
+  let timeOut = false;
 
   const beginRound = (gameState) => {
     let { timeSetting, players } = gameState;
@@ -105,7 +106,6 @@ io.on("connection", (socket) => {
     gameState.timer = timeSetting;
     gameState.wordToDraw = possibilities[rand];
     gameState.activeRound = true;
-    console.log("beginRound gameState out", gameState);
     io.emit("beginRound", gameState);
     startClock(gameState);
   };
@@ -123,34 +123,60 @@ io.on("connection", (socket) => {
   };
 
   const gameTick = (gameState) => {
-    let { timer, currentRound, totalRounds, players } =
-      gameState;
+    let { timer, currentRound, totalRounds, players } = gameState;
     gameState.timer = (timer - 0.1).toFixed(1);
     let unfinishedPlayers = players.filter((player) => !player.correctStatus);
     if (
       (gameState.timer <= 0 || unfinishedPlayers.length === 0) &&
       currentRound === totalRounds
     ) {
-      endRound(gameState);
-      io.emit("gameEnd", gameState);
-      return;
+      if (gameState.timer <= 1) {
+        endRound(gameState);
+        io.emit("gameEnd", gameState);
+        return;
+      }
+      if (!timeOut) {
+      timeOut = true;
+      console.log("set timeout")
+      setTimeout(() => {
+        endRound(gameState);
+        io.emit("gameEnd", gameState);
+        timeOut = false;
+        return;
+      }, 1000);
+    }
+
     }
 
     if (
       (gameState.timer <= 0 || unfinishedPlayers.length === 0) &&
       currentRound < totalRounds
     ) {
-      gameState.currentRound = currentRound + 1;
-      endRound(gameState);
-      beginRound(gameState);
-      return;
+
+      if (gameState.timer <= 1) {
+        gameState.currentRound = currentRound + 1;
+        endRound(gameState);
+        beginRound(gameState);
+        return;
+      }
+
+      if (!timeOut) {
+        timeOut = true;
+        console.log("set timeout")
+        setTimeout(() => {
+          gameState.currentRound = currentRound + 1;
+          endRound(gameState);
+          beginRound(gameState);
+          timeOut = false;
+          return;
+        }, 1000);
+      }
     }
 
     io.emit("gameTick", gameState);
   };
 
   socket.on("playerUpdate", (player) => {
-    console.log("playerUpdate player", player)
     let playerSocket = socket.id;
     let clientGameId = findLobby(playerSocket);
     state[clientGameId].gameState.players[player.playerId] = player;
@@ -200,7 +226,6 @@ io.on("connection", (socket) => {
       newState);
     lobbyToChange = findLobby(socket.id);
     let thisClient = {};
-    console.log("before rule change", state[lobbyToChange]);
     if (checkConnect(lobbyToChange) && state[lobbyToChange]) {
       for (let i = 0; i < state[lobbyToChange].clients.length; i++) {
         if (state[lobbyToChange].clients[i].clientId === socket.id) {
@@ -221,7 +246,6 @@ io.on("connection", (socket) => {
         timeSetting: state[lobbyToChange].gameState.timeSetting,
         totalRounds: state[lobbyToChange].gameState.totalRounds,
       });
-      console.log("after rule change", state[lobbyToChange]);
     } else {
       console.log("rule change fail");
       io.to(socket.id).emit("sendToHome");
