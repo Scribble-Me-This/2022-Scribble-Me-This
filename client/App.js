@@ -148,7 +148,10 @@ class App extends React.Component {
         {gameEnd ? (
           <div>
           <GameResults players={players} socket={socket} />
-          <button onClick={() => this.setState({gameEnd : false})}> Return to Lobby </button>
+          <button onClick={() => {
+            this.setState({gameEnd : false})
+            this.setState({activeRound : false})
+          }}> Return to Lobby </button>
           </div>        ) : (
           <div>
             {activeRound ? (
