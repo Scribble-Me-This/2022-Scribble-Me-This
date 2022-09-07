@@ -171,6 +171,7 @@ class App extends React.Component {
                       confidence={
                         players[playerId] ? players[playerId].confidence : []
                       }
+                      wordToDraw={wordToDraw}
                     />
                     <Canvas
                       id='canvas'
