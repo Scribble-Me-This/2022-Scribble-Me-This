@@ -9,10 +9,6 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/Scribble-Me-This">
-    <img src="public/assets/logo.svg" alt="Logo" width="80" height="80">
-  </a>
-
   <h1 align="center">Scribble Me This</h1>
 
   <p align="center">
