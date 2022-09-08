@@ -1,6 +1,8 @@
 [![Contributors][contributors-shield]][contributors-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
+
+
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 
@@ -214,11 +216,11 @@ Use this space to list resources you find helpful and would like to give credit 
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/Scribble-Me-This/2022-Scribble-Me-This
 [contributors-url]: https://linktr.ee/scribblemethis
 [stars-shield]: https://img.shields.io/github/stars/Scribble-Me-This/2022-Scribble-Me-This
 [stars-url]: https://github.com/Scribble-Me-This/2022-Scribble-Me-This/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues-raw/Scribble-Me-This/2022-Scribble-Me-This
 [issues-url]: https://github.com/Scribble-Me-This/2022-Scribble-Me-This/issues
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linktr.ee/scribblemethis
