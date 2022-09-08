@@ -188,11 +188,11 @@ Scribble Me This Team - [Find us Here!](https://linktr.ee/scribblemethis) - Our 
 
 Project Link: [https://github.com/Scribble-Me-This/2022-Scribble-Me-This](https://github.com/Scribble-Me-This/2022-Scribble-Me-This)
 
-Warren Au: [linkedin.com/in/warren-au](https://linkedin.com/in/warren-au) / [github.com/onsenkame](https://github.com/onsenkame) / [warrenau.dev](warrenau.dev)
+Warren Au: [linkedin.com/in/warren-au](https://linkedin.com/in/warren-au) / [github.com/onsenkame](https://github.com/onsenkame) / [warrenau.dev](https://warrenau.dev)
 
 David Burke: [linkedin.com/in/david-m-burke](https://linkedin.com/in/david-m-burke) / [github.com/DavidMBurke](https://github.com/DavidMBurke)
 
-Harrison Katapodis: [linkedin.com/in/harrisonhjk](linkedin.com/in/harrisonhjk) / [github.com/HarrisonJK](https://github.com/HarrisonJK) / [harrisonhjk.com](harrisonhjk.com)
+Harrison Katapodis: [linkedin.com/in/harrisonhjk](linkedin.com/in/harrisonhjk) / [github.com/HarrisonJK](https://github.com/HarrisonJK) / [https://harrisonhjk.com](harrisonhjk.com)
 
 Alex Kazenoff: [linkedin.com/in/alex-kazenoff](linkedin.com/in/alex-kazenoff) / [github.com/AlexKazz](https://github.com/AlexKazz)
 
