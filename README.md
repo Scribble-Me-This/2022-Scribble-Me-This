@@ -192,7 +192,7 @@ Warren Au: [linkedin.com/in/warren-au](https://linkedin.com/in/warren-au) / [git
 
 David Burke: [linkedin.com/in/david-m-burke](https://linkedin.com/in/david-m-burke) / [github.com/DavidMBurke](https://github.com/DavidMBurke)
 
-Harrison Katapodis: [linkedin.com/in/harrisonhjk](linkedin.com/in/harrisonhjk) / [github.com/HarrisonJK](https://github.com/HarrisonJK) / [https://harrisonhjk.com](harrisonhjk.com)
+Harrison Katapodis: [linkedin.com/in/harrisonhjk](linkedin.com/in/harrisonhjk) / [github.com/HarrisonJK](https://github.com/HarrisonJK) / [harrisonhjk.com](https://harrisonhjk.com)
 
 Alex Kazenoff: [linkedin.com/in/alex-kazenoff](linkedin.com/in/alex-kazenoff) / [github.com/AlexKazz](https://github.com/AlexKazz)
 
