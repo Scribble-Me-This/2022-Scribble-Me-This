@@ -54,6 +54,11 @@ const possibilities = [
 let remainingChoices = [];
 
 
+let clock;
+clock = setInterval(() => {
+  io.emit("clockTick")
+},100)
+
 //nests socket.io logic on connection
 io.on("connection", (socket) => {
   // Lobby utils *****************************************//
@@ -83,16 +88,13 @@ io.on("connection", (socket) => {
   });
 
   // Game socket logic *****************************************//
-  let clock;
   let timeOut = false;
 
-  startClock = (gameState, lobbyId) => {
-    clock = setInterval(() => gameTick(gameState, lobbyId), 100);
-  };
 
-  stopClock = () => {
-    clearInterval(clock);
-  };
+  socket.on("clockTick", () => {
+    if (!gameState.activeRound) return;
+    gameTick(gameState, lobbyId)})
+  // if in a round, then:
 
   const beginRound = (gameState, lobbyId) => {
     let { timeSetting, players } = gameState;
@@ -104,7 +106,6 @@ io.on("connection", (socket) => {
     gameState.wordToDraw = remainingChoices.pop();
     gameState.activeRound = true;
     io.in(lobbyId).emit("beginRound", gameState);
-    startClock(gameState, lobbyId);
   };
 
   const endRound = (gameState, lobbyId) => {
@@ -116,7 +117,6 @@ io.on("connection", (socket) => {
     gameState.activeRound = false;
     gameState.players = players;
     io.in(lobbyId).emit("endRound", gameState);
-    stopClock();
   };
 
   const gameTick = (gameState, lobbyId) => {
