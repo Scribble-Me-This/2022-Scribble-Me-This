@@ -47,6 +47,8 @@ const modelDetails = {
   weights: `./models/${modelFolder}/model.weights.bin`,
 };
 
+console.log("NN LOAD")
+
 nn.load(modelDetails, () => console.log('Neural Net Loaded'));
 
 class App extends React.Component {
@@ -73,6 +75,7 @@ class App extends React.Component {
       return;
     }
     console.log('socket listeners loaded');
+    console.log('!!!');
     listenersLoaded = true;
     socket.on('beginRound', (gameState) => {
       console.log('beginRound');
