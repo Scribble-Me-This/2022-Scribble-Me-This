@@ -1,7 +1,7 @@
 const path = require("path");
 const express = require("express");
 const morgan = require("morgan");
-const util = require('util')
+const util = require("util");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const { createPlayer, idGen, createState } = require("./socket.io/utils");
@@ -29,10 +29,18 @@ const possibilities = [
   "penguin",
 ];
 
-let clock;
-clock = setInterval(() => {
-  io.emit("clockTick")
-},100)
+let clock = null;
+// if (!clock) {
+  clock = setInterval(() => {
+    for (const lobbyId in state) {
+      console.log(lobbyId);
+      if (state[lobbyId].gameState.activeRound) {
+        gameTick(state[lobbyId].gameState, state[lobbyId].gameId);
+      }
+    }
+    console.log("clock ticky wicky");
+  }, 1000);
+// }
 
 //nests socket.io logic on connection
 io.on("connection", (socket) => {
@@ -64,11 +72,6 @@ io.on("connection", (socket) => {
 
   // Game socket logic *****************************************//
   let timeOut = false;
-
-
-  socket.on("clockTick", () => {
-    if (!gameState.activeRound) return;
-    gameTick(gameState, lobbyId)})
   // if in a round, then:
 
   const beginRound = (gameState, lobbyId) => {
@@ -107,16 +110,15 @@ io.on("connection", (socket) => {
         return;
       }
       if (!timeOut) {
-      timeOut = true;
-      console.log("set timeout")
-      setTimeout(() => {
-        endRound(gameState, lobbyId);
-        io.in(lobbyId).emit("gameEnd", gameState);
-        timeOut = false;
-        return;
-      }, 1000);
-    }
-    
+        timeOut = true;
+        console.log("set timeout");
+        setTimeout(() => {
+          endRound(gameState, lobbyId);
+          io.in(lobbyId).emit("gameEnd", gameState);
+          timeOut = false;
+          return;
+        }, 1000);
+      }
     }
     if (
       (gameState.timer <= 0 || unfinishedPlayers.length === 0) &&
@@ -131,7 +133,7 @@ io.on("connection", (socket) => {
 
       if (!timeOut) {
         timeOut = true;
-        console.log("set timeout")
+        console.log("set timeout");
         setTimeout(() => {
           gameState.currentRound = currentRound + 1;
           endRound(gameState, lobbyId);
@@ -175,7 +177,7 @@ io.on("connection", (socket) => {
       //fix to send to clients in joined lobby
       io.emit("joinedLobby", state[uppLobbyId]);
       io.to(socket.id).emit("playerId", newPlayer.playerId);
-      console.log('socket.rooms on joined', util.inspect(socket.rooms))
+      console.log("socket.rooms on joined", util.inspect(socket.rooms));
     } else {
       console.log(
         "join lobby failed on",
@@ -185,6 +187,7 @@ io.on("connection", (socket) => {
       );
       io.to(socket.id).emit("sendToHome");
     }
+    console.log("State: ", state);
   });
   //join lobby (client)
   socket.on("joinLobby", (lobbyId, client) => {
@@ -201,7 +204,7 @@ io.on("connection", (socket) => {
       console.log("joined lobby");
       io.emit("joinedLobby", state[uppLobbyId]);
       io.to(socket.id).emit("playerId", newPlayer.playerId);
-      console.log('socket.rooms on joined', util.inspect(socket.rooms))
+      console.log("socket.rooms on joined", util.inspect(socket.rooms));
     } else {
       console.log("join lobby failed", state[uppLobbyId]);
       io.to(socket.id).emit("sendToHome");
@@ -210,10 +213,10 @@ io.on("connection", (socket) => {
   //leave lobby
   socket.on("leaveLobby", () => {
     let lobbyToLeave = findLobby(socket.id);
-    socket.leave(lobbyToLeave)
+    socket.leave(lobbyToLeave);
     console.log(socket.id, "has left the lobby");
     io.to(socket.id).emit("leftLobby");
-    console.log('socket.rooms', util.inspect(socket.rooms))
+    console.log("socket.rooms", util.inspect(socket.rooms));
   });
 
   //view lobbies
