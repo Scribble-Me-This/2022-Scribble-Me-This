@@ -18,16 +18,41 @@ const LobbyList = [];
 const state = {};
 const possibilities = [
   "airplane",
-  "banana",
-  "candle",
+  "angel",
+  "anvil",
+  "bee",
+  "butterfly",
+  "cactus",
+  "camel",
+  "camera",
+  "campfire",
+  "car",
+
   "cat",
-  "dog",
-  "fish",
-  "flower",
-  "guitar",
-  "house",
-  "penguin",
+  "clock",
+  "cookie",
+  "cow",
+  "crown",
+  "diamond",
+  "donut",
+  "eye",
+  "fan",
+  "flashlight",
+
+  "pizza",
+  "scissors",
+  "skull",
+  "snail",
+  "tooth",
+  "tornado",
+  "train",
+  "tree",
+  "umbrella",
+  "windmill"
+
 ];
+let remainingChoices = [];
+
 
 let timeOut = false;
 
@@ -114,7 +139,6 @@ let clock = null;
         gameTick(state[lobbyId].gameState, state[lobbyId].gameId);
       }
     }
-    console.log("clock ticky wicky");
   }, 100);
 // }
 
@@ -148,8 +172,6 @@ io.on("connection", (socket) => {
 
   // Game socket logic *****************************************//
   // if in a round, then:
-
-
 
   socket.on("playerUpdate", (player) => {
     let playerSocket = socket.id;
@@ -364,3 +386,18 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).send(err.message || "Internal server error.");
 });
+
+function shuffle(array) {
+  let currentIndex = array.length,  randomIndex;
+
+  while (currentIndex != 0) {
+
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
+}

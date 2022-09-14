@@ -1,83 +1,236 @@
-# Scribble Me This
+[![Contributors][contributors-shield]][contributors-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
 
-## What It Is
 
-A Pictionary-style game where players draw pictures from a prompt, and the 'scribble' with the highest AI confidence rating wins.
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
-## How the Machine Learning Works
 
-- A 28x28 picture is taken as input; specifically, the pixel data from 0-255 RBG and opacity values.
-- these 784 pixel values are placed into an array, which we will refer to as the raw data.
-- the raw data is compared to the AI brain, and the AI guesses via percentage confidence rates
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <h1 align="center">Scribble Me This</h1>
 
--when you want to train up neural net, checkout branch neural-net
+  <p align="center">
+    A Pictionary-style game where players draw pictures from a prompt, and the 'scribble' with the highest AI confidence rating wins.
+    <br />
+    <a href="https://github.com/Scribble-Me-This/2022-Scribble-Me-This/wiki"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/Scribble-Me-This/2022-Scribble-Me-This/wiki/Training-the-Machine-Learning-Model">Machine Learning</a>
+    ·
+    <a href="https://github.com/Scribble-Me-This/2022-Scribble-Me-This/wiki/Game-Logic">Game Logic</a>
+    ·
+    <a href="https://github.com/Scribble-Me-This/2022-Scribble-Me-This/wiki/Future-Additions">Future Content</a>
+  </p>
+</div>
 
-**NeuralNet.js**
--when it starts up, it imports ML5, creates a neural network (line 18) using lines 13-16
--task: 'classification' means it will be a convoluted neural net (good for image guessing)
--line 20 runs get request which pulls the data downloaded from api data (all the drawings from quickdraw)
--line 23 takes 10,000 items from the dataset at random (there are ~110,000 items in the full dataset)
--each slice of data is 784 pixels and a label
--lines 25-34 splits that into input and output
--input would be an array from 0-783 with the pixel values between 0-1 (white, black)
--output is the label (picture of banana = 784 pixels, banana) -> gets added to the data
--this is done for every single piece of data
--this is loaded into the neural net
--line 41 - run neural net.train - trains the neural net with all data loaded into it using the training options defined on lines 8-11
 
-- epochs are the # of generations it trains (i.e. it will train with every drawing 128 times)
-  -batchsize = how many pieces of data it's training with at a given time
-  -line 41 - callback function finishedTraining console logs 'finished training' and then runs nn.save(nn = neural net)
-  (many ML5 functions require callback functions)
-  -line 46 - nn.save() saves the trained neural net and its data
-  -when you run the program and inspect the browser console, you can see ML5 start running
-  -after about 30 seconds you will see training data messages in the console
-  -once it starts you will get a graph in the browser that will show the training data as it trains (will do this on its own)
-  -for every generation/epoch that it trains you will see new 'loss' value (the lower the loss, the more accurate)
-  -when the training is finished, 3 files will be generated:
-  • model.json & model_meta.json -> info about the structure of the neural net (this is how many layers, type, etc)
-  • model.weights.bin -> actual values that train the neural net (values/weights that are changing for each training generation)
-  -once we have those files, checkout main branch
 
-**Instance.js**
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
 
-- instance is everything that loads for an individual user
-- contains a local neural net that runs on each browser so each player is operating it locally
-  -line 14 - instance creates a new, empty neural net that we will load our data into
-  -line 22 - nn.load loads in modelDetails object (lines 16-20) which references the 3 files we saved earlier (which should now be in the public folder)
-  -when nn.load runs, it looks for those 3 files, loads them in and sets the neural net (line 22) to equal the one we trained
-  -neural net is now loaded and we have it in our new program
-  -line 24 - get request to load in data that we can use for testing
-  line 36 - nn.classify - what we use to test the neural net (we use it as our input)
-  -handleResults gives us our result (whatever the neural net has guessed that the input is)
-  -e.g. if our line 36 input was a drawing of a banana (784 pixels), then handleResults will (hopefully) put out result banana
 
-### Heroku
 
-1.  Set up the [Heroku command line tools][heroku-cli]
-2.  `heroku login`
-3.  Add a git remote for heroku:
+<!-- ABOUT THE PROJECT -->
+## About The Project
 
-[heroku-cli]: https://devcenter.heroku.com/articles/heroku-cli
+[![product-screenshot-big][product-screenshot-big]](https://example.com)
 
-- **If you are creating a new app...**
+Try Scribble Me This, our fun party game where you rage against the machine in a frantic race to see who's the best artist...
+in the eyes of the AI!
 
-  1.  `heroku create` or `heroku create your-app-name` if you have a
-      name in mind.
-  2.  `heroku config:set JWT=<your secret here!>` to set a secret for JWT signing
+Our web application is built with JavaScript and React in which players compete to have their drawing recognized by an AI before the other players. 
+Scribble Me This uses a Convolutional Neural Network built with TensorFlow and ML5 machine learning frameworks and trained using Google's QuickDraw database. 
+Individual players host and connect to lobbies over TCP using WebSocket based Socket.IO networks.
 
-Database Setup
+Features:
+* Draw together with friends!
+* Live updating status of your drawing's confidence rating!
+* See what your friends are attempting to draw in real time!
 
-3.  `heroku addons:create heroku-postgresql:hobby-dev` to add
-    ("provision") a postgres database to your heroku dyno (This creates your production database)
+Of course, our work is never done and we hope to add and expand features as we go!
 
-4.  `heroku config:set SEED=true` to get heroku to sync and seed your database
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-5.  note everytime your app restarts, the database tables will be dropped and re-created. To avoid this you can `config:unset SEED`
 
-- **If you already have a Heroku app...**
 
-  1.  `heroku git:remote your-app-name` You'll need to be a
-      collaborator on the app.
+### Built With
 
-Now, you should be deployed!
+* [![React.js][React.js]][React-url]
+* [![Javascript][Javascript]][Javascript-url]
+* [![Node.js][Node.js]][Node.js-url]
+* [![Tensorflow][Tensorflow]][Tensorflow-url]
+* [![Socket.io][Socket.io]][Socket.io-url]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- GETTING STARTED -->
+## Getting Started
+
+Getting started is easy! Just follow the steps below to get a local copy up and running.
+
+### Prerequisites
+
+* npm
+  ```sh
+  npm install 
+  ```
+
+### Installation
+
+_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
+
+1. Clone the repo
+   ```sh
+   git clone https://github.com/Scribble-Me-This/2022-Scribble-Me-This.git
+   ```
+2. Install NPM packages
+   ```sh
+   npm install
+   ```
+3. Start the server
+   ```js
+   npm run start
+   ```
+4. Open the app in your browser
+   ```sh
+    http://localhost:8080/
+   ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- USAGE EXAMPLES -->
+## Usage
+
+Here's how to play the game:
+
+_For more examples, please refer to the [Documentation](https://github.com/Scribble-Me-This/2022-Scribble-Me-This/wiki)_
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- ROADMAP -->
+## Roadmap
+
+- [x] Make the machine learning model
+- [x] Make the game logic
+- [x] Have fun with friends
+- [ ] Add multi-lobby support
+- [ ] Fix all the bugs!
+    - [ ] Server bugs when player refreshes while in game
+
+See the [open issues](https://github.com/Scribble-Me-This/2022-Scribble-Me-This/issues) for a full list of proposed features (and known issues).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- CONTRIBUTING -->
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See `LICENSE.txt` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- CONTACT -->
+## Contact
+
+Scribble Me This Team - [Find us Here!](https://linktr.ee/scribblemethis) - Our LinkTree
+
+Project Link: [https://github.com/Scribble-Me-This/2022-Scribble-Me-This](https://github.com/Scribble-Me-This/2022-Scribble-Me-This)
+
+Warren Au: [linkedin.com/in/warren-au](https://linkedin.com/in/warren-au) / [github.com/onsenkame](https://github.com/onsenkame) / [warrenau.dev](https://warrenau.dev)
+
+David Burke: [linkedin.com/in/david-m-burke](https://linkedin.com/in/david-m-burke) / [github.com/DavidMBurke](https://github.com/DavidMBurke)
+
+Harrison Katapodis: [linkedin.com/in/harrisonhjk](linkedin.com/in/harrisonhjk) / [github.com/HarrisonJK](https://github.com/HarrisonJK) / [harrisonhjk.com](https://harrisonhjk.com)
+
+Alex Kazenoff: [linkedin.com/in/alex-kazenoff](linkedin.com/in/alex-kazenoff) / [github.com/AlexKazz](https://github.com/AlexKazz)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+We'd like to say thanks to the following:
+
+* [Choose an Open Source License](https://choosealicense.com)
+* [Img Shields](https://shields.io)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/Scribble-Me-This/2022-Scribble-Me-This
+[contributors-url]: https://linktr.ee/scribblemethis
+[stars-shield]: https://img.shields.io/github/stars/Scribble-Me-This/2022-Scribble-Me-This
+[stars-url]: https://github.com/Scribble-Me-This/2022-Scribble-Me-This/stargazers
+[issues-shield]: https://img.shields.io/github/issues-raw/Scribble-Me-This/2022-Scribble-Me-This
+[issues-url]: https://github.com/Scribble-Me-This/2022-Scribble-Me-This/issues
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linktr.ee/scribblemethis
+[product-screenshot]: public/assets/logo.svg
+[product-screenshot-big]: public/assets/scribblemethis.PNG
+[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[React-url]: https://reactjs.org/
+[Node.js]: https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white
+[Node.js-url]: https://nodejs.org/en/
+[Tensorflow]: https://img.shields.io/badge/TensorFlow-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white
+[Tensorflow-url]: https://www.tensorflow.org/
+[Javascript]: https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black
+[Javascript-url]: https://www.javascript.com/
+[Socket.io-url]: https://socket.io/
+[Socket.io]: https://img.shields.io/badge/Socket.io-black?style=for-the-badge&logo=socket.io&badgeColor=010101
