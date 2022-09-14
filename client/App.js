@@ -15,6 +15,7 @@ let canvasLoaded = false;
 const height = 280;
 const width = 280;
 let listenersLoaded = false;
+const modelFolder= "30at1000"
 
 socket.on('connect', () => {
   console.log('Client connected: client same level', socket);
@@ -41,10 +42,12 @@ const options = {
 const nn = ml5.neuralNetwork(options);
 
 const modelDetails = {
-  model: './model.json',
-  metadata: './model_meta.json',
-  weights: './model.weights.bin',
+  model: `./models/${modelFolder}/model.json`,
+  metadata: `./models/${modelFolder}/model_meta.json`,
+  weights: `./models/${modelFolder}/model.weights.bin`,
 };
+
+console.log("NN LOAD")
 
 nn.load(modelDetails, () => console.log('Neural Net Loaded'));
 
@@ -170,6 +173,7 @@ class App extends React.Component {
                       confidence={
                         players[playerId] ? players[playerId].confidence : []
                       }
+                      wordToDraw={wordToDraw}
                     />
                     <Canvas
                       id='canvas'
@@ -185,7 +189,8 @@ class App extends React.Component {
                       this.mapPixels,
                       this.state,
                       this.setState,
-                      this.forceUpdate
+                      this.forceUpdate,
+                      stack
                     )}
 
                     <PlayersDisplay players={players} wordToDraw={wordToDraw} />
@@ -250,7 +255,7 @@ class App extends React.Component {
   // ~~~~ CANVAS LOGIC ~~~~
   // ~~~~~~~~~~~~~~~~~~~~~~
 
-  loadCanvasLogic = (mapPixels, state, updateState, forceUpdate) => {
+  loadCanvasLogic = (mapPixels, state, updateState, forceUpdate, stack) => {
     const playerId = this.state.playerId;
     const canvas = document.querySelector('#canvas');
     if (!canvas) return;
@@ -261,7 +266,7 @@ class App extends React.Component {
     canvas.width = width;
     let drawing = false;
     const rect = canvas.getBoundingClientRect();
-    clearCanvas(context, this.mapPixels);
+    clearCanvas(context, this.mapPixels, stack);
 
     function startDraw(e) {
       drawing = true;
@@ -311,7 +316,7 @@ class App extends React.Component {
     canvasLoaded = true;
   };
 }
-function clearCanvas(context, mapPixels) {
+function clearCanvas(context, mapPixels, stack) {
   for (let i = 0; i < 280; i++) {
     for (let j = 0; j < 280; j++) {
       drawPixel('white', context, i, j, 1);
