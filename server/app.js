@@ -1,7 +1,7 @@
 const path = require("path");
 const express = require("express");
 const morgan = require("morgan");
-const util = require('util')
+const util = require("util");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const { createPlayer, idGen, createState } = require("./socket.io/utils");
@@ -18,46 +18,105 @@ const LobbyList = [];
 const state = {};
 const possibilities = [
   "airplane",
-  "angel",
-  "anvil",
-  "bee",
-  "butterfly",
-  "cactus",
-  "camel",
-  "camera",
-  "campfire",
-  "car",
-
+  "banana",
+  "candle",
   "cat",
-  "clock",
-  "cookie",
-  "cow",
-  "crown",
-  "diamond",
-  "donut",
-  "eye",
-  "fan",
-  "flashlight",
-
-  "pizza",
-  "scissors",
-  "skull",
-  "snail",
-  "tooth",
-  "tornado",
-  "train",
-  "tree",
-  "umbrella",
-  "windmill"
-
+  "dog",
+  "fish",
+  "flower",
+  "guitar",
+  "house",
+  "penguin",
 ];
-let remainingChoices = [];
+
+let timeOut = false;
 
 
-let clock;
-clock = setInterval(() => {
-  io.emit("clockTick")
-},100)
+const beginRound = (gameState, lobbyId) => {
+  let { timeSetting, players } = gameState;
+  let rand = Math.floor(Math.random() * possibilities.length);
+  // gameState.players = players;
+  gameState.timer = timeSetting;
+  gameState.wordToDraw = possibilities[rand];
+  gameState.activeRound = true;
+  io.in(lobbyId).emit("beginRound", gameState);
+};
+
+const endRound = (gameState, lobbyId) => {
+  let { players } = gameState;
+  players.forEach((player) => {
+    player.correctStatus = false;
+    player.confidence = [];
+  });
+  gameState.activeRound = false;
+  gameState.players = players;
+  io.in(lobbyId).emit("endRound", gameState);
+};
+
+const gameTick = (gameState, lobbyId) => {
+  let { timeSetting, timer, currentRound, totalRounds, wordToDraw, players } =
+    gameState;
+  gameState.timer = (timer - 0.1).toFixed(1);
+  let unfinishedPlayers = players.filter((player) => !player.correctStatus);
+  if (
+    (gameState.timer <= 0 || unfinishedPlayers.length === 0) &&
+    currentRound === totalRounds
+  ) {
+    if (gameState.timer <= 1) {
+      endRound(gameState, lobbyId);
+      io.in(lobbyId).emit("gameEnd", gameState);
+      return;
+    }
+    if (!timeOut) {
+      timeOut = true;
+      console.log("set timeout");
+      setTimeout(() => {
+        endRound(gameState, lobbyId);
+        io.in(lobbyId).emit("gameEnd", gameState);
+        timeOut = false;
+        return;
+      }, 1000);
+    }
+  }
+  if (
+    (gameState.timer <= 0 || unfinishedPlayers.length === 0) &&
+    currentRound < totalRounds
+  ) {
+    if (gameState.timer <= 1) {
+      gameState.currentRound = currentRound + 1;
+      endRound(gameState, lobbyId);
+      beginRound(gameState, lobbyId);
+      return;
+    }
+
+    if (!timeOut) {
+      timeOut = true;
+      console.log("set timeout");
+      setTimeout(() => {
+        gameState.currentRound = currentRound + 1;
+        endRound(gameState, lobbyId);
+        beginRound(gameState, lobbyId);
+        timeOut = false;
+        return;
+      }, 1000);
+    }
+  }
+
+  io.to(lobbyId).emit("gameTick", gameState);
+};
+
+let clock = null;
+// if (!clock) {
+  clock = setInterval(() => {
+    for (const lobbyId in state) {
+      console.log(lobbyId);
+      if (state[lobbyId].gameState.activeRound) {
+        gameTick(state[lobbyId].gameState, state[lobbyId].gameId);
+      }
+    }
+    console.log("clock ticky wicky");
+  }, 100);
+// }
 
 //nests socket.io logic on connection
 io.on("connection", (socket) => {
@@ -88,89 +147,9 @@ io.on("connection", (socket) => {
   });
 
   // Game socket logic *****************************************//
-  let timeOut = false;
-
-
-  socket.on("clockTick", () => {
-    if (!gameState.activeRound) return;
-    gameTick(gameState, lobbyId)})
   // if in a round, then:
 
-  const beginRound = (gameState, lobbyId) => {
-    let { timeSetting, players } = gameState;
-    if (remainingChoices.length < 1) {
-      remainingChoices = shuffle(possibilities)
-    }
-    // gameState.players = players;
-    gameState.timer = timeSetting;
-    gameState.wordToDraw = remainingChoices.pop();
-    gameState.activeRound = true;
-    io.in(lobbyId).emit("beginRound", gameState);
-  };
 
-  const endRound = (gameState, lobbyId) => {
-    let { players } = gameState;
-    players.forEach((player) => {
-      player.correctStatus = false;
-      player.confidence = [];
-    });
-    gameState.activeRound = false;
-    gameState.players = players;
-    io.in(lobbyId).emit("endRound", gameState);
-  };
-
-  const gameTick = (gameState, lobbyId) => {
-    let { timeSetting, timer, currentRound, totalRounds, wordToDraw, players } =
-      gameState;
-    gameState.timer = (timer - 0.1).toFixed(1);
-    let unfinishedPlayers = players.filter((player) => !player.correctStatus);
-    if (
-      (gameState.timer <= 0 || unfinishedPlayers.length === 0) &&
-      currentRound === totalRounds
-    ) {
-      if (gameState.timer <= 1) {
-        endRound(gameState, lobbyId);
-        io.in(lobbyId).emit("gameEnd", gameState);
-        return;
-      }
-      if (!timeOut) {
-      timeOut = true;
-      console.log("set timeout")
-      setTimeout(() => {
-        endRound(gameState, lobbyId);
-        io.in(lobbyId).emit("gameEnd", gameState);
-        timeOut = false;
-        return;
-      }, 1000);
-    }
-    
-    }
-    if (
-      (gameState.timer <= 0 || unfinishedPlayers.length === 0) &&
-      currentRound < totalRounds
-    ) {
-      if (gameState.timer <= 1) {
-        gameState.currentRound = currentRound + 1;
-        endRound(gameState, lobbyId);
-        beginRound(gameState, lobbyId);
-        return;
-      }
-
-      if (!timeOut) {
-        timeOut = true;
-        console.log("set timeout")
-        setTimeout(() => {
-          gameState.currentRound = currentRound + 1;
-          endRound(gameState, lobbyId);
-          beginRound(gameState, lobbyId);
-          timeOut = false;
-          return;
-        }, 1000);
-      }
-    }
-
-    io.to(lobbyId).emit("gameTick", gameState);
-  };
 
   socket.on("playerUpdate", (player) => {
     let playerSocket = socket.id;
@@ -202,7 +181,7 @@ io.on("connection", (socket) => {
       //fix to send to clients in joined lobby
       io.emit("joinedLobby", state[uppLobbyId]);
       io.to(socket.id).emit("playerId", newPlayer.playerId);
-      console.log('socket.rooms on joined', util.inspect(socket.rooms))
+      console.log("socket.rooms on joined", util.inspect(socket.rooms));
     } else {
       console.log(
         "join lobby failed on",
@@ -212,6 +191,7 @@ io.on("connection", (socket) => {
       );
       io.to(socket.id).emit("sendToHome");
     }
+    console.log("State: ", state);
   });
   //join lobby (client)
   socket.on("joinLobby", (lobbyId, client) => {
@@ -228,7 +208,7 @@ io.on("connection", (socket) => {
       console.log("joined lobby");
       io.emit("joinedLobby", state[uppLobbyId]);
       io.to(socket.id).emit("playerId", newPlayer.playerId);
-      console.log('socket.rooms on joined', util.inspect(socket.rooms))
+      console.log("socket.rooms on joined", util.inspect(socket.rooms));
     } else {
       console.log("join lobby failed", state[uppLobbyId]);
       io.to(socket.id).emit("sendToHome");
@@ -237,10 +217,10 @@ io.on("connection", (socket) => {
   //leave lobby
   socket.on("leaveLobby", () => {
     let lobbyToLeave = findLobby(socket.id);
-    socket.leave(lobbyToLeave)
+    socket.leave(lobbyToLeave);
     console.log(socket.id, "has left the lobby");
     io.to(socket.id).emit("leftLobby");
-    console.log('socket.rooms', util.inspect(socket.rooms))
+    console.log("socket.rooms", util.inspect(socket.rooms));
   });
 
   //view lobbies
@@ -384,18 +364,3 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).send(err.message || "Internal server error.");
 });
-
-function shuffle(array) {
-  let currentIndex = array.length,  randomIndex;
-
-  while (currentIndex != 0) {
-
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex], array[currentIndex]];
-  }
-
-  return array;
-}

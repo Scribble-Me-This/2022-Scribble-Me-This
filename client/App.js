@@ -75,6 +75,7 @@ class App extends React.Component {
       return;
     }
     console.log('socket listeners loaded');
+    console.log('!!!');
     listenersLoaded = true;
     socket.on('beginRound', (gameState) => {
       console.log('beginRound');
