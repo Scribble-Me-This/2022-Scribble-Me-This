@@ -29,6 +29,82 @@ const possibilities = [
   "penguin",
 ];
 
+let timeOut = false;
+
+
+const beginRound = (gameState, lobbyId) => {
+  let { timeSetting, players } = gameState;
+  let rand = Math.floor(Math.random() * possibilities.length);
+  // gameState.players = players;
+  gameState.timer = timeSetting;
+  gameState.wordToDraw = possibilities[rand];
+  gameState.activeRound = true;
+  io.in(lobbyId).emit("beginRound", gameState);
+};
+
+const endRound = (gameState, lobbyId) => {
+  let { players } = gameState;
+  players.forEach((player) => {
+    player.correctStatus = false;
+    player.confidence = [];
+  });
+  gameState.activeRound = false;
+  gameState.players = players;
+  io.in(lobbyId).emit("endRound", gameState);
+};
+
+const gameTick = (gameState, lobbyId) => {
+  let { timeSetting, timer, currentRound, totalRounds, wordToDraw, players } =
+    gameState;
+  gameState.timer = (timer - 0.1).toFixed(1);
+  let unfinishedPlayers = players.filter((player) => !player.correctStatus);
+  if (
+    (gameState.timer <= 0 || unfinishedPlayers.length === 0) &&
+    currentRound === totalRounds
+  ) {
+    if (gameState.timer <= 1) {
+      endRound(gameState, lobbyId);
+      io.in(lobbyId).emit("gameEnd", gameState);
+      return;
+    }
+    if (!timeOut) {
+      timeOut = true;
+      console.log("set timeout");
+      setTimeout(() => {
+        endRound(gameState, lobbyId);
+        io.in(lobbyId).emit("gameEnd", gameState);
+        timeOut = false;
+        return;
+      }, 1000);
+    }
+  }
+  if (
+    (gameState.timer <= 0 || unfinishedPlayers.length === 0) &&
+    currentRound < totalRounds
+  ) {
+    if (gameState.timer <= 1) {
+      gameState.currentRound = currentRound + 1;
+      endRound(gameState, lobbyId);
+      beginRound(gameState, lobbyId);
+      return;
+    }
+
+    if (!timeOut) {
+      timeOut = true;
+      console.log("set timeout");
+      setTimeout(() => {
+        gameState.currentRound = currentRound + 1;
+        endRound(gameState, lobbyId);
+        beginRound(gameState, lobbyId);
+        timeOut = false;
+        return;
+      }, 1000);
+    }
+  }
+
+  io.to(lobbyId).emit("gameTick", gameState);
+};
+
 let clock = null;
 // if (!clock) {
   clock = setInterval(() => {
@@ -39,7 +115,7 @@ let clock = null;
       }
     }
     console.log("clock ticky wicky");
-  }, 1000);
+  }, 100);
 // }
 
 //nests socket.io logic on connection
@@ -71,81 +147,9 @@ io.on("connection", (socket) => {
   });
 
   // Game socket logic *****************************************//
-  let timeOut = false;
   // if in a round, then:
 
-  const beginRound = (gameState, lobbyId) => {
-    let { timeSetting, players } = gameState;
-    let rand = Math.floor(Math.random() * possibilities.length);
-    // gameState.players = players;
-    gameState.timer = timeSetting;
-    gameState.wordToDraw = possibilities[rand];
-    gameState.activeRound = true;
-    io.in(lobbyId).emit("beginRound", gameState);
-  };
 
-  const endRound = (gameState, lobbyId) => {
-    let { players } = gameState;
-    players.forEach((player) => {
-      player.correctStatus = false;
-      player.confidence = [];
-    });
-    gameState.activeRound = false;
-    gameState.players = players;
-    io.in(lobbyId).emit("endRound", gameState);
-  };
-
-  const gameTick = (gameState, lobbyId) => {
-    let { timeSetting, timer, currentRound, totalRounds, wordToDraw, players } =
-      gameState;
-    gameState.timer = (timer - 0.1).toFixed(1);
-    let unfinishedPlayers = players.filter((player) => !player.correctStatus);
-    if (
-      (gameState.timer <= 0 || unfinishedPlayers.length === 0) &&
-      currentRound === totalRounds
-    ) {
-      if (gameState.timer <= 1) {
-        endRound(gameState, lobbyId);
-        io.in(lobbyId).emit("gameEnd", gameState);
-        return;
-      }
-      if (!timeOut) {
-        timeOut = true;
-        console.log("set timeout");
-        setTimeout(() => {
-          endRound(gameState, lobbyId);
-          io.in(lobbyId).emit("gameEnd", gameState);
-          timeOut = false;
-          return;
-        }, 1000);
-      }
-    }
-    if (
-      (gameState.timer <= 0 || unfinishedPlayers.length === 0) &&
-      currentRound < totalRounds
-    ) {
-      if (gameState.timer <= 1) {
-        gameState.currentRound = currentRound + 1;
-        endRound(gameState, lobbyId);
-        beginRound(gameState, lobbyId);
-        return;
-      }
-
-      if (!timeOut) {
-        timeOut = true;
-        console.log("set timeout");
-        setTimeout(() => {
-          gameState.currentRound = currentRound + 1;
-          endRound(gameState, lobbyId);
-          beginRound(gameState, lobbyId);
-          timeOut = false;
-          return;
-        }, 1000);
-      }
-    }
-
-    io.to(lobbyId).emit("gameTick", gameState);
-  };
 
   socket.on("playerUpdate", (player) => {
     let playerSocket = socket.id;
